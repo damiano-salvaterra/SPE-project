@@ -39,9 +39,19 @@ class Topology:
                                 # X is the matrix of x coordinates, Y the matrix of y coordinates
                                 # to access the grid point (i,j)'s space coordinates we need to to do
                                 # x = X[i,j] and y = Y[i,j]
-    
 
-    def get_nearest_grid_index(self, P: CartesianCoordinate) -> Tuple[int, int]:
+        
+    def get_axes_1d(self) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+        '''
+        Returns the 1D arrays representing the x and y axes coordinates
+        of the discrete space grid
+        '''
+        return self.x_1d, self.y_1d
+
+
+
+
+    def find_nearest_grid_index(self, P: CartesianCoordinate) -> Tuple[int, int]:
         '''
         Returns the indices of the nearest grid point
         on the shadowing map. P is a tuple containing the (x,y) real-world coordinates
@@ -58,7 +68,7 @@ class Topology:
 
         return i, j
     
-    def get_cartesian_coordinates(self, i: int, j: int) -> CartesianCoordinate:
+    def to_cartesian_coordinates(self, i: int, j: int) -> CartesianCoordinate:
         '''
         Given grid indices (i, j), returns the corresponding real-world Cartesian coordinates (x, y)
         '''
@@ -72,15 +82,9 @@ class Topology:
 
         return CartesianCoordinate(x,y)
 
-    
-    def get_axes_1d(self) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+
+    def distance(self, P1: CartesianCoordinate, P2: CartesianCoordinate) -> float:
         '''
-        Returns the 1D arrays representing the x and y axes coordinates
-        of the discrete space grid
+        Calculates the Euclidean distance between two Cartesian coordinates P1 and P2
         '''
-        return self.x_1d, self.y_1d
-
-
-
-
-
+        return np.sqrt((P2.x - P1.x) ** 2 + (P2.y - P1.y) ** 2)

@@ -1,6 +1,8 @@
 import numpy as np
 from  numpy.typing import NDArray # static type hints for numpy
-from scipy.interpolate import RegularGridInterpolator 
+from scipy.interpolate import RegularGridInterpolator
+import scipy.constants as const
+from scipy.stats import nakagami
 from typing import Tuple
 
 from . import topology as tp
@@ -14,13 +16,18 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 class ChannelModel:
 
     def __init__(self, topology: tp.Topology, freq: float, coh_d: float,
-                 shadow_dev : float) -> None:
-        
+                 shadow_dev: float, pl_exponent: float, d0: float, fading_shape: float) -> None:
+    
         self.freq = freq  # Frequency of the signal in Hz
         self.coh_d = coh_d  # Coherence distance in meters
         self.shadow_dev = shadow_dev  # Standard deviation of shadowing
+        self.pl_exponent = pl_exponent # Path loss exponent
+        self.d0 = d0 # Reference distance for log path loss
+        self.fading_shape = fading_shape  # Nakagami fading shape parameter
+        #self.fading_scale = fading_scale  # Nakagami fading scale parameter
         self.topology = topology
         self.shadowing_map = None
+
 
 
 
@@ -89,7 +96,7 @@ class ChannelModel:
     
 
 
-    def get_shadowing_power_on_point(self, P: tp.CartesianCoordinate) -> np.float64:
+    def _shadowing_power_on_point(self, P: tp.CartesianCoordinate) -> np.float64:
         '''
         Returns the shadowing value at the given coordinates (x, y).
         The coordinates (x, y) are real-world coordinates, not grid indices.
@@ -111,14 +118,14 @@ class ChannelModel:
     
     
 
-    def get_link_shadowing_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate) -> np.float64:
+    def _link_shadowing_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate) -> np.float64:
         '''
         Returns the shadoing loss along the link A<->B. A and B are real-world cartesian coordinates
         '''
-        sh_A = self.get_shadowing_power_on_point(A)
-        sh_B = self.get_shadowing_power_on_point(B)
+        sh_A = self._shadowing_power_on_point(A)
+        sh_B = self._shadowing_power_on_point(B)
 
-        d_AB = np.hypot(A.x - B.x, A.y - B.y) # get  distance between A and B
+        d_AB = self.topology.distance(A, B)
 
         #compute link shadowing loss formula
         shad_ext = sh_A + sh_B # Sum of shadowing values on the link extremes
@@ -133,4 +140,50 @@ class ChannelModel:
 
 
 
+    def _path_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate, Pt_dBm : np.float64 = 0 ) -> np.float64:
+        '''
+        Returns the path loss in dB between two points A and B using a simplified log-distance model.
+        Pt_dBm is the transitted power in dBm.
+        Reference to: Andrea Goldsmith, Wireless Communications, Sec. 2.6 - 2005
+        '''
+        d = self.topology.distance(A, B)
+        if d < self.d0:
+            d = self.d0  # if distance is less than reference distance, clamp to d0 (otherwise we have negative path loss)
 
+        lambda_ =  const.c / self.freq
+        ref_fspl = 20* np.log10(lambda_ / (4*const.pi * self.d0)) # free space path loss (Friis eq.) as constant reference
+        Pr_dBm = Pt_dBm + ref_fspl - 10 * self.pl_exponent * np.log10(d / self.d0)
+
+        return Pr_dBm
+    
+
+    
+    def total_link_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate, Pt_dBm: np.float64 = 0) -> np.float64:
+        '''
+        Returns the total loss (shadowing + path loss + fading) between two points A and B.
+        Pt_dBm is the transmitted power in dBm.
+        '''
+        shadowing_loss = self._link_shadowing_loss(A, B)
+        path_loss = self._path_loss(A, B, Pt_dBm)
+        avg_recv_power_linear = 10 ** ((path_loss + shadowing_loss) / 10)
+        #self.fading_scale = np.sqrt(avg_recv_power_linear)
+        fading_loss = nakagami.rvs(self.fading_shape, scale=avg_recv_power_linear)  # Nakagami fading: gives the amplitude variation
+                                                                                    # need to square it to have the power. TODO: check this
+
+        total_loss = shadowing_loss + path_loss + 20 * np.log10(fading_loss)
+        return total_loss
+
+
+    def total_loss_from_point(self, A: tp.CartesianCoordinate, Pt_dBm: np.float64 = 0) -> NDArray[np.float64]:
+        '''
+        Compute a 2D map of total loss in dB from the given coordinate to every point on the grid.
+        Returns an array of shape (dspace_npt, dspace_npt).
+        EXPENSIVE FUNCTION, USE ONLY FOR DEBUG
+        '''
+        n = self.topology.dspace_npt
+        loss_map = np.zeros((n, n), dtype=np.float64)
+        for i in range(n):
+            for j in range(n):
+                P = self.topology.to_cartesian_coordinates(i, j)
+                loss_map[i, j] = self.total_link_loss(A, P, Pt_dBm)
+        return loss_map
