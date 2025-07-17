@@ -1,6 +1,9 @@
 import numpy as np
 from  numpy.typing import NDArray # static type hints for numpy
+from scipy.interpolate import RegularGridInterpolator 
 from typing import Tuple
+
+from . import topology as tp
 '''
 This class implement the wireless channel model of attenuation. The model is the classical
 path loss + shadowing + fading. The type of fading is configurable, while the shadowing is generated
@@ -10,28 +13,25 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 
 class ChannelModel:
 
-    def __init__(self, freq: float, coh_d: float,
-                 shadow_dev : float, dspace_step : int, dspace_npt: int) -> None:
+    def __init__(self, topology: tp.Topology, freq: float, coh_d: float,
+                 shadow_dev : float) -> None:
         
         self.freq = freq  # Frequency of the signal in Hz
         self.coh_d = coh_d  # Coherence distance in meters
         self.shadow_dev = shadow_dev  # Standard deviation of shadowing
-        self.dspace_step = dspace_step  # Step size in the discrete space
-        self.dspace_npt = dspace_npt  # number of points per dimension of discrete the space
-        self._size = self.dspace_npt * self.dspace_step
-
-        self.X, self.Y = self._create_dspace_grid() # create discrete space
+        self.topology = topology
+        self.shadowing_map = None
 
 
-    def _create_dspace_grid(self) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
-        x = np.linspace(0, self._size, self.dspace_npt) # create x dimension
-        y = np.linspace(0, self._size, self.dspace_npt) # create y dimension
-        X, Y = np.meshgrid(x,y) # create the grid by cartesian product
-                                # X is the matrix of x coordinates, Y the matrix of y coordinates
-                                # to access the grid point (i,j)'s space coordinates we need to to do
-                                # x = X[i,j] and y = Y[i,j]
-        return X, Y
-    
+
+
+    def _gudmundson_correlation(self, delta : NDArray[np.float64]) -> NDArray[np.float64]:
+        '''
+        Returns the correlation between two points a and b according to the Gudmundson model
+        '''
+        corr = (self.shadow_dev**2) * np.exp(-(delta/self.coh_d))
+        return corr
+
     def _LTI_coloring_filter(self, kernel_npt : int = None ) -> NDArray[np.float64]:
         '''
         Generates the frequency response of a 2D LTI filter
@@ -42,14 +42,17 @@ class ChannelModel:
         Returns the normalized frequency response of the LTI filter in the frequency domain.
         '''
         if kernel_npt is None:
-            kernel_npt = self.dspace_npt
-            kernel_size = self._size
-        else:
-            kernel_size = kernel_npt * self.dspace_step
+            kernel_npt = self.topology.dspace_npt
 
-        half_size = kernel_size/2
-        kx = np.linspace(-half_size, +half_size, kernel_npt) # create x dimension
-        ky = np.linspace(-half_size, +half_size, kernel_npt) # create y dimension
+        half_k = kernel_npt // 2
+        kx = self.topology.dspace_step * np.arange(-half_k, kernel_npt - half_k)
+        ky = self.topology.dspace_step * np.arange(-half_k, kernel_npt - half_k)
+
+
+        if kernel_npt < self.topology.dspace_npt: # zero pad to reach the same size as the space 
+            pad_size = (self.topology.dspace_npt - kernel_npt) // 2
+            kx = np.pad(kx, (pad_size, pad_size), mode='constant', constant_values=0)
+            ky = np.pad(ky, (pad_size, pad_size), mode='constant', constant_values=0)
 
         KX, KY = np.meshgrid(kx, ky) # create kernel grid
 
@@ -66,29 +69,68 @@ class ChannelModel:
         return Hk_norm
 
 
-    def generate_shadowing_map(self) -> NDArray[np.float64]:
+    def generate_shadowing_map(self, kernel_npt : int = None) -> None:
+        '''
+        Create the shadowing map. kernel_npt defines the number of points of the correlation kernel'''
+        if kernel_npt is not None:
+            assert kernel_npt % 2 == 0, "number of kernel points must be multiple of 2"
         # Generate the Gaussian random field
-
-        gaussian_field = np.random.normal(0, self.shadow_dev, (self.dspace_npt, self.dspace_npt)) # TODO: change this and call the Random class instead
-
+        gaussian_field = np.random.normal(0, self.shadow_dev, (self.topology.dspace_npt, self.topology.dspace_npt)) # TODO: change this and call the Random class instead
         gaussian_field_k = np.fft.fft2(gaussian_field) # Forier transform of the gaussian field
 
-        Hk = self._LTI_coloring_filter() # LTI coloring filter (in frequency domain)
+        Hk = self._LTI_coloring_filter(kernel_npt) # LTI coloring filter (in frequency domain)
         colored_field_k = gaussian_field_k * Hk # Apply the filter in frequency domain
         
         shadowing_map = np.fft.ifft2(colored_field_k).real # Transform back to the spatial domain
         np.isclose(np.std(shadowing_map), self.shadow_dev, rtol=0.2), "something is wrong in the coloring process"
 
-        return shadowing_map
+        self.shadowing_map = shadowing_map
 
-        
-
-
-    def _gudmundson_correlation(self, delta : NDArray[np.float64]) -> NDArray[np.float64]:
-        '''
-        Returns the correlation between two points a and b according to the Gudmundson model
-        '''
-        corr = (self.shadow_dev**2) * np.exp(-(delta/self.coh_d))
-        return corr
     
+
+
+    def get_shadowing_power_on_point(self, P: tp.CartesianCoordinate) -> np.float64:
+        '''
+        Returns the shadowing value at the given coordinates (x, y).
+        The coordinates (x, y) are real-world coordinates, not grid indices.
+        Interpolates the value instead of returning the nearest grid point value.
+        '''
+        assert self.shadowing_map is not None, "Shadowing map has not been generated yet."
+
+        x_axis, y_axis = self.topology.get_axes_1d()
+        interpolator = RegularGridInterpolator(
+                        (y_axis, x_axis),      # numpy coordinate convention
+                        self.shadowing_map,
+                        bounds_error=False,
+                        fill_value=None
+                        )
+    
+        value = interpolator([[P.y, P.x]])[0] # returns array of shape (1,), get the scalar
+                                          #by convention coordinates are reversed
+        return np.float64(value)
+    
+    
+
+    def get_link_shadowing_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate) -> np.float64:
+        '''
+        Returns the shadoing loss along the link A<->B. A and B are real-world cartesian coordinates
+        '''
+        sh_A = self.get_shadowing_power_on_point(A)
+        sh_B = self.get_shadowing_power_on_point(B)
+
+        d_AB = np.hypot(A.x - B.x, A.y - B.y) # get  distance between A and B
+
+        #compute link shadowing loss formula
+        shad_ext = sh_A + sh_B # Sum of shadowing values on the link extremes
+
+        exp_term = np.exp(- (d_AB/self.coh_d))
+        num = 1 - exp_term
+        den = np.sqrt(2 * (1 + exp_term))
+
+        shad_AB = (num / den) * shad_ext
+
+        return shad_AB
+
+
+
 
