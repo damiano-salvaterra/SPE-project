@@ -15,7 +15,7 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 
 class ChannelModel:
 
-    def __init__(self, topology: tp.Topology, freq: float, coh_d: float,
+    def __init__(self, dspace: tp.DSpace, freq: float, coh_d: float,
                  shadow_dev: float, pl_exponent: float, d0: float, fading_shape: float) -> None:
     
         self.freq = freq  # Frequency of the signal in Hz
@@ -25,7 +25,7 @@ class ChannelModel:
         self.d0 = d0 # Reference distance for log path loss
         self.fading_shape = fading_shape  # Nakagami fading shape parameter
         #self.fading_scale = fading_scale  # Nakagami fading scale parameter
-        self.topology = topology
+        self.dspace = dspace
         self.shadowing_map = None
 
 
@@ -45,19 +45,19 @@ class ChannelModel:
         used to color a Gaussian random field. The filter is based on the Gudmundson correlation
         model.
         Kernel_npt is the number of points in the kernel grid. If not provided, it defaults to the number
-        of points in the discrete space grid (self.dspace_npt).
+        of points in the discrete space grid.
         Returns the normalized frequency response of the LTI filter in the frequency domain.
         '''
         if kernel_npt is None:
-            kernel_npt = self.topology.dspace_npt
+            kernel_npt = self.dspace.npt
 
         half_k = kernel_npt // 2
-        kx = self.topology.dspace_step * np.arange(-half_k, kernel_npt - half_k)
-        ky = self.topology.dspace_step * np.arange(-half_k, kernel_npt - half_k)
+        kx = self.dspace.step * np.arange(-half_k, kernel_npt - half_k)
+        ky = self.dspace.step * np.arange(-half_k, kernel_npt - half_k)
 
 
-        if kernel_npt < self.topology.dspace_npt: # zero pad to reach the same size as the space 
-            pad_size = (self.topology.dspace_npt - kernel_npt) // 2
+        if kernel_npt < self.dspace.npt: # zero pad to reach the same size as the space 
+            pad_size = (self.dspace.npt - kernel_npt) // 2
             kx = np.pad(kx, (pad_size, pad_size), mode='constant', constant_values=0)
             ky = np.pad(ky, (pad_size, pad_size), mode='constant', constant_values=0)
 
@@ -82,7 +82,7 @@ class ChannelModel:
         if kernel_npt is not None:
             assert kernel_npt % 2 == 0, "number of kernel points must be multiple of 2"
         # Generate the Gaussian random field
-        gaussian_field = np.random.normal(0, self.shadow_dev, (self.topology.dspace_npt, self.topology.dspace_npt)) # TODO: change this and call the Random class instead
+        gaussian_field = np.random.normal(0, self.shadow_dev, (self.dspace.npt, self.dspace.npt)) # TODO: change this and call the Random class instead
         gaussian_field_k = np.fft.fft2(gaussian_field) # Forier transform of the gaussian field
 
         Hk = self._LTI_coloring_filter(kernel_npt) # LTI coloring filter (in frequency domain)
@@ -104,7 +104,7 @@ class ChannelModel:
         '''
         assert self.shadowing_map is not None, "Shadowing map has not been generated yet."
 
-        x_axis, y_axis = self.topology.get_axes_1d()
+        x_axis, y_axis = self.dspace.get_axes_1d()
         interpolator = RegularGridInterpolator(
                         (y_axis, x_axis),      # numpy coordinate convention
                         self.shadowing_map,
@@ -125,7 +125,7 @@ class ChannelModel:
         sh_A = self._shadowing_power_on_point(A)
         sh_B = self._shadowing_power_on_point(B)
 
-        d_AB = self.topology.distance(A, B)
+        d_AB = self.dspace.distance(A, B)
 
         #compute link shadowing loss formula
         shad_ext = sh_A + sh_B # Sum of shadowing values on the link extremes
@@ -146,7 +146,7 @@ class ChannelModel:
         Pt_dBm is the transitted power in dBm.
         Reference to: Andrea Goldsmith, Wireless Communications, Sec. 2.6 - 2005
         '''
-        d = self.topology.distance(A, B)
+        d = self.dspace.distance(A, B)
         if d < self.d0:
             d = self.d0  # if distance is less than reference distance, clamp to d0 (otherwise we have negative path loss)
 
@@ -177,13 +177,13 @@ class ChannelModel:
     def total_loss_from_point(self, A: tp.CartesianCoordinate, Pt_dBm: np.float64 = 0) -> NDArray[np.float64]:
         '''
         Compute a 2D map of total loss in dB from the given coordinate to every point on the grid.
-        Returns an array of shape (dspace_npt, dspace_npt).
+        Returns an array of shape (dspace.npt, dspace.npt).
         EXPENSIVE FUNCTION, USE ONLY FOR DEBUG
         '''
-        n = self.topology.dspace_npt
+        n = self.dspace.npt
         loss_map = np.zeros((n, n), dtype=np.float64)
         for i in range(n):
             for j in range(n):
-                P = self.topology.to_cartesian_coordinates(i, j)
+                P = self.dspace.to_cartesian_coordinates(i, j)
                 loss_map[i, j] = self.total_link_loss(A, P, Pt_dBm)
         return loss_map
