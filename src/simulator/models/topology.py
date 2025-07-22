@@ -30,7 +30,6 @@ class DSpace:
         self._create_dspace_grid() # create discrete space
 
 
-
     def _create_dspace_grid(self) -> None:
         half_n = self.npt // 2
         self.x_1d = self.step * np.arange(-half_n, self.npt - half_n)
@@ -47,8 +46,6 @@ class DSpace:
         of the discrete space grid
         '''
         return self.x_1d, self.y_1d
-
-
 
 
     def find_nearest_grid_index(self, P: CartesianCoordinate) -> Tuple[int, int]:
@@ -68,6 +65,7 @@ class DSpace:
 
         return i, j
     
+
     def to_cartesian_coordinates(self, i: int, j: int) -> CartesianCoordinate:
         '''
         Given grid indices (i, j), returns the corresponding real-world Cartesian coordinates (x, y)
@@ -96,9 +94,9 @@ to set up the links. The topology is abstracted as a graph with an adjacency mat
 class Topology:
 
     def __init__(self) -> None:
-        self.adjacency_matrix = []  # Adjacency matrix
-        self.node_coordinates = {}  # to store node coordinates. Key:node ID, Value: CartesianCoordinate
-        self.node_ids = []  # keep track of node IDs
+        self.adjacency_matrix: List[List[int]] = []  # Adjacency matrix
+        self.node_coordinates: dict[int, CartesianCoordinate] = {}  # to store node coordinates. Key: node ID, Value: CartesianCoordinate
+        self.node_ids: List[int] = []  # keep track of node IDs
 
     def add_node(self, node_id: int, coordinate: CartesianCoordinate) -> None:
         '''
@@ -133,7 +131,6 @@ class Topology:
             row.pop(idx)
 
 
-
     def add_link(self, node1_id: int, node2_id: int) -> None:
         '''
         Adds a link between two nodes
@@ -146,7 +143,6 @@ class Topology:
 
         self.adjacency_matrix[idx1][idx2] = 1
         self.adjacency_matrix[idx2][idx1] = 1  # Undirected graph
-
 
 
     def remove_link(self, node1_id: int, node2_id: int) -> None:
@@ -163,7 +159,6 @@ class Topology:
         self.adjacency_matrix[idx2][idx1] = 0  # Undirected graph
 
 
-
     def get_neighbors(self, node_id: int) -> List[int]:
         '''
         Returns a list of neighbors for a given node
@@ -178,7 +173,6 @@ class Topology:
                 neighbors.append(self.node_ids[i])
         return neighbors
     
-
 
     def get_node_coordinate(self, node_id: int) -> CartesianCoordinate:
         '''

@@ -15,9 +15,10 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 
 class ChannelModel:
 
-    def __init__(self, dspace: tp.DSpace, freq: float, coh_d: float,
+    def __init__(self, rng: np.random.Generator, dspace: tp.DSpace, freq: float, coh_d: float,
                  shadow_dev: float, pl_exponent: float, d0: float, fading_shape: float) -> None:
     
+        self._rng = rng  # Random number generator
         self.freq = freq  # Frequency of the signal in Hz
         self.coh_d = coh_d  # Coherence distance in meters
         self.shadow_dev = shadow_dev  # Standard deviation of shadowing
@@ -82,8 +83,8 @@ class ChannelModel:
         if kernel_npt is not None:
             assert kernel_npt % 2 == 0, "number of kernel points must be multiple of 2"
         # Generate the Gaussian random field
-        gaussian_field = np.random.normal(0, self.shadow_dev, (self.dspace.npt, self.dspace.npt)) # TODO: change this and call the Random class instead
-        gaussian_field_k = np.fft.fft2(gaussian_field) # Forier transform of the gaussian field
+        gaussian_field = self._rng.normal(0, self.shadow_dev, (self.dspace.npt, self.dspace.npt))
+        gaussian_field_k = np.fft.fft2(gaussian_field) # Fourier transform of the gaussian field
 
         Hk = self._LTI_coloring_filter(kernel_npt) # LTI coloring filter (in frequency domain)
         colored_field_k = gaussian_field_k * Hk # Apply the filter in frequency domain
@@ -120,7 +121,7 @@ class ChannelModel:
 
     def _link_shadowing_loss(self, A: tp.CartesianCoordinate, B: tp.CartesianCoordinate) -> np.float64:
         '''
-        Returns the shadoing loss along the link A<->B. A and B are real-world cartesian coordinates
+        Returns the shadowing loss along the link A<->B. A and B are real-world cartesian coordinates
         '''
         sh_A = self._shadowing_power_on_point(A)
         sh_B = self._shadowing_power_on_point(B)
@@ -167,7 +168,7 @@ class ChannelModel:
         path_loss = self._path_loss(A, B, Pt_dBm)
         avg_recv_power_linear = 10 ** ((path_loss + shadowing_loss) / 10)
         #self.fading_scale = np.sqrt(avg_recv_power_linear)
-        fading_loss = nakagami.rvs(self.fading_shape, scale=avg_recv_power_linear)  # Nakagami fading: gives the amplitude variation
+        fading_loss = nakagami.rvs(self.fading_shape, scale=avg_recv_power_linear, random_state = self._rng)  # Nakagami fading: gives the amplitude variation
                                                                                     # need to square it to have the power. TODO: check this
 
         total_loss = shadowing_loss + path_loss + 20 * np.log10(fading_loss)
