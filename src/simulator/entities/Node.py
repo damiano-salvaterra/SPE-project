@@ -6,8 +6,9 @@ from layers.NetLayer import NetLayer
 from layers.AppLayer import AppLayer
 
 class Node:
-    def __init__(self, node_id: str, linkaddr: bytes, context: NodeContext):
+    def __init__(self, node_id: str, sink: bool, linkaddr: bytes, context: NodeContext):
         self.node_id = node_id
+        self.sink = sink
         self.linkaddr = linkaddr
         self.context = context
 

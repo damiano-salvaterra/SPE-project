@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from abc import abstractmethod
 
 '''
@@ -7,12 +7,13 @@ It provides an interface for the scheduler.
 Real events inherits from this class and they are implemented in each module.
 '''
 class Event:
-    def __init__(self, unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[str] = None, log_event: bool = False):
+    def __init__(self, unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[Any] = None, observer: Optional[Any] = None, log_event: bool = False):
         self.id = unique_id
         self.string_id = string_id  # A string identifier for the event
         self.time = time  # The time at which the event occurs
         self.priority = priority  # Priority of the event, lower values are processed first
         self.blame = blame  # blame source, if any
+        self.observer = observer  # Observer for the event, if any
         self.log_event = log_event # flag to log the event if true
 
     def __str__(self) -> str:

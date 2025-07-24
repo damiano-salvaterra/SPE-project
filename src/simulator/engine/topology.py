@@ -30,6 +30,7 @@ class Topology:
         self.random_manager = random_manager
         self._links = Dict[Tuple[str, str],Topology.Link] # dict of Link objects. Key: (node_id1, node_id2), Value: Link
         self.nodes: Dict[Node, CartesianCoordinate] = {} # Key: Node, Value: CartesianCoordinate of the node
+        self.sink_node: Node = None  # The sink node, if any
         self.transmitting_nodes: List[str] = []  # List of nodes that are currently transmitting
     
 
@@ -54,7 +55,7 @@ class Topology:
         return self._links[link_key]
 
 
-    def spawn_node(self, node_id: str, linkaddr: bytes, context: NodeContext) -> Node:
+    def spawn_node(self, node_id: str, root: bool, linkaddr: bytes, context: NodeContext) -> Node:
         '''
         Spawns a new node in the topology with the given context. linkaddr is a 2 bytes address.
         The context contains the channel model, node position, scheduler, and random manager.
@@ -70,7 +71,13 @@ class Topology:
         if context.position in self.nodes.values():
             raise ValueError(f"A node already exists at position {context.position} with node ID {node_id}")
 
-        node = Node(node_id, linkaddr, context)
+        node = Node(node_id=node_id, root = root, linkaddr = linkaddr, context = context)
+
+        if root:
+            if self.sink_node is not None:
+                raise ValueError("A sink node already exists in the topology")
+            self.sink_node = node # set sink node
+
         self.nodes[node] = context.position
         # add a link from this node to every other node in the topology (for SINR computation, mainly)
         for other_node in self.nodes.keys():

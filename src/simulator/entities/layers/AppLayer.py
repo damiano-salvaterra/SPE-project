@@ -3,7 +3,7 @@ from NetLayer import NetLayer
 from engine.Scheduler import Scheduler
 from engine.Event import Event
 import numpy as np
-from typing import List, Optional
+from typing import List, Optional, Any
 
 
 class AppSendEvent(Event):
@@ -11,9 +11,9 @@ class AppSendEvent(Event):
     Event to send data from the application layer.
     """
     def __init__(self,  node_id: str, destination: str,
-                 unique_id: int, time: float, blame: Optional[str] = None):
+                 unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[Any] = None, observer: Optional[Any] = None, log_event: bool = False):
         
-        super().__init__(unique_id=0, string_id="AppSendEvent", time=time, log_event=False)
+        super().__init__(unique_id=unique_id, string_id=string_id, time=time, log_event=log_event, priority=priority, blame=blame, observer=observer)
         #specific attributes for AppSendEvent
         self.node_id = node_id
         self.destination = destination
