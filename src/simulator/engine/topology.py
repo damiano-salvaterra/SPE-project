@@ -29,7 +29,8 @@ class Topology:
         self.model = channel_model # Channel model to use for link budget calculations
         self.random_manager = random_manager
         self._links = Dict[Tuple[str, str],Topology.Link] # dict of Link objects. Key: (node_id1, node_id2), Value: Link
-        self.node_contexts: Dict[str, NodeContext] = {} # Key: node ID, Value: NodeContext
+        self.nodes: Dict[Node, CartesianCoordinate] = {} # Key: Node, Value: CartesianCoordinate of the node
+        self.transmitting_nodes: List[str] = []  # List of nodes that are currently transmitting
     
 
     def set_link(self, node1_id: str, node2_id: str) -> Link:
@@ -53,49 +54,58 @@ class Topology:
         return self._links[link_key]
 
 
-    def spawn_node(self, node_id: str, context: NodeContext) -> Node:
+    def spawn_node(self, node_id: str, linkaddr: bytes, context: NodeContext) -> Node:
         '''
-        Spawns a new node in the topology with the given context.
+        Spawns a new node in the topology with the given context. linkaddr is a 2 bytes address.
         The context contains the channel model, node position, scheduler, and random manager.
         '''
-        if node_id in self.node_contexts:
-            raise ValueError(f"Node with ID {node_id} already exists in the topology")
-        # Check if a node already exists at the given position
-        for existing_node_id, existing_context in self.node_contexts.items():
-            if context.node_position == existing_context.node_position:
-                raise ValueError(f"A node already exists at position {context.position} with node ID {existing_node_id}")
+        if len(linkaddr) != 2:
+            raise ValueError("linkaddr must be a 2 bytes address")
         
-        node = Node(node_id, context)
-        self.node_contexts[node_id] = context
-        # add a link from this node to every other node in the topology (for SINR computation, mainly)
-        for other_node_id in self.node_contexts.keys():
-            if other_node_id != node_id:
-                self.set_link(node_id, other_node_id)  # Use set_link to ensure unique link creation
 
+        if node_id in self.nodes.keys():
+            raise ValueError(f"Node with ID {node_id} already exists in the topology")
+        
+        # Check if a node already exists at the given position
+        if context.position in self.nodes.values():
+            raise ValueError(f"A node already exists at position {context.position} with node ID {node_id}")
+
+        node = Node(node_id, linkaddr, context)
+        self.nodes[node] = context.position
+        # add a link from this node to every other node in the topology (for SINR computation, mainly)
+        for other_node in self.nodes.keys():
+            if other_node.node_id != node_id:
+                self.set_link(node_id, other_node.node_id) 
         return node
     
 
 
-    def remove_node_from_topology(self, node_id: str) -> bool:
+    def remove_node_from_topology(self, node: Node) -> bool:
         '''
         Removes a node from the topology by its ID.
         If the node does not exist, it returns False.
         Otherwise, it removes the node and all associated links and returns True.
         '''
-        if node_id not in self.node_contexts.keys():
+        if node not in self.nodes.keys():
             return False
         
-        # Remove the NodeContext
-        self.node_contexts.pop(node_id, None) 
+        # Remove the Node
+        self.node.pop(node, None) 
 
         # Remove all links associated with the node
-        new_links = {k: v for k, v in self._links.items() if node_id not in k}
+        new_links = {k: v for k, v in self._links.items() if node.node_id not in k}
         self._links = new_links
         
         return True
 
-
-    def add_link(self, node1_id: str, node2_id: str) -> bool:
+    def get_node_ids(self) -> List[str]:
+        '''
+        Returns a list of node IDs in the topology.
+        '''
+        return [node.node_id for node in self.nodes.keys()]
+    
+    
+    def _add_link(self, node1_id: str, node2_id: str) -> bool:
         '''
         Adds a link between two nodes in the topology.
         If the link already exists, it returns False.
@@ -113,16 +123,17 @@ class Topology:
 
 
     def compute_link_budget(self, node1_id: str, node2_id: str, Pt_dBm) -> float:
-        context1 = self.node_contexts[node1_id]
-        context2 = self.node_contexts[node2_id]
+
         link = self.get_link(node1_id, node2_id)
 
-        lb = self.model.link_budget(A = context1.position, B = context2.position, Pt_dBm = Pt_dBm, link_rng = link.rng)
+        #find positions
+        coords = []
+        for node in self.nodes.keys():
+            if node.node_id == node1_id or node.node_id == node2_id:
+                coords.append(self.nodes[node])
 
+        lb = self.model.link_budget(A = coords[0], B = coords[1], Pt_dBm = Pt_dBm, rng = link.rng)
         return lb
-
-
-
 
 
 

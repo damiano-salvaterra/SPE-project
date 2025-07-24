@@ -12,6 +12,7 @@ class Scheduler:
             raise Exception("Use the 'init()' method to get the instance of this class.")
         self._instance.event_queue: List[Event] = []
         self._instance._current_time: float = 0.0 # Current simulation time, to avoid to schedule past events
+        self.last_event_id: int = 0 # Unique ID for each event, to avoid collisions
 
 
     @classmethod

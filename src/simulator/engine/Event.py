@@ -1,4 +1,5 @@
 from typing import Optional
+from abc import abstractmethod
 
 '''
 This class implements the base Event class for the simulator.
@@ -6,16 +7,20 @@ It provides an interface for the scheduler.
 Real events inherits from this class and they are implemented in each module.
 '''
 class Event:
-    def __init__(self, unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[str] = None):
+    def __init__(self, unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[str] = None, log_event: bool = False):
         self.id = unique_id
         self.string_id = string_id  # A string identifier for the event
         self.time = time  # The time at which the event occurs
+        self.priority = priority  # Priority of the event, lower values are processed first
         self.blame = blame  # blame source, if any
+        self.log_event = log_event # flag to log the event if true
 
     def __str__(self) -> str:
         return f"Event(id={self.id}, string_id='{self.string_id}', time={self.time}, blame={self.blame})"
 
-    
+    @abstractmethod
+    def log_string(self) -> str:
+        pass
     
     def __lt__(self, other: "Event") -> bool:
         '''
