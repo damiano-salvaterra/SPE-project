@@ -31,10 +31,10 @@ from engine.RandomManager import RandomManager
 from models.channelModel import ChannelModel, DSpace
 from engine.topology import Topology, CartesianCoordinate
 from NodeContext import NodeContext
-from typing import List
+from typing import List, Any, Optional
 import numpy as np
 
-
+from entities.layers.AppLayer import AppSendEvent
 
 class Core:
     """
@@ -78,11 +78,11 @@ class Core:
         self.random_manager = None
         self.channel_model = None
         self.topology = None
-        self.bootstrap_engine()
+        self._bootstrap_engine()
 
 
 
-    def bootstrap_engine(self):
+    def _bootstrap_engine(self):
         """
         Initialize the core components of the simulation engine.
         """
@@ -137,12 +137,46 @@ class Core:
 
 
 
-    def schedule_initial_event(self):
+    # this funciotn is called at the beginning fromt the orchestrator only once (at the beginning), then all the network traffic it should be scheduled automatically
+    # by the nodes and the other components
+    def schedule_network_bootstrap(self):
+        '''
+        This method schedules the first beacon floot from the sink node.
+        It should be called after the topology is created and the sink node is set.'''
+
         #TODO: schedule the first beacon flood from the sink
         sink = self.topology.sink_node
         if sink is None:
             raise ValueError("Sink node must be set before scheduling initial events.")
-        initial_event = self.topology.sink_node.net_layer.send_beacon()
+        sink.net_layer.schedule_beacon()
+    
+
+    # this function is called from the orchestrator (the main function) to schedule app events.
+    def schedule_app_packet_event(self, source_id: str, dest_id: str, event_time: float, data: Optional[Any]):
+        """
+        Schedule an application packet event.
+        This method creates an AppSendEvent and schedules it in the scheduler.
+        """
+        if self.topology is None:
+            raise ValueError("Topology must be created before scheduling events.")
+        if source_id not in self.topology.get_node_ids() or dest_id not in self.topology.get_node_ids():
+            raise ValueError(f"Node with ID {source_id} not found in the topology.")
+        
+        source_node = self.topology.get_node_by_id(source_id)
+        destination_node = self.topology.get_node_by_id(dest_id)
+        
+        event = AppSendEvent(
+            node_id=source_id,
+            destination=dest_id,
+            data=data,
+            string_id=f"AppSendEvent_{source_id}_{dest_id}",
+            time=event_time,
+            log_event=True,
+            blame=source_node,  # Blame source is the source node
+            observer=destination_node  # Observer is the destination node
+        )
+        
+        self.scheduler.schedule(event)
 
     
     def step(self):

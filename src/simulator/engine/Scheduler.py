@@ -28,8 +28,11 @@ class Scheduler:
         """
         Schedule an event.
         """
+        #assign a unique id
+        self.last_event_id += 1
+        event._unique_id = self.last_event_id
         #convert time to the scheduler time scale
-        event.time = event.time / self.time_scale
+        event.time = event.time / self._time_scale
 
         if event.time < self._current_time:
             raise ValueError(f"Cannot schedule event in the past: event.time={event.time} [scheduler time scale] < current_time={self.current_time} [scheduler time scale]")
@@ -47,7 +50,7 @@ class Scheduler:
             event = heapq.heappop(self.event_queue)
             self._current_time = event.time # update simulation time
             #convert time back to seconds
-            event.time = event.time * self.time_scale
+            event.time = event.time * self._time_scale
             return event
         else:
             return None

@@ -1,6 +1,6 @@
 from Layer import Layer
 from NetLayer import NetLayer
-from engine.Scheduler import Scheduler
+from Node import Node
 from engine.Event import Event
 import numpy as np
 from typing import List, Optional, Any
@@ -10,16 +10,17 @@ class AppSendEvent(Event):
     """
     Event to send data from the application layer.
     """
-    def __init__(self,  node_id: str, destination: str,
-                 unique_id: int, string_id: str, time: float, priority: int = 0, blame: Optional[Any] = None, observer: Optional[Any] = None, log_event: bool = False):
+    def __init__(self,  node_id: str, destination: str, data: Optional[Any],
+                string_id: str, time: float, priority: int = 0, blame: Optional[Any] = None, observer: Optional[Any] = None, log_event: bool = False):
         
-        super().__init__(unique_id=unique_id, string_id=string_id, time=time, log_event=log_event, priority=priority, blame=blame, observer=observer)
+        super().__init__(string_id=string_id, time=time, log_event=log_event, priority=priority, blame=blame, observer=observer)
         #specific attributes for AppSendEvent
         self.node_id = node_id
         self.destination = destination
+        self.data = data
 
     def __str__(self):
-        return f"AppSendEvent(node_id={self.node_id}, destination={self.destination}, time={self.time}, blame={self.blame})"
+        return f"AppSendEvent(node_id={self.node_id}, destination={self.destination}, time={self.time}, data={str(self.data)})"
 
 
 '''
@@ -29,24 +30,24 @@ and to receive traffic from the network layer.
 '''
 class AppLayer(Layer):
 
-    def __init__(self, node_id: str, node_ids: List[str], network_layer: NetLayer, traffic_generator: np.random.Generator):
+    def __init__(self, node: Node):
         """
         Initialize the application layer.
         """
-        self.node_id = node_id
-        self.node_ids = node_ids # app layer do not necessarily know the real addresses
-        self.network_layer = network_layer
-        self.traffic_generator = traffic_generator
+        super.__init__(node)
+        
+        #counters
+        self.app_packets_sent_to_net_layer = 0
+        self.app_packets_received_from_net_layer = 0
 
 
-    def send(self): # TODO: used by the scheduler when the event is triggered. The Core is the on who schedule the event
+    def send(self, event: AppSendEvent): # TODO: used by the scheduler when the event is triggered. The Core is the on who schedule the event
         """
         Generate random traffic and send it to a random node via the network layer.
         """
         #TODO: log this
-        random_destination = self.traffic_generator.choice(self.node_ids)
-        data = f"Data from {self.node_id} to {random_destination}"
-        self.network_layer.send(self.node_id, random_destination, data)
+        self.network_layer.send(self.node_id,event.destination, event.data)
+        self.app_packets_sent_to_net_layer += 1
 
 
     def recv(self, source, data):
@@ -54,4 +55,4 @@ class AppLayer(Layer):
         Receive data from the network layer.
         """
         # TODO: log this
-        pass
+        self.app_packets_received_from_net_layer += 1

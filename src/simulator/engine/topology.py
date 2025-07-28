@@ -111,6 +111,16 @@ class Topology:
         '''
         return [node.node_id for node in self.nodes.keys()]
     
+    def get_node_by_id(self, node_id: str) -> Node:
+        '''
+        Returns the Node object by its ID.
+        If the node does not exist, it raises a ValueError.
+        '''
+        for node in self.nodes.keys():
+            if node.node_id == node_id:
+                return node
+        raise ValueError(f"Node with ID {node_id} not found in the topology")
+    
     
     def _add_link(self, node1_id: str, node2_id: str) -> bool:
         '''
