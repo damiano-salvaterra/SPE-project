@@ -8,7 +8,7 @@ from entities.physical.media.WirelessChannel import WirelessChannel
 
 
 class PhyLayer(Layer):
-    def __init__(self, host: Node, transmission_power: float = 0, transmission_media: WirelessChannel):
+    def __init__(self, host: Node, transmission_media: WirelessChannel, transmission_power: float = 0):
         super().__init__(self)
         self.host = host
         self.transmission_power = transmission_power
