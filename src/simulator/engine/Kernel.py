@@ -27,7 +27,7 @@ topology.remove_node_from_topology(node1.node_id)  # remove the node from the to
 """
 
 from engine.Scheduler import Scheduler
-from engine.RandomManager import RandomManager
+from simulator.engine.common.RandomManager import RandomManager
 from models.channelModel import ChannelModel, DSpace
 from engine.topology import Topology, CartesianCoordinate
 from NodeContext import NodeContext

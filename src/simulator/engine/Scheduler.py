@@ -2,7 +2,7 @@ import heapq
 from config import SCHEDULER_TIME_SCALE
 from typing import Optional, List
 
-from Event import Event
+from simulator.engine.common.Event import Event
 
 
 class Scheduler:
