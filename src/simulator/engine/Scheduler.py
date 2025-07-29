@@ -4,6 +4,7 @@ from typing import Optional, List
 
 from simulator.engine.common.Event import Event
 
+#TODO: fix the singleton implementation
 
 class Scheduler:
     _instance: Optional["Scheduler"] = None ## "" is a forward reference (class is not defined yet)
@@ -54,6 +55,9 @@ class Scheduler:
             return event
         else:
             return None
+        
+    def now(self) -> float:
+        return self._current_time
 
     def is_empty(self) -> bool:
         """

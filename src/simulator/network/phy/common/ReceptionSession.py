@@ -6,9 +6,9 @@ when a node starts receiving a packet. This object has no particular domain mean
 it is only a utiliy object to observing the evolving state in the wireless channel during the reception
 '''
 class ReceptionSession:
-    def __init__(self, rx_node: Node, capturing_tx: Transmission, start_time: float, end_time: float):
-        self.rx_node = rx_node
-        self.capturing_tx = capturing_tx
+    def __init__(self, receiving_node: Node, capturing: Transmission, start_time: float, end_time: float):
+        self.receiving_node = receiving_node
+        self.capturing_tx = capturing
         self.start_time = start_time
         self.end_time = end_time
 
