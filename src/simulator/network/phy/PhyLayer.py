@@ -17,14 +17,16 @@ class PhyLayer(Layer):
         self.transmission_media = transmission_media
 
 
-    def on_rx_start_event(self, transmission: Transmission):
+    def on_rx_start_event(self, transmission: Transmission, subject: WirelessChannel):
         #create reception session
         self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
+        subject.subscribe_listener(self.current_session) # attach reception session
         self.active_session = True
         
         
-    def on_rx_end_event(self):
+    def on_rx_end_event(self, subject: WirelessChannel):
         self.current_session.end_time = self.host.context.scheduler.now()
+        subject.unsubscribe_listener(self.current_session)
         self.active_session = False
         #TODO: compute statistics of SINR and decide if the packet is received or if tere is a collision
         #if yes, forward to mac layer

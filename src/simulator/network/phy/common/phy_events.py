@@ -1,5 +1,6 @@
 from engine.common.Event import Event
-from simulator.network.phy.common.Transmission import Transmission
+from network.phy.common.Transmission import Transmission
+from entities.physical.media.WirelessChannel import WirelessChannel
 from typing import Optional, Any
 from collections.abc import Callable
 
@@ -16,6 +17,8 @@ class PhyTxStartEvent(Event):
         super().__init__(string_id, time, priority, blame, callback, log_event)
         self.transmission = kwargs.get("transmission")
 
+    def run(self, transmission: Transmission):
+        self.callback(self.transmission)
 '''
 This event is handled by the WirelessChannel and schedulet together with PhyTxStartEvent
 '''
@@ -27,6 +30,8 @@ class PhyTxEndEvent(Event):
         super().__init__(string_id, time, priority, blame, callback, log_event)
         self.transmission = kwargs.get("transmission")
 
+    def run(self, transmission: Transmission):
+        self.callback(self.transmission)
 
 
 '''
@@ -39,7 +44,10 @@ class PhyRxStartEvent(Event):
         
         super().__init__(string_id, time, priority, blame, callback, log_event)
         self.transmission = kwargs.get("transmission")
+        self.channel = kwargs.get("channel_subject")
         
+    def run(self, transmission: Transmission, channel_subject = WirelessChannel):
+        self.callback(transmission, channel_subject)
 
 '''
 This event is scheduled together with PhyRxStartEvent and handled by PhyLayer
@@ -50,5 +58,7 @@ class PhyRxEndEvent(Event):
              log_event: bool = False, **kwargs):
     
         super().__init__(string_id, time, priority, blame, callback, log_event)
-        self.transmission = kwargs.get("transmission")
+        self.channel = kwargs.get("channel_subject")
         
+    def run(self, transmission: Transmission, channel_subject = WirelessChannel):
+            self.callback(transmission, channel_subject)

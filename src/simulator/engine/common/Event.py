@@ -23,6 +23,9 @@ class Event:
     @abstractmethod
     def log_string(self) -> str:
         pass
+
+    def run(self):
+        self.callback()
     
     def __lt__(self, other: "Event") -> bool:
         '''

@@ -43,8 +43,8 @@ class WirelessChannel: # TODO: make this class a singleton
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
                 end_rx_time = start_rx_time + Packet802_15_4.packet_max_gross_duration
-                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_rx_start_event, transmission=transmission)
-                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_rx_end_event, transmission=transmission)
+                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_rx_start_event, transmission=transmission, channel_subject=self)
+                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_rx_end_event, channel_subject=self)
                 self.context.scheduler.schedule(rx_start_event)
                 self.context.scheduler.schedule(rx_end_event)
 
@@ -55,11 +55,11 @@ class WirelessChannel: # TODO: make this class a singleton
     def on_tx_end_event(self, transmission: Transmission):
         self.active_transmissions.pop(transmission.transmitter) # remove the transmission from the current transmissions
         for listener in self.listeners:
-            listener.notify_tx_start(transmission) #notify the observers
+            listener.notify_tx_end(transmission) #notify the observers
 
 
 
-    def _subscribe_listener(self, session: ReceptionSession):
+    def subscribe_listener(self, session: ReceptionSession):
         '''
         This function subscribes an observer object of the wireless channel.
         This way, we can easily update and notify the observer objects of new interferers/state change of the wireless channel.
@@ -67,3 +67,6 @@ class WirelessChannel: # TODO: make this class a singleton
         TODO: check if it makes more sense to attach PhyLayer objects (of Node) instead of this
         '''
         self.listeners.append(session)
+
+    def unsubscribe_listener(self, session: ReceptionSession):
+        self.listeners.remove(session)

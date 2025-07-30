@@ -43,19 +43,26 @@ class Scheduler:
         # event will be at the root
         return event.time
 
-    def get_next_event(self) -> Optional[Event]:
+    def peek_next_event(self) -> Optional[Event]:
         """
         Get the next event from the queue.
         """
-        if self.event_queue:
-            event = heapq.heappop(self.event_queue)
-            self._current_time = event.time # update simulation time
-            #convert time back to seconds
-            event.time = event.time * self._time_scale
-            return event
+        if self.queue:
+            return self.queue[0]
         else:
             return None
         
+        
+    def run_next_event(self) -> None:
+        '''Run the next event'''
+        if self.event_queue:
+            event = heapq.heapop(self.event_queue)
+            self._current_time = event.time # update simulation time
+            #convert time back to seconds
+            event.time = event.time * self._time_scale
+            event.run()
+
+
     def now(self) -> float:
         return self._current_time
 
