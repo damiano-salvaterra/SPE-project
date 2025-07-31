@@ -14,12 +14,14 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 '''
 class NarrowbandChannelModel:
      
-    def __init__(self, shadowing_rng: np.random.Generator, dspace: DSpace, freq: float, coh_d: float,
+    def __init__(self, shadowing_rng: np.random.Generator, fading_rng: np.random.Generator, dspace: DSpace, freq: float, filter_bandwidth: float, coh_d: float,
                  shadow_dev: float, pl_exponent: float, d0: float, fading_shape: float) -> None:
     
         
         self._shadowing_rng = shadowing_rng  # Random number generator for the shadowing
+        self._fading_rng = fading_rng # random number generator for fading (to be totally precise we should create a fading rng for each link/node)
         self.freq = freq  # Frequency of the signal in Hz
+        self.filter_bandwitdh = filter_bandwidth #radio passband filter bandwidth (nominal IEEE 802.15.4 BW: 5 Mhz, actual RF filter BW for DSSS O-QPSK: around 2MHZ) # TODO: check this
         self.coh_d = coh_d  # Coherence distance in meters
         self.shadow_dev = shadow_dev  # Standard deviation of shadowing
         self.pl_exponent = pl_exponent # Path loss exponent
@@ -176,29 +178,29 @@ class NarrowbandChannelModel:
 
 
 
-    def link_budget(self, A: CartesianCoordinate, B: CartesianCoordinate, Pt_dBm: float, link_rng: np.random.Generator) -> float:
+    def link_budget(self, A: CartesianCoordinate, B: CartesianCoordinate, Pt_dBm: float) -> float:
         '''
-        Compute receive power in dBm between two points A and B given a transmitted power Pt_dBm.
+        Compute received power in dBm between two points A and B given a transmitted power Pt_dBm.
         Add the fading term with a Nakagami distribution with mean equal to the average received power
         '''
         total_loss_dB = self.total_loss_dB(A, B)
 
         Pr_avg_dBm = Pt_dBm - total_loss_dB
         Pr_avg_linear = 10**(Pr_avg_dBm/10) # get linear Pr for fading parameter
-        fading_amplitude = nakagami.rvs(self.fading_shape, scale=np.sqrt(Pr_avg_linear), random_state=link_rng) # TODO: use a different rng for each link. Manage the link's rng in the Topology class
+        fading_amplitude = nakagami.rvs(self.fading_shape, scale=np.sqrt(Pr_avg_linear), random_state=self._fading_rng)
 
         Pr_instant = fading_amplitude**2
         Pr_instant_dBm = 10*np.log10(Pr_instant)
         return Pr_instant_dBm
 
 
-    def noise_floor(self, bandwidth_Hz: float, noise_temp_K: float = 290) -> float:
+    def noise_floor_deterministic(self, noise_temp_K: float = 290) -> float: # TODO: check this
         '''
-        Compute the noise floor in dBm for a given bandwidth and noise temperature.
+        Compute the noise floor in dBm for a given noise temperature.
         Default noise temperature is 290 K (room temperature).
         '''
         k = const.Boltzmann
-        noise_power_W = k * noise_temp_K * bandwidth_Hz  # Noise power in Watts
+        noise_power_W = k * noise_temp_K * self.filter_bandwitdh  # Noise power in Watts
         noise_power_dBm = 10 * np.log10(noise_power_W * 1000)   # Convert to dBm
         return noise_power_dBm
     
@@ -215,3 +217,7 @@ class NarrowbandChannelModel:
         if velocity is None:
             velocity = const.c
         return d / velocity  # seconds
+    
+
+    def dBm_to_watts(self, p_dBm: float) -> float:
+        return 10**((p_dBm - 30.0) / 10.0)

@@ -16,7 +16,7 @@ class WirelessChannel: # TODO: make this class a singleton
         self.nodes = nodes # list of nodes in the environment
         self.listeners: List[ReceptionSession] = [] # list of subscribers tha to observe the channel, subscibed by PhyLayer
         self.context = context
-        self.active_transmissions: Dict[Node, Transmission] # list of currently active transmissions, indexed by the source
+        self.active_transmissions: Dict[Node, Transmission] = {} # list of currently active transmissions, indexed by the source
         self.tx_counter = 0 # transmission id
 
 
@@ -38,8 +38,7 @@ class WirelessChannel: # TODO: make this class a singleton
                                 # we need this to compute the SINR later)
 
             if receiver is not transmission.transmitter:
-                propagation_delay = self.propagation_model.propagation_delay(transmitter_position,
-                                                                             receiver.position)
+                propagation_delay = self.propagation_model.propagation_delay(transmitter_position, receiver.position)
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
                 end_rx_time = start_rx_time + Packet802_15_4.packet_max_gross_duration
@@ -70,3 +69,17 @@ class WirelessChannel: # TODO: make this class a singleton
 
     def unsubscribe_listener(self, session: ReceptionSession):
         self.listeners.remove(session)
+
+    def get_linear_noise_floor(self) -> float:
+        '''
+        returns the noise floor in linear scale (Watts)
+        '''
+        return self.propagation_model.dBm_to_watts(self.propagation_model.noise_floor_deterministic())
+
+        
+    def get_linear_link_budget(self, node1: Node, node2: Node, tx_power_dBm: float) -> float:
+        '''
+        returns the link budget in linear scale (Watts)
+        '''
+        return self.propagation_model.dBm_to_watts(self.propagation_model.link_budget(node1.position, node2.position, Pt_dBm = tx_power_dBm))
+        
