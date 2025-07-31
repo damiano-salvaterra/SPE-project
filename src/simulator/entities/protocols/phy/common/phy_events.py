@@ -1,5 +1,5 @@
 from engine.common.Event import Event
-from network.phy.common.Transmission import Transmission
+from protocols.phy.common.Transmission import Transmission
 from entities.physical.media.WirelessChannel import WirelessChannel
 from typing import Optional, Any
 from collections.abc import Callable

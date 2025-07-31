@@ -1,5 +1,5 @@
 from entities.physical.devices.Node import Node
-from network.phy.common.Transmission import Transmission
+from protocols.phy.common.Transmission import Transmission
 from typing import List, Dict
 import copy
 

@@ -1,17 +1,16 @@
 from Layer import Layer
-from network.phy.common.ReceptionSession import ReceptionSession
-from network.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
-from network.phy.common.Transmission import Transmission
-from network.common.packets import Packet802_15_4
+from protocols.phy.common.ReceptionSession import ReceptionSession
+from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
+from protocols.phy.common.Transmission import Transmission
+from protocols.common.packets import Frame802_15_4
 from entities.physical.devices.Node import Node
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
 
 
-class PhyLayer(Layer):
+class SimplePhyLayer(Layer):
     def __init__(self, host: Node, transmission_media: WirelessChannel, capture_threshold_dB: float = 5, transmission_power: float = 0):
-        super().__init__(self)
-        self.host = host
+        super().__init__(self, host = host)
         self.capture_threshold_dB = capture_threshold_dB # threshold for SINR to check if the transmission can be decoded
         self.transmission_power = transmission_power
         self.current_session: ReceptionSession = None
@@ -58,35 +57,41 @@ class PhyLayer(Layer):
 
 
     def on_rx_start_event(self, transmission: Transmission, subject: WirelessChannel):
-        #create reception session
-        self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
-        subject.subscribe_listener(self.current_session) # attach reception session
-        self.active_session = True
+        
+        #This is a simplification, to be fair we should schedule a delayed filter for the address.
+        #this will understimate the collisions a bit
+        destination = transmission.mac_frame.linkaddr
+        if destination == self.host.linkaddr or destination == Frame802_15_4.broadcast_linkaddr:
+            #create reception session
+            self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
+            subject.subscribe_listener(self.current_session) # attach reception session
+            self.active_session = True
         
         
     def on_rx_end_event(self, subject: WirelessChannel):
-        self.current_session.end_time = self.host.context.scheduler.now()
-        subject.unsubscribe_listener(self.current_session)
-        self.active_session = False
-        #TODO: compute statistics of SINR and decide if the packet is received or if tere is a collision
-        #if yes, forward to mac layer
-        if self._is_decoded(self.current_session):
-            self.host.mac.send(self.current_session.capturing_tx.packet)
-        else:
-            pass #TODO: else what?
-        self.current_session = None
-        self.active_session = False
+        if self.active_session:
+            self.current_session.end_time = self.host.context.scheduler.now()
+            subject.unsubscribe_listener(self.current_session)
+            self.active_session = False
+            #TODO: compute statistics of SINR and decide if the packet is received or if tere is a collision
+            #if yes, forward to mac layer
+            if self._is_decoded(self.current_session):
+                self.host.rdc.receive(self.current_session.capturing_tx.mac_frame)
+            else:
+                pass #TODO: else what?
+            self.current_session = None
+            self.active_session = False
 
 
-    def send(self, packet: Packet802_15_4):
+    def send(self, payload: Frame802_15_4):
         '''
         create transmission and schedule the phy_tx events
         '''
         
-        transmission = Transmission(transmitter = self.host, packet = packet, transmission_power = self.transmission_power)
+        transmission = Transmission(transmitter = self.host, packet = payload, transmission_power = self.transmission_power)
         
-        start_tx_time = self.host.context.scheduler.now() # TODO: change this and insert some kind of delay
-        end_tx_time = start_tx_time + Packet802_15_4.packet_max_gross_duration
+        start_tx_time = self.host.context.scheduler.now() # TODO: (maybe?) change this and insert some kind of delay
+        end_tx_time = start_tx_time + Frame802_15_4.packet_max_gross_duration
         tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_phy_tx_start_event, transmission = transmission)
         tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.transmission_media.on_tx_end_event, transmission = transmission)
 
@@ -94,6 +99,6 @@ class PhyLayer(Layer):
         self.host.context.scheduler.schedule(tx_end_event)
 
 
-    def receive(self,sender, payload):
+    def receive(self, payload):
         '''just for fill the interface requirement, not really needed here'''
         pass

@@ -8,7 +8,7 @@ It provides an interface for the scheduler.
 Real events inherits from this class and they are implemented in each module.
 '''
 class Event:
-    def __init__(self, time: float, string_id: str = None, priority: int = 0, blame: Optional[Any] = None, callback: Callable = None, log_event: bool = False):
+    def __init__(self, time: float, string_id: str = None, priority: int = 0, blame: Optional[Any] = None, callback: Callable = None, log_event: bool = False, **kwargs):
         self._unique_id = None # unique id assigned by the scheduler
         self.time = time  # The time at which the event occurs
         self.string_id = string_id  # A string identifier for the event
@@ -16,6 +16,7 @@ class Event:
         self.blame = blame  # blame source, if any
         self.callback = callback  # Callback for the event
         self.log_event = log_event # flag to log the event if true
+        self.kwargs = kwargs
 
     def __str__(self) -> str:
         return f"Event(id={self.id}, string_id='{self.string_id}', time={self.time}, blame={self.blame})"
@@ -25,7 +26,8 @@ class Event:
         pass
 
     def run(self):
-        self.callback()
+        if self.callback is not None:
+            self.callback(**self.kwargs)
     
     def __lt__(self, other: "Event") -> bool:
         '''
