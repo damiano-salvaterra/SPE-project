@@ -12,6 +12,7 @@ class SimplePhyLayer(Layer):
     def __init__(self, host: Node, transmission_media: WirelessChannel, capture_threshold_dB: float = 5, transmission_power: float = 0):
         super().__init__(self, host = host)
         self.capture_threshold_dB = capture_threshold_dB # threshold for SINR to check if the transmission can be decoded
+        self.cca_Threshold_dBm = -85 #dBm. Threshold for CCA (for power lower than this threshold we consider the channel as free)
         self.transmission_power = transmission_power
         self.current_session: ReceptionSession = None
         self.active_session = False
@@ -56,11 +57,11 @@ class SimplePhyLayer(Layer):
 
 
 
-    def on_rx_start_event(self, transmission: Transmission, subject: WirelessChannel):
+    def on_PhyRxStartEvent(self, transmission: Transmission, subject: WirelessChannel):
         
         #This is a simplification, to be fair we should schedule a delayed filter for the address.
         #this will understimate the collisions a bit
-        destination = transmission.mac_frame.linkaddr
+        destination = transmission.mac_frame._linkaddr
         if destination == self.host.linkaddr or destination == Frame802_15_4.broadcast_linkaddr:
             #create reception session
             self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
@@ -68,7 +69,7 @@ class SimplePhyLayer(Layer):
             self.active_session = True
         
         
-    def on_rx_end_event(self, subject: WirelessChannel):
+    def on_PhyRxEndEvent(self, subject: WirelessChannel):
         if self.active_session:
             self.current_session.end_time = self.host.context.scheduler.now()
             subject.unsubscribe_listener(self.current_session)
@@ -90,16 +91,16 @@ class SimplePhyLayer(Layer):
         
         transmission = Transmission(transmitter = self.host, packet = payload, transmission_power_dBm = self.transmission_power)
         
-        start_tx_time = self.host.context.scheduler.now() + 1e-6 # TODO: (maybe?) change this and insert some kind of delay
+        start_tx_time = self.host.context.scheduler.now() + 1e-12 # TODO: (maybe?) change this and insert some kind of delay
         end_tx_time = start_tx_time + Frame802_15_4.packet_max_gross_duration
-        tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_phy_tx_start_event, transmission = transmission)
-        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.transmission_media.on_tx_end_event, transmission = transmission)
+        tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_PhyTxStartEvent, transmission = transmission)
+        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.transmission_media.on_PhyTxEndEvent, callback2 = self.host.rdc.on_PhyTxEndEvent, transmission = transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)
         self.host.context.scheduler.schedule(tx_end_event)
 
 
-    def cca_802154_Mode1(self, cca_threshold: float) -> bool:
+    def cca_802154_Mode1(self) -> bool:
         '''
         this function calls the utilities of WirelessChannel to perform a Mode 1 CCA as specified
          in IEEE 802.15.4. Mode 1 CCA only measures the energy on the channel (does not perform any carrier sense).
@@ -119,7 +120,7 @@ class SimplePhyLayer(Layer):
         total_received_power = channel_power + noise_floor
 
         total_dBm = 10 * log10(total_received_power) + 30 #go back in dBm (threshold is in dBm)
-        return total_dBm > cca_threshold
+        return total_dBm > self.cca_Threshold_dBm
 
 
 

@@ -25,14 +25,16 @@ This event is handled by the WirelessChannel and schedulet together with PhyTxSt
 class PhyTxEndEvent(Event):
     def __init__(self, time: float, string_id: str = None, priority: int = 0,
              blame: Optional[Any] = None, callback: Callable = None,
-             log_event: bool = False, **kwargs):
+             log_event: bool = False, callback2: Callable = None, **kwargs):
     
         super().__init__(string_id, time, priority, blame, callback, log_event)
-        self.transmission = kwargs.get("transmission")
+        self.callback2 = callback2
+        self.transmission_cb1 = kwargs.get("transmission")
+
 
     def run(self, transmission: Transmission):
-        self.callback(self.transmission)
-
+        self.callback(self.transmission_cb1)
+        self.callback2()
 
 '''
 This event is scheduled by WirelessChannel and handled by the PhyLayer

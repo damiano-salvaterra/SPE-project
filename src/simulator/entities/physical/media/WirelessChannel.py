@@ -20,7 +20,7 @@ class WirelessChannel: # TODO: make this class a singleton
         self.tx_counter = 0 # transmission id
 
 
-    def on_phy_tx_start_event(self, transmission: Transmission):
+    def on_PhyTxStartEvent(self, transmission: Transmission):
         '''
         This functions handles the transmission start event from any node.
         It looks innocent but this is the core of all the phy layer circus: it implicitly treat every transmission as broadcast (wireless=broadcast)
@@ -42,8 +42,8 @@ class WirelessChannel: # TODO: make this class a singleton
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
                 end_rx_time = start_rx_time + Frame802_15_4.packet_max_gross_duration
-                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_rx_start_event, transmission=transmission, channel_subject=self)
-                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_rx_end_event, channel_subject=self)
+                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_PhyRxStartEvent, transmission=transmission, channel_subject=self)
+                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_PhyRxEndEvent, channel_subject=self)
                 self.context.scheduler.schedule(rx_start_event)
                 self.context.scheduler.schedule(rx_end_event)
 
@@ -51,7 +51,7 @@ class WirelessChannel: # TODO: make this class a singleton
             listener.notify_tx_start(transmission) #notify the observers
 
 
-    def on_tx_end_event(self, transmission: Transmission):
+    def on_PhyTxEndEvent(self, transmission: Transmission):
         self.active_transmissions.pop(transmission.transmitter) # remove the transmission from the current transmissions
         for listener in self.listeners:
             listener.notify_tx_end(transmission) #notify the observers
@@ -80,7 +80,7 @@ class WirelessChannel: # TODO: make this class a singleton
 
         
 
-        
+
     def get_linear_link_budget(self, node1: Node, node2: Node, tx_power_dBm: float) -> float:
         '''
         returns the link budget in linear scale (Watts)

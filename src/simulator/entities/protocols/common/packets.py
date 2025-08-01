@@ -12,10 +12,11 @@ class Packet(ABC):
          
 
 class Frame802_15_4(Packet):
-    packet_max_gross_duration = 0.004064 # gross estimate of the longest packet duration for 802.15.4 @ 2.4Ghz, 250 kbps
-                            # maximum packet size is 127 bytes, we keep this size for worst case scenario 
+    packet_max_gross_duration = 0.00432# gross estimate of the longest packet duration for 802.15.4 @ 2.4Ghz, 250 kbps
+                            # maximum packet size is 127 bytes, we keep this size for worst case scenario. TODO: verify this
     broadcast_linkaddr = bytes([0xFF, 0xFF])
     
-    def __init__(self, linkaddr: bytes, data: Optional[Any] = None):
-        self.linkaddr = linkaddr
-        self.data = data
+    def __init__(self, linkaddr: bytes, requires_ack: bool = False, data: Optional[Any] = None):
+        self._linkaddr = linkaddr
+        self._requires_ack = requires_ack
+        self._data = data
