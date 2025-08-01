@@ -70,11 +70,15 @@ class WirelessChannel: # TODO: make this class a singleton
     def unsubscribe_listener(self, session: ReceptionSession):
         self.listeners.remove(session)
 
+
+
     def get_linear_noise_floor(self) -> float:
         '''
         returns the noise floor in linear scale (Watts)
         '''
         return self.propagation_model.dBm_to_watts(self.propagation_model.noise_floor_deterministic())
+
+        
 
         
     def get_linear_link_budget(self, node1: Node, node2: Node, tx_power_dBm: float) -> float:

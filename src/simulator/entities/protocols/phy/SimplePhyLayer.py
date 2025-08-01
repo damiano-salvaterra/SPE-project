@@ -1,4 +1,4 @@
-from Layer import Layer
+from simulator.entities.protocols.common.Layer import Layer
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
 from protocols.phy.common.Transmission import Transmission
@@ -31,7 +31,7 @@ class SimplePhyLayer(Layer):
 
         #first, compute the received power of the interested transmission
         wanted_tx = session.capturing_tx
-        capturing_tx_power_linear = self.transmission_media.get_linear_link_budget(node1 = self.host, node2 = wanted_tx.transmitter, tx_power_dBm = wanted_tx.transmission_power)
+        capturing_tx_power_linear = self.transmission_media.get_linear_link_budget(node1 = self.host, node2 = wanted_tx.transmitter, tx_power_dBm = wanted_tx.transmission_power_dBm)
         #and get the noise floor
         noise_floor_linear = self.transmission_media.get_linear_noise_floor() # noise floor of the receiver
         # get SINR for each segment
@@ -39,7 +39,7 @@ class SimplePhyLayer(Layer):
         for segment in self.current_session.reception_segments: #iterate on each segment
             interferers_power = 0.0
             for transmitter, transmission in segment.interferers.items():
-                tx_power = transmission.transmission_power
+                tx_power = transmission.transmission_power_dBm
                 received_power = self.transmission_media.get_linear_link_budget(node1 = self.host, node2 = transmitter, tx_power_dBm = tx_power)
                 interferers_power += received_power
             segment_SINR = capturing_tx_power_linear / (noise_floor_linear + interferers_power)
@@ -88,15 +88,39 @@ class SimplePhyLayer(Layer):
         create transmission and schedule the phy_tx events
         '''
         
-        transmission = Transmission(transmitter = self.host, packet = payload, transmission_power = self.transmission_power)
+        transmission = Transmission(transmitter = self.host, packet = payload, transmission_power_dBm = self.transmission_power)
         
-        start_tx_time = self.host.context.scheduler.now() # TODO: (maybe?) change this and insert some kind of delay
+        start_tx_time = self.host.context.scheduler.now() + 1e-6 # TODO: (maybe?) change this and insert some kind of delay
         end_tx_time = start_tx_time + Frame802_15_4.packet_max_gross_duration
         tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_phy_tx_start_event, transmission = transmission)
         tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.transmission_media.on_tx_end_event, transmission = transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)
         self.host.context.scheduler.schedule(tx_end_event)
+
+
+    def cca_802154_Mode1(self, cca_threshold: float) -> bool:
+        '''
+        this function calls the utilities of WirelessChannel to perform a Mode 1 CCA as specified
+         in IEEE 802.15.4. Mode 1 CCA only measures the energy on the channel (does not perform any carrier sense).
+         Thus, we also take into account the noise floor. It is not totally precise since (I think) gthat by default
+         he type of CCA is Mode 2 (with carrier sense), but in this case it doesnt really matters because we are not modeling
+         external interference (coming from other technologies around like WIFi or Bluetooth), so the only energy
+         on the channel is the one coming from packet transmissions of this network, so at the end it should be similar enough to Mode 2.
+
+         Returns True if channel is busy, False if the channel is free.
+         '''
+        noise_floor = self.transmission_media.get_linear_noise_floor()
+        channel_power = 0.0
+        for transmission in self.transmission_media.active_transmissions.values():
+            power_contribute = self.transmission_media.get_linear_link_budget(self.host, transmission.transmitter, transmission.transmission_power_dBm)
+            channel_power += power_contribute
+
+        total_received_power = channel_power + noise_floor
+
+        total_dBm = 10 * log10(total_received_power) + 30 #go back in dBm (threshold is in dBm)
+        return total_dBm > cca_threshold
+
 
 
     def receive(self, payload):

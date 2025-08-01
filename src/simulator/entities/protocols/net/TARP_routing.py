@@ -1,4 +1,4 @@
-from Layer import Layer
+from simulator.entities.protocols.common.Layer import Layer
 from entities.physical.devices.Node import Node
 
 

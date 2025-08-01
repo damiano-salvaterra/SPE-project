@@ -1,4 +1,4 @@
-from protocols.Layer import Layer
+from simulator.entities.protocols.common.Layer import Layer
 from protocols.common.packets import Frame802_15_4
 from entities.physical.devices.Node import Node
 
@@ -14,4 +14,5 @@ class NullRDC(Layer):
 
     
     def receive(self, payload: Frame802_15_4):
+        '''just a pass-though: NullRDC does nothing'''
         self.host.mac.receive(payload = payload)

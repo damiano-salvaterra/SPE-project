@@ -5,6 +5,7 @@ import scipy.constants as const
 from scipy.stats import nakagami
 
 from environment.geometry import CartesianCoordinate, DSpace
+from engine.RandomManager import RandomManager
 
 '''
 This class implement the wireless channel model of attenuation. The model is the classical
@@ -14,12 +15,13 @@ by generating a random Gaussian field over a 2D discrete square space, and then 
 '''
 class NarrowbandChannelModel:
      
-    def __init__(self, shadowing_rng: np.random.Generator, fading_rng: np.random.Generator, dspace: DSpace, freq: float, filter_bandwidth: float, coh_d: float,
+    def __init__(self, random_manager: RandomManager, dspace: DSpace, freq: float, filter_bandwidth: float, coh_d: float,
                  shadow_dev: float, pl_exponent: float, d0: float, fading_shape: float) -> None:
     
-        
-        self._shadowing_rng = shadowing_rng  # Random number generator for the shadowing
-        self._fading_rng = fading_rng # random number generator for fading (to be totally precise we should create a fading rng for each link/node)
+        random_manager.create_stream("NBMODEL/SHADOWING")
+        random_manager.create_stream("NBMODEL/FADING") # init generators
+        self._shadowing_rng =  random_manager.get_stream("NBMODEL/SHADOWING") # Random number generator for the shadowing
+        self._fading_rng = random_manager.get_stream("NBMODEL/FADING") # random number generator for fading (to be totally precise we should create a fading rng for each link/node)
         self.freq = freq  # Frequency of the signal in Hz
         self.filter_bandwitdh = filter_bandwidth #radio passband filter bandwidth (nominal IEEE 802.15.4 BW: 5 Mhz, actual RF filter BW for DSSS O-QPSK: around 2MHZ) # TODO: check this
         self.coh_d = coh_d  # Coherence distance in meters
