@@ -1,7 +1,7 @@
 from simulator.entities.protocols.common.Layer import Layer
 from entities.physical.devices.Node import Node
-from protocols.common.packets import Frame802_15_4
-from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent
+from protocols.common.packets import Frame_802154
+from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
 
 '''
 This class implements the non-beacon enabled 802.15.4 MAC CSMA protocol AS IT IS IMPLEMENTED in ContikiOS.
@@ -18,6 +18,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
     aUnitBackoffPeriod = 320 * 1e-6 # backoff unit (20 symbols @ 2.4 GhZ around 320 us)
     macMaxFrameRetries = 3 # max retries for missing ACK failures
     macAckWaitDuration = 864 * 1e-6 # time interval for waiting the ACK before retrying the transmission #TODO: check this
+    aTurnaroundTime = 192 * 10**-6 # time between the end of the reception and the sending of the ACK (192 us)
+
     
 
     def __init__(self, host: Node):
@@ -38,7 +40,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.retry_count = 0
 
 
-    def send(self, payload: Frame802_15_4 = None, retry: bool = False):
+    def send(self, payload: Frame_802154 = None, retry: bool = False):
         '''
         triggered by send event from upper layers.
         This function implements the backoff procedure and schedules the related events'''
@@ -51,10 +53,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         else:
             if payload is not None: 
                 self.frame = payload
-                if payload._linkaddr == Frame802_15_4.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
+                if payload._daddr == Frame_802154.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
                     self.frame._requires_ack = False
 
-
+            #true if the function is called by ACK timeout event
             if retry: # if it is a retry (missing ACK), then resed the channel contention and restart
                 self.retry_count += 1
                 self.NB = 0
@@ -87,5 +89,14 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.send()
 
 
-    def receive(payload: Frame802_15_4):
-        pass
+    def receive(self, payload: Frame_802154):
+        '''forward the pakcet in upper layers and send ACK'''
+        self.host.net.receive(Frame_802154) # Contiki notifies the upper layer right away
+        #schedule time for sending ACK
+        ack_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.aTurnaroundTime
+        send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send())
+        self.host.context.scheduler.schedule(send_ack_event)
+
+
+
+        #TODO: i need to manage the reception of the ack: if received, stop retransmitting and unschedule the timeout

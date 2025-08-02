@@ -2,7 +2,7 @@ from simulator.entities.protocols.common.Layer import Layer
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Frame802_15_4
+from protocols.common.packets import Frame_802154, Packet
 from entities.physical.devices.Node import Node
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
@@ -17,6 +17,7 @@ class SimplePhyLayer(Layer):
         self.current_session: ReceptionSession = None
         self.active_session = False
         self.transmission_media = transmission_media
+
 
     def _is_decoded(self, session: ReceptionSession):
         '''
@@ -60,9 +61,11 @@ class SimplePhyLayer(Layer):
     def on_PhyRxStartEvent(self, transmission: Transmission, subject: WirelessChannel):
         
         #This is a simplification, to be fair we should schedule a delayed filter for the address.
-        #this will understimate the collisions a bit
-        destination = transmission.mac_frame._linkaddr
-        if destination == self.host.linkaddr or destination == Frame802_15_4.broadcast_linkaddr:
+        #The time that the radio takes to synchronize, find SFD and read the header with the address is around 896 us
+        #TODO: given what we are modeling we should model also this, because the ack timings are based on this
+        
+        destination = transmission.mac_frame._daddr
+        if destination == self.host.linkaddr or destination == Frame_802154.broadcast_linkaddr:
             #create reception session
             self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
             subject.subscribe_listener(self.current_session) # attach reception session
@@ -77,14 +80,21 @@ class SimplePhyLayer(Layer):
             #TODO: compute statistics of SINR and decide if the packet is received or if tere is a collision
             #if yes, forward to mac layer
             if self._is_decoded(self.current_session):
-                self.host.rdc.receive(self.current_session.capturing_tx.mac_frame)
+                self.receive(payload = self.current_session.capturing_tx.mac_frame)
+                
             else:
                 pass #TODO: else what?
             self.current_session = None
             self.active_session = False
 
 
-    def send(self, payload: Frame802_15_4):
+    def on_PhyTxEndEvent(self, transmission: Transmission):
+        self.transmission_media.on_PhyTxEndEvent(transmission=transmission) # notify channel
+        self.host.rdc.on_PhyTxEndEvent() # notify rdc
+
+
+
+    def send(self, payload: Packet):
         '''
         create transmission and schedule the phy_tx events
         '''
@@ -92,9 +102,9 @@ class SimplePhyLayer(Layer):
         transmission = Transmission(transmitter = self.host, packet = payload, transmission_power_dBm = self.transmission_power)
         
         start_tx_time = self.host.context.scheduler.now() + 1e-12 # TODO: (maybe?) change this and insert some kind of delay
-        end_tx_time = start_tx_time + Frame802_15_4.packet_max_gross_duration
+        end_tx_time = start_tx_time + payload.on_air_duration
         tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_PhyTxStartEvent, transmission = transmission)
-        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.transmission_media.on_PhyTxEndEvent, callback2 = self.host.rdc.on_PhyTxEndEvent, transmission = transmission)
+        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.on_PhyTxEndEvent, callback2 = self.host.rdc.on_PhyTxEndEvent, transmission = transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)
         self.host.context.scheduler.schedule(tx_end_event)
@@ -124,6 +134,6 @@ class SimplePhyLayer(Layer):
 
 
 
-    def receive(self, payload):
-        '''just for fill the interface requirement, not really needed here'''
-        pass
+    def receive(self, payload: Frame_802154):
+        '''call the RDC'''
+        self.host.rdc.receive(payload = payload)
