@@ -1,5 +1,5 @@
 from simulator.entities.protocols.common.Layer import Layer
-from protocols.common.packets import Frame_802154, Ack_802154
+from protocols.common.packets import Frame_802154, Ack_802154, Packet
 from entities.physical.devices.Node import Node
 
 
@@ -33,6 +33,6 @@ class NullRDC(Layer):
         self.host.mac.on_RDCSent()
 
 
-    def receive(self, payload: Frame_802154):
+    def receive(self, payload: Packet):
         '''just a pass-through: NullRDC does nothing'''
         self.host.mac.receive(payload = payload)

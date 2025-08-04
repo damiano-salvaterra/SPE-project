@@ -42,13 +42,20 @@ class Scheduler:
         # (accordingly to the overloaded "<" in the Event class")
         # event will be at the root
         return event.time
+    
+    def unschedule(self, event: Event) -> bool:
+        '''Removes an event from the schedule'''
+        event._cancelled = True
+        return True
+
+
 
     def peek_next_event(self) -> Optional[Event]:
         """
         Get the next event from the queue.
         """
-        if self.queue:
-            return self.queue[0]
+        if self.event_queue:
+            return self.event_queue[0]
         else:
             return None
         
@@ -57,10 +64,11 @@ class Scheduler:
         '''Run the next event'''
         if self.event_queue:
             event = heapq.heapop(self.event_queue)
-            self._current_time = event.time # update simulation time
-            #convert time back to seconds
-            event.time = event.time * self._time_scale
-            event.run()
+            if not event._cancelled:
+                self._current_time = event.time # update simulation time
+                #convert time back to seconds
+                event.time = event.time * self._time_scale
+                event.run()
 
 
     def now(self) -> float:

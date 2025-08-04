@@ -16,6 +16,7 @@ class Event:
         self.blame = blame  # blame source, if any
         self.callback = callback  # Callback for the event
         self.log_event = log_event # flag to log the event if true
+        self._cancelled = False # flag for unscheduled events (removing from the heapq is too expensive). True if the event is cancelled.
         self.kwargs = kwargs
 
     def __str__(self) -> str:

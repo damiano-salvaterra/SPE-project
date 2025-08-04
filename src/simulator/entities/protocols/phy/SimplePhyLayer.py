@@ -2,7 +2,7 @@ from simulator.entities.protocols.common.Layer import Layer
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Frame_802154, Packet
+from protocols.common.packets import Packet, Frame_802154
 from entities.physical.devices.Node import Node
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
@@ -134,6 +134,6 @@ class SimplePhyLayer(Layer):
 
 
 
-    def receive(self, payload: Frame_802154):
+    def receive(self, payload: Packet):
         '''call the RDC'''
         self.host.rdc.receive(payload = payload)

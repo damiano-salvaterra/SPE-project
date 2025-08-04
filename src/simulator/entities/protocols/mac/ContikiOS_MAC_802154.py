@@ -1,6 +1,6 @@
 from simulator.entities.protocols.common.Layer import Layer
 from entities.physical.devices.Node import Node
-from protocols.common.packets import Frame_802154
+from protocols.common.packets import Frame_802154, Ack_802154
 from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
 
 '''
@@ -32,6 +32,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self._reset_counters()
         self.tx_success = False # is the transmission successful?
         self.frame = None # packet in queue #TODO: probably we will need to build a packet queue because i dont know how we are going to manage multiple packets
+        self.busy = False # busy flag for service status
+        self.pending_timeout = None
 
 
     def _reset_counters(self):
@@ -48,9 +50,12 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         if self.retry_count > ContikiOS_MAC_802154_Unslotted.macMaxFrameRetries: # if maximum retransmissions reached (maximum NOACK), give up
             self.tx_success = False
             #reset counters
+            self.busy = False
             self._reset_counters()
             
         else:
+            if not self.busy:
+                self.busy = True
             if payload is not None: 
                 self.frame = payload
                 if payload._daddr == Frame_802154.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
@@ -75,6 +80,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         if self.frame._requires_ack: # if frame requires the ack, then schedule the ack timeout
             ack_timeout_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.macAckWaitDuration
             ack_timeout_event = MacACKTimeoutEvent(time = ack_timeout_time, blame = self, callback = self.send, retry = True)
+            self.pending_timeout = ack_timeout_event # register the pending timout, to cancle it if you receive the ack
             self.host.context.scheduler.schedule(ack_timeout_event)
         else: # else, you can remove the frame from the buffer and set the transmission successful
             self.frame = None
@@ -89,13 +95,25 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.send()
 
 
-    def receive(self, payload: Frame_802154):
+    def receive(self, payload: Frame_802154 | Ack_802154):
         '''forward the pakcet in upper layers and send ACK'''
-        self.host.net.receive(Frame_802154) # Contiki notifies the upper layer right away
-        #schedule time for sending ACK
-        ack_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.aTurnaroundTime
-        send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send())
-        self.host.context.scheduler.schedule(send_ack_event)
+        if isinstance(payload, Frame_802154):
+            self.host.net.receive(payload) # Contiki notifies the upper layer right away
+            #schedule time for sending ACK
+            ack_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.aTurnaroundTime
+            send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send())
+            self.host.context.scheduler.schedule(send_ack_event)
+
+        elif isinstance(payload, Ack_802154): # if ack, trasmission successful
+            self.tx_success = True
+            self.busy = False
+            self.frame = None
+            self._reset_counters()
+            self.host.context.scheduler.unschedule(self.pending_timeout)
+            
+
+        else:
+            raise ValueError(f"MAC@Node {self.host.id}: Unknown packet type.")
 
 
 
