@@ -42,8 +42,8 @@ class WirelessChannel: # TODO: make this class a singleton
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
                 end_rx_time = start_rx_time + Frame_802154.on_air_duration
-                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_PhyRxStartEvent, transmission=transmission, channel_subject=self)
-                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_PhyRxEndEvent, channel_subject=self)
+                rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_PhyRxStartEvent, transmission=transmission)
+                rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_PhyRxEndEvent, transmission=transmission)
                 self.context.scheduler.schedule(rx_start_event)
                 self.context.scheduler.schedule(rx_end_event)
 

@@ -34,12 +34,18 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.frame = None # packet in queue #TODO: probably we will need to build a packet queue because i dont know how we are going to manage multiple packets
         self.busy = False # busy flag for service status
         self.pending_timeout = None
+        self.seqn = 0 #sequence number of the frame
 
 
     def _reset_counters(self):
         self.BE = ContikiOS_MAC_802154_Unslotted.macMinBE # initial backoff exponent
         self.NB = 0 # number of backoff attempts
         self.retry_count = 0
+
+    def _reset_status(self):
+        self.tx_success = True
+        self.busy = False
+        self.frame = None
 
 
     def send(self, payload: Frame_802154 = None, retry: bool = False):
@@ -57,8 +63,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
             if not self.busy:
                 self.busy = True
             if payload is not None: 
+                self.seqn += 1
+                payload.seqn = self.seqn
                 self.frame = payload
-                if payload._daddr == Frame_802154.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
+                if payload.daddr == Frame_802154.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
                     self.frame._requires_ack = False
 
             #true if the function is called by ACK timeout event
@@ -72,7 +80,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
                 backoff_slots = self.rng.integers(low = 0, high = max_slots) # exponential backoff (number of slots)
                 backoff_time = backoff_slots * ContikiOS_MAC_802154_Unslotted.aUnitBackoffPeriod # number of slots * time duration of each slot
                 send_req_time = self.host.context.scheduler.now() + backoff_time
-                send_req_event = MacSendReqEvent(time = send_req_time, blame = self, callback = self.host.rdc.send, frame = payload) # schedule CCA after backoff time
+                send_req_event = MacSendReqEvent(time = send_req_time, blame = self, callback = self.host.rdc.send, payload = payload) # schedule CCA after backoff time
                 self.host.context.scheduler.schedule(send_req_event)
 
 
@@ -82,9 +90,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
             ack_timeout_event = MacACKTimeoutEvent(time = ack_timeout_time, blame = self, callback = self.send, retry = True)
             self.pending_timeout = ack_timeout_event # register the pending timout, to cancle it if you receive the ack
             self.host.context.scheduler.schedule(ack_timeout_event)
+            self.tx_success = False #pessimism as a default
         else: # else, you can remove the frame from the buffer and set the transmission successful
-            self.frame = None
-            self.tx_success = True
+            self._reset_status()
             self._reset_counters()
 
 
@@ -100,14 +108,13 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         if isinstance(payload, Frame_802154):
             self.host.net.receive(payload) # Contiki notifies the upper layer right away
             #schedule time for sending ACK
+            ack_packet = Ack_802154(seqn = payload.seqn)
             ack_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.aTurnaroundTime
-            send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send())
+            send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send(), payload = ack_packet)
             self.host.context.scheduler.schedule(send_ack_event)
 
         elif isinstance(payload, Ack_802154): # if ack, trasmission successful
-            self.tx_success = True
-            self.busy = False
-            self.frame = None
+            self._reset_status()
             self._reset_counters()
             self.host.context.scheduler.unschedule(self.pending_timeout)
             

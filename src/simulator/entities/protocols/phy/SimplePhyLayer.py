@@ -1,22 +1,29 @@
 from simulator.entities.protocols.common.Layer import Layer
 from protocols.phy.common.ReceptionSession import ReceptionSession
-from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent
+from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Packet, Frame_802154
+from protocols.common.packets import Packet, Frame_802154, Ack_802154
 from entities.physical.devices.Node import Node
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
 
 
 class SimplePhyLayer(Layer):
-    def __init__(self, host: Node, transmission_media: WirelessChannel, capture_threshold_dB: float = 5, transmission_power: float = 0):
+    def __init__(self, host: Node, transmission_media: WirelessChannel, transmission_power: float = 0):
         super().__init__(self, host = host)
-        self.capture_threshold_dB = capture_threshold_dB # threshold for SINR to check if the transmission can be decoded
+        self.capture_threshold_dB = 5 #dB threshold for SINR to check if the transmission can be decoded
         self.cca_Threshold_dBm = -85 #dBm. Threshold for CCA (for power lower than this threshold we consider the channel as free)
+        self.correlator_threshold = -95 #dBm. It is the threshold required by the correlator to synchronize to the signal. AKA sensitivity
+        self.address_filter_delay = 896 * 1e-6 # TODO: check this (preamble + SFD + PHR, FCF, Seq_num + 2 bytes address = 832 us @ 16 us per symbol)
         self.transmission_power = transmission_power
-        self.current_session: ReceptionSession = None
-        self.active_session = False
         self.transmission_media = transmission_media
+
+        self.last_session: ReceptionSession = None
+        self.active_session = False
+        self.transmitting = False
+    
+
+        self._last_seqn = 0 #sequence number of the last sended frame. Used to filter ACKs
 
 
     def _is_decoded(self, session: ReceptionSession):
@@ -38,7 +45,7 @@ class SimplePhyLayer(Layer):
         noise_floor_linear = self.transmission_media.get_linear_noise_floor() # noise floor of the receiver
         # get SINR for each segment
         segments_SINR = []
-        for segment in self.current_session.reception_segments: #iterate on each segment
+        for segment in self.last_session.reception_segments: #iterate on each segment
             interferers_power = 0.0
             for transmitter, transmission in segment.interferers.items():
                 tx_power = transmission.transmission_power_dBm
@@ -56,41 +63,75 @@ class SimplePhyLayer(Layer):
         return decodable
 
 
+    #TODO: if it is an ack is differente because it has no address: we need to read only till the seqnum to undertand if it is an ack or not. so i need to schedule first the timer
+    #for read if it is an ack, and then in case schedule the timer for reading the address
 
-
-    def on_PhyRxStartEvent(self, transmission: Transmission, subject: WirelessChannel):
+    def on_PhyRxStartEvent(self, transmission: Transmission):
         
         #This is a simplification, to be fair we should schedule a delayed filter for the address.
         #The time that the radio takes to synchronize, find SFD and read the header with the address is around 896 us
         #TODO: given what we are modeling we should model also this, because the ack timings are based on this
         
-        destination = transmission.mac_frame._daddr
-        if destination == self.host.linkaddr or destination == Frame_802154.broadcast_linkaddr:
-            #create reception session
-            self.current_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
-            subject.subscribe_listener(self.current_session) # attach reception session
-            self.active_session = True
+        '''
+        If it is an ack, i need to wait the time for parsing the packet type and then, if the packet has the same seqnum of the last tx, accept it and notify the mac.
+        If the ack has a different seqnum, just drop.
+        If, instead, it is a data packet, i need to wait to parse the address and if it is for me, send it up to the mac. if is not for me, just drop.
+        '''
+        received_power = self.transmission_media.get_linear_link_budget(node1 = self.host, node2 = transmission.transmitter, tx_power_dBm = transmission.transmission_power_dBm)
+        if received_power < self.correlator_threshold: # if the received power is under the sensitivity, ignore everything
+            return
         
+        self._open_session(transmission)
+
+        if isinstance(transmission.packet, Ack_802154):
+            pending_ack = True if transmission.packet.seqn == self._last_seqn else False
+            type_detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
+            type_detection_event =  PhyPacketTypeDetectionEvent(time = type_detection_time, blame = self, callback = self._close_session if not pending_ack else None, transmission = transmission) # if is not a pending ack, close the session. If it is a pending ack continue decoding till PhyRxEndEvent
+            self.host.context.scheduler.schedule(type_detection_event)
+
+        elif isinstance(transmission.packet, Frame_802154):
+            this_destination = True if (transmission.packet.daddr == self.host.linkaddr or transmission.packet.daddr == Frame_802154.broadcast_linkaddr) else False
+            daddr_detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
+            daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if not this_destination else None, transmission = transmission) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
+            self.host.context.scheduler.schedule(daddr_detection_event)
+
         
-    def on_PhyRxEndEvent(self, subject: WirelessChannel):
+    def on_PhyRxEndEvent(self, transmission: Transmission):
         if self.active_session:
-            self.current_session.end_time = self.host.context.scheduler.now()
-            subject.unsubscribe_listener(self.current_session)
-            self.active_session = False
-            #TODO: compute statistics of SINR and decide if the packet is received or if tere is a collision
-            #if yes, forward to mac layer
-            if self._is_decoded(self.current_session):
-                self.receive(payload = self.current_session.capturing_tx.mac_frame)
+            self._close_session()
+            if self._is_decoded(self.last_session):
+                self.receive(payload = self.last_session.capturing_tx.packet)
                 
             else:
-                pass #TODO: else what?
-            self.current_session = None
-            self.active_session = False
+                pass #TODO: else what? just update a monitor counter probably
+        else: # if the session was already closed (because was an ack with different seqnum or because the packet had another destination address), do nothing
+            pass
 
+
+
+    def on_PhyTxStartEvent(self, transmission: Transmission):
+        self.transmitting = True # radio busy
+        self.transmission_media.on_PhyTxStartEvent(transmission=transmission) # notify channel
 
     def on_PhyTxEndEvent(self, transmission: Transmission):
+        self.transmittingv= False
         self.transmission_media.on_PhyTxEndEvent(transmission=transmission) # notify channel
         self.host.rdc.on_PhyTxEndEvent() # notify rdc
+
+
+
+
+    def _open_session(self, transmission: Transmission):
+        if not self.active_session:
+            self.last_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
+            self.transmission_media.subscribe_listener(self.last_session) # attach reception session
+            self.active_session = True
+        
+    def _close_session(self):
+        if self.active_session:
+           self.last_session.end_time = self.host.context.scheduler.now()
+           self.transmission_media.unsubscribe_listener(self.last_session)
+           self.active_session = False
 
 
 
@@ -98,12 +139,14 @@ class SimplePhyLayer(Layer):
         '''
         create transmission and schedule the phy_tx events
         '''
-        
+        if isinstance(payload, Frame_802154):
+            self._last_seqn = payload.seqn
+
         transmission = Transmission(transmitter = self.host, packet = payload, transmission_power_dBm = self.transmission_power)
         
         start_tx_time = self.host.context.scheduler.now() + 1e-12 # TODO: (maybe?) change this and insert some kind of delay
         end_tx_time = start_tx_time + payload.on_air_duration
-        tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.transmission_media.on_PhyTxStartEvent, transmission = transmission)
+        tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.on_PhyTxStartEvent, transmission = transmission)
         tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.on_PhyTxEndEvent, callback2 = self.host.rdc.on_PhyTxEndEvent, transmission = transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)

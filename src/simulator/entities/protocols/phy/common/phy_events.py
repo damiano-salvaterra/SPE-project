@@ -28,3 +28,9 @@ This event is scheduled together with PhyRxStartEvent and handled by PhyLayer
 '''
 class PhyRxEndEvent(Event):
     pass
+
+class PhyPacketTypeDetectionEvent(Event):
+    pass
+
+class PhyDaddrDetectionEvent(Event):
+    pass
