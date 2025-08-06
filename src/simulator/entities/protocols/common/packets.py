@@ -1,5 +1,6 @@
 from typing import Optional, Any
 from abc import ABC, abstractmethod
+from enum import Enum
 
 '''
 This module implments the Packet class and subclasses
@@ -66,17 +67,22 @@ class NetPacket(ABC):
 class TARPHeader:
     pass
 
+class TARPUnicastType(Enum):
+    UC_TYPE_DATA = 0
+    UC_TYPE_REPORT = 1
 
-class TARP_unicast_header(TARPHeader):
+class TARPUnicastHeader(TARPHeader):
 
-    def __init__(self, type: int, s_addr: bytes, d_addr: bytes, hops: int):
+
+
+    def __init__(self, type: TARPUnicastType, s_addr: bytes, d_addr: bytes, hops: int):
         self.type = type
         self.s_addr = s_addr
         self.d_addr = d_addr
         self.hops = hops
 
         
-class TARP_broadcast_header(TARPHeader):
+class TARPBroadcastHeader(TARPHeader):
     
     def __init__(self, seqn: int, metric_q124: float, hops: int, parent: bytes):
         self.seqn = seqn
@@ -87,6 +93,9 @@ class TARP_broadcast_header(TARPHeader):
 
 class TARPPacket(NetPacket):
 
-    def __init__(self, header: TARPHeader, APDU: Optional[Any]= None):
+    def __init__(self, header: TARPHeader, APDU: Optional[Any] = None):
         self.header = header
         self.APDU = APDU
+
+
+''' Application request. It is not an actual packet, but exists for interface compliance'''

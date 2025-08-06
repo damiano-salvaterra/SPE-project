@@ -1,10 +1,5 @@
 from engine.common.Event import Event
-from protocols.phy.common.Transmission import Transmission
-from entities.physical.media.WirelessChannel import WirelessChannel
-from typing import Optional, Any
-from collections.abc import Callable
 
-from typing import Optional, Any, Callable
 
 '''
 This event is scheduled by the PhyLayer and handled by WirelessChannel
