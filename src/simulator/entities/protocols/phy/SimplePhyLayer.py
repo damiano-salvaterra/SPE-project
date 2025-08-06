@@ -14,7 +14,6 @@ class SimplePhyLayer(Layer):
         self.capture_threshold_dB = 5 #dB threshold for SINR to check if the transmission can be decoded
         self.cca_Threshold_dBm = -85 #dBm. Threshold for CCA (for power lower than this threshold we consider the channel as free)
         self.correlator_threshold = -95 #dBm. It is the threshold required by the correlator to synchronize to the signal. AKA sensitivity
-        self.address_filter_delay = 896 * 1e-6 # TODO: check this (preamble + SFD + PHR, FCF, Seq_num + 2 bytes address = 832 us @ 16 us per symbol)
         self.transmission_power = transmission_power
         self.transmission_media = transmission_media
 
@@ -63,14 +62,7 @@ class SimplePhyLayer(Layer):
         return decodable
 
 
-    #TODO: if it is an ack is differente because it has no address: we need to read only till the seqnum to undertand if it is an ack or not. so i need to schedule first the timer
-    #for read if it is an ack, and then in case schedule the timer for reading the address
-
     def on_PhyRxStartEvent(self, transmission: Transmission):
-        
-        #This is a simplification, to be fair we should schedule a delayed filter for the address.
-        #The time that the radio takes to synchronize, find SFD and read the header with the address is around 896 us
-        #TODO: given what we are modeling we should model also this, because the ack timings are based on this
         
         '''
         If it is an ack, i need to wait the time for parsing the packet type and then, if the packet has the same seqnum of the last tx, accept it and notify the mac.
@@ -114,7 +106,7 @@ class SimplePhyLayer(Layer):
         self.transmission_media.on_PhyTxStartEvent(transmission=transmission) # notify channel
 
     def on_PhyTxEndEvent(self, transmission: Transmission):
-        self.transmittingv= False
+        self.transmitting = False
         self.transmission_media.on_PhyTxEndEvent(transmission=transmission) # notify channel
         self.host.rdc.on_PhyTxEndEvent() # notify rdc
 
@@ -147,7 +139,7 @@ class SimplePhyLayer(Layer):
         start_tx_time = self.host.context.scheduler.now() + 1e-12 # TODO: (maybe?) change this and insert some kind of delay
         end_tx_time = start_tx_time + payload.on_air_duration
         tx_start_event = PhyTxStartEvent(time=start_tx_time, blame = self, callback = self.on_PhyTxStartEvent, transmission = transmission)
-        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.on_PhyTxEndEvent, callback2 = self.host.rdc.on_PhyTxEndEvent, transmission = transmission)
+        tx_end_event = PhyTxEndEvent(time=end_tx_time, blame=self, callback=self.on_PhyTxEndEvent, transmission = transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)
         self.host.context.scheduler.schedule(tx_end_event)

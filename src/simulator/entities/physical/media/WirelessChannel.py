@@ -5,7 +5,7 @@ from environment.propagation.narrowband import NarrowbandChannelModel
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyRxStartEvent, PhyRxEndEvent
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Frame_802154
+from protocols.common.packets import Packet
 from entities.physical.devices.Node import Node
 from engine.common.SimulationContext import SimulationContext
 '''
@@ -41,7 +41,7 @@ class WirelessChannel: # TODO: make this class a singleton
                 propagation_delay = self.propagation_model.propagation_delay(transmitter_position, receiver.position)
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
-                end_rx_time = start_rx_time + Frame_802154.on_air_duration
+                end_rx_time = start_rx_time + transmission.packet.on_air_duration
                 rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_PhyRxStartEvent, transmission=transmission)
                 rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_PhyRxEndEvent, transmission=transmission)
                 self.context.scheduler.schedule(rx_start_event)

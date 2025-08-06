@@ -2,7 +2,7 @@ from simulator.entities.protocols.common.Layer import Layer
 from entities.physical.devices.Node import Node
 from protocols.common.packets import Frame_802154, Ack_802154
 from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
-
+z
 '''
 This class implements the non-beacon enabled 802.15.4 MAC CSMA protocol AS IT IS IMPLEMENTED in ContikiOS.
 This means that it may not be strictly compliant to the IEEE 802.15.4 standard MAC.
@@ -11,16 +11,15 @@ https://github.com/contiki-os/contiki/blob/master/core/net/mac/csma.c
 '''
 
 class ContikiOS_MAC_802154_Unslotted(Layer):
-
     macMinBE = 3
-    macMaxBE = 5 # min and max backoff exponents
-    macMaxCSMABackoffs = 4 # max backoff attempts before failing tranmission
-    aUnitBackoffPeriod = 320 * 1e-6 # backoff unit (20 symbols @ 2.4 GhZ around 320 us)
-    macMaxFrameRetries = 3 # max retries for missing ACK failures
-    macAckWaitDuration = 864 * 1e-6 # time interval for waiting the ACK before retrying the transmission #TODO: check this
-    aTurnaroundTime = 192 * 10**-6 # time between the end of the reception and the sending of the ACK (192 us)
-
-    
+    macMaxBE = 5
+    macMaxCSMABackoffs = 4
+    aUnitBackoffPeriod = 320 * 1e-6
+    macMaxFrameRetries = 3
+    # Standard IEEE 802.15.4 (2.4 GHz O-QPSK): 54 symbols * 16 us/symbol = 864 us.
+    # Derived from: aUnitBackoffPeriod(20) + aTurnaroundTime(12) + SHR_duration(10) + PHR_and_payload_symbols
+    macAckWaitDuration = 864 * 1e-6
+    aTurnaroundTime = 192 * 1e-6
 
     def __init__(self, host: Node):
         super().__init__(self)
@@ -29,99 +28,135 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.host.context.random_manager.create_stream(rng_id)
         self.rng = self.host.context.random_manager.get_stream(rng_id)
 
-        self._reset_counters()
-        self.tx_success = False # is the transmission successful?
-        self.frame = None # packet in queue #TODO: probably we will need to build a packet queue because i dont know how we are going to manage multiple packets
-        self.busy = False # busy flag for service status
-        self.pending_timeout = None
-        self.seqn = 0 #sequence number of the frame
+        self.tx_queue = deque()  # Transmission queue
+        self.current_frame: Frame_802154 = None
+        self.is_busy = False # MAC status
+        self.pending_ack_timeout_event = None
+        self.seqn = 0
+
+        self._reset_contention_counters()
 
 
-    def _reset_counters(self):
-        self.BE = ContikiOS_MAC_802154_Unslotted.macMinBE # initial backoff exponent
-        self.NB = 0 # number of backoff attempts
+
+    def _reset_contention_counters(self):
+        self.BE = self.macMinBE
+        self.NB = 0
+
+
+
+    def _reset_mac_state(self):
+        self.is_busy = False
+        self.current_frame = None
         self.retry_count = 0
-
-    def _reset_status(self):
-        self.tx_success = True
-        self.busy = False
-        self.frame = None
+        self._reset_contention_counters()
 
 
-    def send(self, payload: Frame_802154 = None, retry: bool = False):
+
+    def send(self, payload: Frame_802154):
         '''
-        triggered by send event from upper layers.
-        This function implements the backoff procedure and schedules the related events'''
+        MCalled from upper layer. put the packet in the queue and try to send.
+        '''
+        self.tx_queue.append(payload)
+        if not self.is_busy:
+            self._try_send_next()
 
-        if self.retry_count > ContikiOS_MAC_802154_Unslotted.macMaxFrameRetries: # if maximum retransmissions reached (maximum NOACK), give up
-            self.tx_success = False
-            #reset counters
-            self.busy = False
-            self._reset_counters()
-            
-        else:
-            if not self.busy:
-                self.busy = True
-            if payload is not None: 
-                self.seqn += 1
-                payload.seqn = self.seqn
-                self.frame = payload
-                if payload.daddr == Frame_802154.broadcast_linkaddr: # if the packet is broadcast, deactivate ack
-                    self.frame._requires_ack = False
 
-            #true if the function is called by ACK timeout event
-            if retry: # if it is a retry (missing ACK), then resed the channel contention and restart
-                self.retry_count += 1
-                self.NB = 0
-                self.BE = ContikiOS_MAC_802154_Unslotted.macMinBE
+    def _try_send_next(self):
+        '''
+        If radio is not busy, send the next packet
+        '''
+        if not self.tx_queue or self.is_busy:
+            return
 
-            if self.NB < ContikiOS_MAC_802154_Unslotted.macMaxCSMABackoffs:
-                max_slots = 2**self.BE
-                backoff_slots = self.rng.integers(low = 0, high = max_slots) # exponential backoff (number of slots)
-                backoff_time = backoff_slots * ContikiOS_MAC_802154_Unslotted.aUnitBackoffPeriod # number of slots * time duration of each slot
-                send_req_time = self.host.context.scheduler.now() + backoff_time
-                send_req_event = MacSendReqEvent(time = send_req_time, blame = self, callback = self.host.rdc.send, payload = payload) # schedule CCA after backoff time
-                self.host.context.scheduler.schedule(send_req_event)
+        self.is_busy = True
+        self.current_frame = self.tx_queue.popleft()
+        
+        self.seqn = (self.seqn + 1) % 256
+        self.current_frame.seqn = self.seqn # assign seqnum
+        
+        if self.current_frame.daddr == Frame_802154.broadcast_linkaddr:
+            self.current_frame._requires_ack = False  # if broadcast, does not require ack
+
+        self.retry_count = 0
+        self._reset_contention_counters()
+        self._schedule_cca()
+
+
+
+    def _schedule_cca(self, is_retry: bool = False):
+        '''
+        Backoff and CCA logic
+        '''
+        if is_retry:
+            if self.retry_count > self.macMaxFrameRetries:
+                # set transmission as failed
+                self._handle_tx_failure()
+                return
+            self.retry_count += 1
+            self._reset_contention_counters() # reset contention counters and retry tranmission
+        
+        if self.NB >= self.macMaxCSMABackoffs:
+            self._handle_tx_failure() # fail because the channel is always busy
+            return
+
+        # compute backoffs
+        max_slots = (2**self.BE) - 1
+        backoff_slots = self.rng.integers(low=0, high=max_slots)
+        backoff_time = backoff_slots * self.aUnitBackoffPeriod
+        
+        send_req_time = self.host.context.scheduler.now() + backoff_time
+        send_req_event = MacSendReqEvent(time=send_req_time, blame=self, callback=self.host.rdc.send, payload=self.current_frame)
+        self.host.context.scheduler.schedule(send_req_event)
+
 
 
     def on_RDCSent(self):
-        if self.frame._requires_ack: # if frame requires the ack, then schedule the ack timeout
-            ack_timeout_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.macAckWaitDuration
-            ack_timeout_event = MacACKTimeoutEvent(time = ack_timeout_time, blame = self, callback = self.send, retry = True)
-            self.pending_timeout = ack_timeout_event # register the pending timout, to cancle it if you receive the ack
+        '''Called by RDC when the phy transmission is terminated'''
+        if self.current_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
+            ack_timeout_time = self.host.context.scheduler.now() + self.macAckWaitDuration
+            ack_timeout_event = MacACKTimeoutEvent(time=ack_timeout_time, blame=self, callback=self._schedule_cca, is_retry=True)
+            self.pending_ack_timeout_event = ack_timeout_event
             self.host.context.scheduler.schedule(ack_timeout_event)
-            self.tx_success = False #pessimism as a default
-        else: # else, you can remove the frame from the buffer and set the transmission successful
-            self._reset_status()
-            self._reset_counters()
+        else:
+            # otherwise it is a broadcast: success by default
+            self._handle_tx_success()
+
 
 
     def on_RDCNotSent(self):
-        #something happened (channel busy or whatever): increment backoff counters and try again 
+        '''called by RDC if CCA fails'''
         self.NB += 1
-        self.BE = min(self.BE + 1, ContikiOS_MAC_802154_Unslotted.macMaxBE)
-        self.send()
+        self.BE = min(self.BE + 1, self.macMaxBE)
+        self._schedule_cca() # update coutners and retry backoff
+
 
 
     def receive(self, payload: Frame_802154 | Ack_802154):
-        '''forward the pakcet in upper layers and send ACK'''
+        '''Mananges the packets received from RDC'''
         if isinstance(payload, Frame_802154):
-            self.host.net.receive(payload) # Contiki notifies the upper layer right away
-            #schedule time for sending ACK
-            ack_packet = Ack_802154(seqn = payload.seqn)
-            ack_time = self.host.context.scheduler.now() + ContikiOS_MAC_802154_Unslotted.aTurnaroundTime
-            send_ack_event = MacACKSendEvent(time = ack_time, blame = self, callback = self.host.rdc.send(), payload = ack_packet)
-            self.host.context.scheduler.schedule(send_ack_event)
-
-        elif isinstance(payload, Ack_802154): # if ack, trasmission successful
-            self._reset_status()
-            self._reset_counters()
-            self.host.context.scheduler.unschedule(self.pending_timeout)
-            
-
-        else:
-            raise ValueError(f"MAC@Node {self.host.id}: Unknown packet type.")
+            self.host.net.receive(payload)
+            if payload._requires_ack:
+                ack_packet = Ack_802154(seqn=payload.seqn)
+                ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
+                send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=ack_packet)
+                self.host.context.scheduler.schedule(send_ack_event)
+        
+        elif isinstance(payload, Ack_802154):
+            if self.is_busy and self.current_frame and payload.seqn == self.current_frame.seqn:
+                # If mac is busy, the current frame is not null and the seqnum f the received ack corresponds, then this ack is for me
+                self.host.context.scheduler.unschedule(self.pending_ack_timeout_event)
+                self.pending_ack_timeout_event = None
+                self._handle_tx_success() # YAY
 
 
 
-        #TODO: i need to manage the reception of the ack: if received, stop retransmitting and unschedule the timeout
+    def _handle_tx_success(self):
+        # TODO: notifuy upper layer
+        self._reset_mac_state()
+        self._try_send_next() # send other packets in the queue
+
+
+    def _handle_tx_failure(self):
+        # TODO: Notify upper layer
+        self._reset_mac_state()
+        self._try_send_next() # send other packets in the queue

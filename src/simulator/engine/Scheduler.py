@@ -7,23 +7,21 @@ from simulator.engine.common.Event import Event
 #TODO: fix the singleton implementation
 
 class Scheduler:
-    _instance: Optional["Scheduler"] = None ## "" is a forward reference (class is not defined yet)
+    _instance: Optional["Scheduler"] = None # "" is a forward reference (class is not defined yet)
 
-    def __init__(self) -> None:
-        if Scheduler._instance is not None:
-            raise Exception("Use the 'init()' method to get the instance of this class.")
-        self._time_scale = SCHEDULER_TIME_SCALE # time scale for the scheduler, to avoid floating point precision issues
-        self._instance.event_queue: List[Event] = []
-        self._instance._current_time: float = 0.0 # Current simulation time, to avoid to schedule past events
-        self.last_event_id: int = 0 # Unique ID for each event, to avoid collisions
-
-
-    @classmethod
-    def init(cls) -> "Scheduler":
+    def __new__(cls) -> "Scheduler":
+        """
+        Constructor. Control instance creation to be a singleton
+        """
         if cls._instance is None:
-            cls._instance = cls.__new__(cls) # create Singleton instance
-            Scheduler.__init__(cls._instance) # initialize the instance
+            print("Creating new Scheduler instance")
+            cls._instance = super(Scheduler, cls).__new__(cls)
+            cls._instance.event_queue = []
+            cls._instance._current_time = 0.0
+            cls._instance.last_event_id= 0
+            cls._instance._time_scale = SCHEDULER_TIME_SCALE
         return cls._instance
+    
 
     def schedule(self, event: Event) -> float:
         """
