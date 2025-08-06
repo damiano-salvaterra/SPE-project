@@ -2,9 +2,8 @@ from environment.geometry import CartesianCoordinate
 from protocols.phy.SimplePhyLayer import SimplePhyLayer
 from protocols.radio_dc.NullRDC import NullRDC
 from protocols.mac.ContikiOS_MAC_802154 import ContikiOS_MAC_802154_Unslotted
-from protocols.net.TARP_routing import TARP
+from simulator.entities.protocols.net.TARP import TARP
 from applications.Application import Application
-from applications.random_traffic import RandomTrafficApplication
 from engine.common.SimulationContext import SimulationContext
 
 '''

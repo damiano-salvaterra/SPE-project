@@ -5,13 +5,13 @@ from abc import ABC, abstractmethod
 This module implments the Packet class and subclasses
 '''
 
-class Packet(ABC):
+class MACFrame(ABC):
      on_air_duration = 0.0 #default, just for polymorphism
      def __init__(self, data: Optional[Any]):
         super().__init__()
         self.data = data
          
-class Frame_802154(Packet):
+class Frame_802154(MACFrame):
     on_air_duration = 4.83 * 1e-3# gross estimate of the longest packet duration (SHR + PHR + MAC Header + FCS + payload) for 802.15.4 @ 2.4Ghz, 250 kbps
                             # maximum packet size is 127 bytes, we keep this size for worst case scenario. TODO: verify this
     broadcast_linkaddr = bytes([0xFF, 0xFF])
@@ -19,15 +19,15 @@ class Frame_802154(Packet):
                                      # the 2-byte-address ends at byte 11, the on air time of a byte is 32 us
 
     
-    def __init__(self, seqn: int, saddr: bytes, daddr: bytes, requires_ack: bool = False, data: Optional[Any] = None):
+    def __init__(self, seqn: int, tx_addr: bytes, rx_addr: bytes, requires_ack: bool = False, NPDU: Optional[Any] = None):
         self.seqn = seqn
-        self.saddr = saddr # source address
-        self.daddr = daddr # destination address
+        self.tx_addr = tx_addr # transmitter address
+        self.rx_addr = rx_addr # receiver address
         self._requires_ack = requires_ack # false if it is broadcast
-        self._data = data
+        self.NPDU = NPDU # PDU from upper layer
 
 
-class Ack_802154(Packet):
+class Ack_802154(MACFrame):
     on_air_duration = 352 * 1e-6 # duration of the ack packet (SHR + PHR + MAC Header + FCS + payload)
     ack_detection_time = 288 * 1e-6 #time required to successfully detect an ack  at the receiver. TODO: reference?
                                     # i can detect it afte 9 bytes
@@ -53,3 +53,40 @@ MAC_FCS_BYTES = 2 # Frame Check Sequence
 
 instead of hard coding stuff
 '''
+
+
+
+
+'''Network layer stuff'''
+
+'''Some interfaces. Mostly for future extensibility of the simulator'''
+class NetPacket(ABC):
+    pass
+
+class TARPHeader:
+    pass
+
+
+class TARP_unicast_header(TARPHeader):
+
+    def __init__(self, type: int, s_addr: bytes, d_addr: bytes, hops: int):
+        self.type = type
+        self.s_addr = s_addr
+        self.d_addr = d_addr
+        self.hops = hops
+
+        
+class TARP_broadcast_header(TARPHeader):
+    
+    def __init__(self, seqn: int, metric_q124: float, hops: int, parent: bytes):
+        self.seqn = seqn
+        self.metric_q124 = metric_q124
+        self.hops = hops
+        self.parent = parent
+
+
+class TARPPacket(NetPacket):
+
+    def __init__(self, header: TARPHeader, APDU: Optional[Any]= None):
+        self.header = header
+        self.APDU = APDU

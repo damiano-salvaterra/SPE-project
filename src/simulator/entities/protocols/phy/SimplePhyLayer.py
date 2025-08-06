@@ -2,7 +2,7 @@ from simulator.entities.protocols.common.Layer import Layer
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Packet, Frame_802154, Ack_802154
+from protocols.common.packets import MACFrame, Frame_802154, Ack_802154
 from entities.physical.devices.Node import Node
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
@@ -82,7 +82,7 @@ class SimplePhyLayer(Layer):
             self.host.context.scheduler.schedule(type_detection_event)
 
         elif isinstance(transmission.packet, Frame_802154):
-            this_destination = True if (transmission.packet.daddr == self.host.linkaddr or transmission.packet.daddr == Frame_802154.broadcast_linkaddr) else False
+            this_destination = True if (transmission.packet.rx_addr == self.host.linkaddr or transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr) else False
             daddr_detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
             daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if not this_destination else None, transmission = transmission) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
             self.host.context.scheduler.schedule(daddr_detection_event)
@@ -127,7 +127,7 @@ class SimplePhyLayer(Layer):
 
 
 
-    def send(self, payload: Packet):
+    def send(self, payload: MACFrame):
         '''
         create transmission and schedule the phy_tx events
         '''
@@ -169,6 +169,6 @@ class SimplePhyLayer(Layer):
 
 
 
-    def receive(self, payload: Packet):
+    def receive(self, payload: MACFrame):
         '''call the RDC'''
         self.host.rdc.receive(payload = payload)

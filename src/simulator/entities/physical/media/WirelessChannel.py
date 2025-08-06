@@ -5,7 +5,7 @@ from environment.propagation.narrowband import NarrowbandChannelModel
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyRxStartEvent, PhyRxEndEvent
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import Packet
+from protocols.common.packets import MACFrame
 from entities.physical.devices.Node import Node
 from engine.common.SimulationContext import SimulationContext
 '''

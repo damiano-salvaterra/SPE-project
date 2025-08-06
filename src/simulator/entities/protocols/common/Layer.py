@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from protocols.common.packets import Packet
+from protocols.common.packets import MACFrame
 from entities.physical.devices.Node import Node
 
 class Layer(ABC):
@@ -12,9 +12,9 @@ class Layer(ABC):
         self.host = host
         
     @abstractmethod
-    def send(payload: Packet):
+    def send(payload: MACFrame):
         pass
     @abstractmethod
-    def receive(payload: Packet):
+    def receive(payload: MACFrame):
         pass
         

@@ -1,8 +1,8 @@
 from simulator.entities.protocols.common.Layer import Layer
 from entities.physical.devices.Node import Node
-from protocols.common.packets import Frame_802154, Ack_802154
+from protocols.common.packets import Frame_802154, Ack_802154, NetPacket
 from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
-z
+from collections import deque
 '''
 This class implements the non-beacon enabled 802.15.4 MAC CSMA protocol AS IT IS IMPLEMENTED in ContikiOS.
 This means that it may not be strictly compliant to the IEEE 802.15.4 standard MAC.
@@ -52,11 +52,14 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
 
 
 
-    def send(self, payload: Frame_802154):
+    def send(self, payload: NetPacket, nexthop: bytes):
         '''
-        MCalled from upper layer. put the packet in the queue and try to send.
+        Called from upper layer. put the packet in the queue and try to send.
         '''
-        self.tx_queue.append(payload)
+        requires_ack = True if (nexthop != Frame_802154.broadcast_linkaddr)else False # if the nexthop is not the broadcast address, then the frame requires ack
+        mac_frame = Frame_802154(seqn = None, tx_addr = self.host.linkaddr, rx_addr = nexthop, requires_ack = requires_ack, NPDU = payload) # seqnum is set later, just before trying to send this frame
+        
+        self.tx_queue.append(mac_frame)
         if not self.is_busy:
             self._try_send_next()
 
@@ -74,7 +77,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         self.seqn = (self.seqn + 1) % 256
         self.current_frame.seqn = self.seqn # assign seqnum
         
-        if self.current_frame.daddr == Frame_802154.broadcast_linkaddr:
+        if self.current_frame.rx_addr == Frame_802154.broadcast_linkaddr:
             self.current_frame._requires_ack = False  # if broadcast, does not require ack
 
         self.retry_count = 0
@@ -136,9 +139,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
         if isinstance(payload, Frame_802154):
             self.host.net.receive(payload)
             if payload._requires_ack:
-                ack_packet = Ack_802154(seqn=payload.seqn)
+                auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
-                send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=ack_packet)
+                send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=auto_ack)
                 self.host.context.scheduler.schedule(send_ack_event)
         
         elif isinstance(payload, Ack_802154):
