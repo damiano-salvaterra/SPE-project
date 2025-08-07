@@ -21,11 +21,16 @@ class NodeType(Enum):
     NODE_NEIGHBOR = 3
 
 class TARP(Layer, Entity):
+    MAX_STAT_PER_FRAGMENT = 37 #Max bytes allowed per packet (PHY) in 802.15.4 is 127. 
+                            # Approximately, taking out all the overhead due to header (TARP included), we are left with around 112 bytes
+                            # now, each status voice in the report is 3 bytes, plus une byte for the number of voices. so we can send maximum 37 
+                            #voices in the topology report. However, Contiki often keep the packetbuf smaller than 127 bytes. So we may want to set an arbitrary value
     MAX_PATH_LENGTH = 40 # maximum number of hops before dropping the packet
     CLEANUP_INTERVAL = 15 #cleanup the routing table from expired entries every 15 seconds
     ALWAYS_INVALID_AGE = -1 # time 0. Route having this age are always invalid.
                             #In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
     TREE_BEACON_INTERVAL = 60
+    SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
     RSSI_LOW_THR = -85
     RSSI_HIGH_REF = -35
     DELTA_ETX_MIN = 0.3
@@ -62,6 +67,7 @@ class TARP(Layer, Entity):
         self.seqn = 0
         self.hops = TARP.MAX_PATH_LENGTH + 1
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
+        self.tpl_buf_offset # offset to be kept between one fragment and another
 
         rng_id = f"NODE:{self.host.id}/NET_TARP"
         self.host.context.random_manager.create_stream(rng_id)
@@ -85,6 +91,7 @@ class TARP(Layer, Entity):
 
     def _flush_tpl_buf(self): #flushes the diff buffer
         self.tpl_buf.clear()
+        self.tpl_buf_offset = 0
 
 
     def _reset_connection_status(self, seqn: int):
@@ -193,7 +200,7 @@ class TARP(Layer, Entity):
             self.host.context.scheduler.schedule(beacon_forward_event)
 
             #schedule first topology report
-            first_report_time = current_time + self._subtree_report_base_delay()
+            first_report_time = current_time + self._subtree_report_base_delay_and_jitter()
             first_report_event = NetTopologyReportSendEvent(time = first_report_time, blame=self, callback=self._subtree_report_cb)
             self.host.context.scheduler.schedule(first_report_event)
 
@@ -203,13 +210,128 @@ class TARP(Layer, Entity):
             If it is a child, then it has to be added to the buffer if it is still advertising this node as
             a parent, otherwise it has to be removed from the buffer, because it found a better parent.
             '''
+            if header.parent == self.host.linkaddr: #if the transmitter is indicating this node as parent, then is this node's child
+                tx_entry.type = NodeType.NODE_CHILD
+                self.tpl_buf[tx_addr] = self.RouteStatus.STATUS_ADD # add it to the topology buffer
+            else: # either it is a neighbor, or an old child
+                if tx_entry.type == NodeType.NODE_CHILD:
+                    tx_entry.type = NodeType.NODE_NEIGHBOR # downclass to neighobr
+                    #if it was in the buffer, remove it
+                    if tx_addr in self.tpl_buf:
+                        self.tpl_buf.pop(tx_addr)
+                #else it is a neighbor: no need to do anything, entry type is already up to date
+    
+
+
+    def _subtree_report_cb(self): #TODO: check tis function
+
+        if len(self.tpl_buf) == 0: # if the topology buffer is empty, just send a keep alive and schedule next report
+            # NOTE: in the original C code, there is a bug: in this case, the report is not sent, but when I designed the protocol
+            # in this case the report actually MUST be sent, because it serves as keep alive message.
+            # So, here we implement it
+            self._schedule_next_report()
+
+            header = TARPUnicastHeader(type=TARPUnicastType.UC_TYPE_REPORT, s_addr=self.host.linkaddr, d_addr=self.parent, hops=0)
+            packet = TARPPacket(header=header, APDU=None)
+            self.host.mac.send(packet, self.parent, self._uc_sent)
+
+        
+        else: # the buffer is not empty, handle fragmentation and sending.
+            remaining_items = len(self.tpl_buf) - self.tpl_buf_offset
+            frag_size = min(remaining_items, TARP.MAX_STAT_PER_FRAGMENT)
+
+            # build payload for this fragment
+            voice_addr = list(self.tpl_buf.keys())
+            #extract a sub-dictionary corresponding to this fragment
+            fragment_payload = {addr: self.tpl_buf[addr] for addr in voice_addr[self.tpl_buf_offset : self.tpl_buf_offset + frag_size]}
+        
+
+            header = TARPUnicastHeader(type=TARPUnicastType.UC_TYPE_REPORT, s_addr=self.host.linkaddr, d_addr=self.parent, hops=0)
+            packet = TARPPacket(header=header, APDU=fragment_payload)
+            self.host.mac.send(packet, self.parent, self._uc_sent)
+
+            # move the offset for the next fragment.
+            self.tpl_buf_offset += frag_size
+
+            # if there are more fragments to be sent, schedule the next one with a short delay.
+            if self.tpl_buf_offset < len(self.tpl_buf):
+                # schedule the next fragment with a short inter-packet delay.
+                next_frag_time = self.host.context.scheduler.now() + 0.02 # 20ms delay
+                next_report_event = NetTopologyReportSendEvent(time=next_frag_time, blame=self, callback=self._subtree_report_cb)
+                self.host.context.scheduler.schedule(next_report_event)
+            else:
+                # the entire buffer has been transmitted, flush and schedule next topology report
+                self._flush_tpl_buf()
+                self._schedule_next_report()
+
+
+                
+    def _schedule_next_report(self):
+        interval = self._subtree_report_node_interval()
+        next_report_time = self.host.context.scheduler.now() + interval
+        self.host.context.scheduler.schedule(NetTopologyReportSendEvent(time=next_report_time, blame=self, callback=self._subtree_report_cb))
+
+
+
+    def _buff_subtree(self):
+        '''fills the buffer with the subtree, to send to the new parent'''
+        self._flush_tpl_buf() #flush the buffer
+        for addr, entry in self.nbr_tbl.items():
+            if entry.type ==  NodeType.NODE_CHILD or entry.type == NodeType.NODE_DESCENTANT:
+                self.tpl_buf[addr] = self.RouteStatus.STATUS_ADD
+
+    def _change_parent(self):
+        best_metric = float('inf')
+        new_parent_addr = None
+
+        #find neighbor with best metric (excluding descendants and children)
+        for addr, entry in self.nbr_tbl.items():
+           if entry.type == NodeType.NODE_NEIGHBOR:
+               metric = self._metric(entry.adv_metric, entry.etx)
+               if metric < best_metric:
+                   best_metric = metric
+                   new_parent_addr = addr
+
+        old_parent_entry = self.nbr_tbl[self.parent]
+        old_parent_entry.type = NodeType.NODE_NEIGHBOR
+        old_parent_entry.age = TARP.ALWAYS_INVALID_AGE
+
+        if new_parent_addr: # if a new parent has been found
+            self.parent = new_parent_addr
+            self.metric = best_metric
+            self.nbr_tbl[new_parent_addr].type = NodeType.NODE_PARENT
+            self.hops = self.nbr_tbl[new_parent_addr] + 1
+
+            self._buff_subtree() # bufferize the subtree
+            self._subtree_report_cb() #send the buffer to the new parent
+
+        else: # there are no neighbors available, disconnect from the network
+            self.parent = None
+
+
+
+    def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
+
+        header: TARPUnicastHeader = payload.header
+        header.hops = header.hops + 1# update hop counts in the header to reuse it in case of forward
+
+        if header.hops > TARP.MAX_PATH_LENGTH: #drop packets with too many hops
+            return
+        
+        self._nbr_tbl_refresh(tx_addr)
+
+        if header.type == TARPUnicastType.UC_TYPE_DATA:
+            if header.d_addr == self.host.linkaddr:
+                self.host.app.receive(payload.APDU) #deliver to application
+            else:
+                self._forward_data(header, payload=payload.APDU)
+
+        elif header.type == TARPUnicastType.UC_TYPE_REPORT:
             
 
 
-
-        
-
-        
+    def _uc_sent():
+        pass
 
 
 
@@ -218,7 +340,7 @@ class TARP(Layer, Entity):
         #first, understand if it is a broadcast or unicast, and then delegate to specific functions
         # in Contiki the incoming packet is dispatched to the correct function by lower layers
         if isinstance(payload.header, TARPUnicastHeader):
-            self._uc_recv(payload)
+            self._uc_recv(payload, tx_addr)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, tx_addr)
     ##################################################################################
@@ -270,5 +392,8 @@ class TARP(Layer, Entity):
         thr = self._metric_improv_thr(cur_m)
         return (new_m + thr) < cur_m
 
-    def _subtree_report_base_delay(self) -> float:
+    def _subtree_report_base_delay_and_jitter(self) -> float:
         return (5 / self.hops) + (self.rng(low=0, hig=0.4))
+    
+    def _subtree_report_node_interval(self) -> float:
+        return TARP.SUBTREE_REPORT_OFFEST * (1.0 + (1.0/self.hops))
