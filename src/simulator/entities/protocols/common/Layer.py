@@ -15,6 +15,6 @@ class Layer(ABC):
     def send(payload: Any, destination: Optional[Any] = None):
         pass
     @abstractmethod
-    def receive(payload: Any):
+    def receive(payload: Any, sender: Optional[Any] = None):
         pass
         

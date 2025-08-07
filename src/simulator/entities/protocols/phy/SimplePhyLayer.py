@@ -25,6 +25,7 @@ class SimplePhyLayer(Layer, Entity):
     
 
         self._last_seqn = 0 #sequence number of the last sended frame. Used to filter ACKs
+        self._last_successful_rx_rssi_dBm: float = -150.0 #init to low value 
 
 
     def _is_decoded(self, session: ReceptionSession):
@@ -92,10 +93,11 @@ class SimplePhyLayer(Layer, Entity):
         
     def on_PhyRxEndEvent(self, transmission: Transmission):
         if self.active_session:
+            rssi_dBm = self.transmission_media.propagation_model.link_budget(A=self.host.position, B=transmission.transmitter.position, Pt_dBm=transmission.transmission_power_dBm)
             self._close_session()
             if self._is_decoded(self.last_session):
+                self._last_successful_rx_rssi_dbm = rssi_dBm
                 self.receive(payload = self.last_session.capturing_tx.packet)
-                
             else:
                 pass #TODO: else what? just update a monitor counter probably
         else: # if the session was already closed (because was an ack with different seqnum or because the packet had another destination address), do nothing
@@ -174,3 +176,6 @@ class SimplePhyLayer(Layer, Entity):
     def receive(self, payload: MACFrame):
         '''call the RDC'''
         self.host.rdc.receive(payload = payload)
+
+    def get_last_rssi(self) -> float:
+        return self._last_successful_rx_rssi_dbm

@@ -6,11 +6,52 @@ from enum import Enum
 This module implments the Packet class and subclasses
 '''
 
+
+'''Network layer stuff'''
+
+'''Some interfaces. Mostly for future extensibility of the simulator'''
+class NetPacket(ABC):
+    pass
+
+class TARPHeader:
+    pass
+
+class TARPUnicastType(Enum):
+    UC_TYPE_DATA = 0
+    UC_TYPE_REPORT = 1
+
+class TARPUnicastHeader(TARPHeader):
+
+    def __init__(self, type: TARPUnicastType, s_addr: bytes, d_addr: bytes, hops: int):
+        self.type = type
+        self.s_addr = s_addr # destination address
+        self.d_addr = d_addr # source address
+        self.hops = hops
+
+        
+class TARPBroadcastHeader(TARPHeader):
+    
+    def __init__(self, seqn: int, metric_q124: float, hops: int, parent: bytes):
+        self.seqn = seqn
+        self.metric_q124 = metric_q124
+        self.hops = hops
+        self.parent = parent
+
+
+class TARPPacket(NetPacket):
+
+    def __init__(self, header: TARPHeader, APDU: Optional[Any] = None):
+        self.header = header
+        self.APDU = APDU
+
+
+
+'''Mac layer stuff'''
+
 class MACFrame(ABC):
      on_air_duration = 0.0 #default, just for polymorphism
-     def __init__(self, data: Optional[Any]):
+     def __init__(self):
         super().__init__()
-        self.data = data
          
 class Frame_802154(MACFrame):
     on_air_duration = 4.83 * 1e-3# gross estimate of the longest packet duration (SHR + PHR + MAC Header + FCS + payload) for 802.15.4 @ 2.4Ghz, 250 kbps
@@ -20,7 +61,7 @@ class Frame_802154(MACFrame):
                                      # the 2-byte-address ends at byte 11, the on air time of a byte is 32 us
 
     
-    def __init__(self, seqn: int, tx_addr: bytes, rx_addr: bytes, requires_ack: bool = False, NPDU: Optional[Any] = None):
+    def __init__(self, seqn: int, tx_addr: bytes, rx_addr: bytes, requires_ack: bool = False, NPDU: Optional[NetPacket] = None):
         self.seqn = seqn
         self.tx_addr = tx_addr # transmitter address
         self.rx_addr = rx_addr # receiver address
@@ -55,47 +96,3 @@ MAC_FCS_BYTES = 2 # Frame Check Sequence
 instead of hard coding stuff
 '''
 
-
-
-
-'''Network layer stuff'''
-
-'''Some interfaces. Mostly for future extensibility of the simulator'''
-class NetPacket(ABC):
-    pass
-
-class TARPHeader:
-    pass
-
-class TARPUnicastType(Enum):
-    UC_TYPE_DATA = 0
-    UC_TYPE_REPORT = 1
-
-class TARPUnicastHeader(TARPHeader):
-
-
-
-    def __init__(self, type: TARPUnicastType, s_addr: bytes, d_addr: bytes, hops: int):
-        self.type = type
-        self.s_addr = s_addr
-        self.d_addr = d_addr
-        self.hops = hops
-
-        
-class TARPBroadcastHeader(TARPHeader):
-    
-    def __init__(self, seqn: int, metric_q124: float, hops: int, parent: bytes):
-        self.seqn = seqn
-        self.metric_q124 = metric_q124
-        self.hops = hops
-        self.parent = parent
-
-
-class TARPPacket(NetPacket):
-
-    def __init__(self, header: TARPHeader, APDU: Optional[Any] = None):
-        self.header = header
-        self.APDU = APDU
-
-
-''' Application request. It is not an actual packet, but exists for interface compliance'''

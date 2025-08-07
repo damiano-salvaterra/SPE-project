@@ -30,10 +30,14 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.rng = self.host.context.random_manager.get_stream(rng_id)
 
         self.tx_queue = deque()  # Transmission queue
-        self.current_frame: Frame_802154 = None
+        self.current_output_frame: Frame_802154 = None
+        self.last_received_rssi = 0.0
         self.is_busy = False # MAC status
         self.pending_ack_timeout_event = None
         self.seqn = 0
+
+        self._last_received_rssi: float = -150.0 #init to low value 
+
 
         self._reset_contention_counters()
 
@@ -47,7 +51,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
     def _reset_mac_state(self):
         self.is_busy = False
-        self.current_frame = None
+        self.current_output_frame = None
+        self.last_received_rssi = None
         self.retry_count = 0
         self._reset_contention_counters()
 
@@ -73,13 +78,13 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             return
 
         self.is_busy = True
-        self.current_frame = self.tx_queue.popleft()
+        self.current_output_frame = self.tx_queue.popleft()
         
         self.seqn = (self.seqn + 1) % 256
-        self.current_frame.seqn = self.seqn # assign seqnum
+        self.current_output_frame.seqn = self.seqn # assign seqnum
         
-        if self.current_frame.rx_addr == Frame_802154.broadcast_linkaddr:
-            self.current_frame._requires_ack = False  # if broadcast, does not require ack
+        if self.current_output_frame.rx_addr == Frame_802154.broadcast_linkaddr:
+            self.current_output_frame._requires_ack = False  # if broadcast, does not require ack
 
         self.retry_count = 0
         self._reset_contention_counters()
@@ -109,14 +114,14 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         backoff_time = backoff_slots * self.aUnitBackoffPeriod
         
         send_req_time = self.host.context.scheduler.now() + backoff_time
-        send_req_event = MacSendReqEvent(time=send_req_time, blame=self, callback=self.host.rdc.send, payload=self.current_frame)
+        send_req_event = MacSendReqEvent(time=send_req_time, blame=self, callback=self.host.rdc.send, payload=self.current_output_frame)
         self.host.context.scheduler.schedule(send_req_event)
 
 
 
     def on_RDCSent(self):
         '''Called by RDC when the phy transmission is terminated'''
-        if self.current_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
+        if self.current_output_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
             ack_timeout_time = self.host.context.scheduler.now() + self.macAckWaitDuration
             ack_timeout_event = MacACKTimeoutEvent(time=ack_timeout_time, blame=self, callback=self._schedule_cca, is_retry=True)
             self.pending_ack_timeout_event = ack_timeout_event
@@ -137,8 +142,11 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
     def receive(self, payload: Frame_802154 | Ack_802154):
         '''Mananges the packets received from RDC'''
+        self._last_received_rssi = self.host.phy.get_last_rssi()
+
         if isinstance(payload, Frame_802154):
-            self.host.net.receive(payload)
+            self.last_received_rssi
+            self.host.net.receive(payload.NPDU, sender = payload.tx_addr)
             if payload._requires_ack:
                 auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
@@ -146,7 +154,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
                 self.host.context.scheduler.schedule(send_ack_event)
         
         elif isinstance(payload, Ack_802154):
-            if self.is_busy and self.current_frame and payload.seqn == self.current_frame.seqn:
+            if self.is_busy and self.current_output_frame and payload.seqn == self.current_output_frame.seqn:
                 # If mac is busy, the current frame is not null and the seqnum f the received ack corresponds, then this ack is for me
                 self.host.context.scheduler.unschedule(self.pending_ack_timeout_event)
                 self.pending_ack_timeout_event = None
@@ -164,3 +172,6 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         # TODO: Notify upper layer
         self._reset_mac_state()
         self._try_send_next() # send other packets in the queue
+
+    def get_last_packet_rssi(self) -> float:
+        return self._last_received_rssi
