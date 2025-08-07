@@ -2,7 +2,7 @@ from entities.protocols.common.Layer import Layer
 from entities.common.Entity import Entity
 from protocols.common.packets import Frame_802154, TARPPacket, TARPUnicastHeader, TARPBroadcastHeader, TARPUnicastType
 from simulator.entities.physical.devices.nodes import StaticNode
-from common.net_events import NetBeaconSendEvent, NetRoutingTableCleanupEvent
+from common.net_events import NetBeaconSendEvent, NetRoutingTableCleanupEvent,NetTopologyReportSendEvent
 from enum import Enum
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
@@ -31,9 +31,9 @@ class TARP(Layer, Entity):
     DELTA_ETX_MIN = 0.3
     THR_H = 100
 
-    #NullRDC mode constants
+    #NullRDC mode constants  and delays
     ALPHA = 0.9
-
+    TREE_BEACON_FORWARD_DELAY = 1 / 10
 
     @dataclass
     class TARPRoute: #routing table entry class
@@ -63,7 +63,16 @@ class TARP(Layer, Entity):
         self.hops = TARP.MAX_PATH_LENGTH + 1
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
 
-        if sink: # if the sink, init your status and schedule the first beaocn
+        rng_id = f"NODE:{self.host.id}/NET_TARP"
+        self.host.context.random_manager.create_stream(rng_id)
+        self.rng = self.host.context.random_manager.get_stream(rng_id)
+        
+        self._bootstrap_TARP() # bootstrap the protocol
+
+
+
+    def _bootstrap_TARP(self):
+        if self.sink: # if the sink, init your status and schedule the first beaocn
             self.metric = 0
             self.hops = 0
             send_beacon_time = self.host.context.scheduler.now() + 1 # send a beaacon after one second 
@@ -129,7 +138,8 @@ class TARP(Layer, Entity):
         self._broadcast_send(broadcast_header, data = None)
         
 
-
+    def _subtree_report_cb(self):
+        pass
 
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes):
         '''
@@ -140,6 +150,8 @@ class TARP(Layer, Entity):
             return #discard beacon if too low rssi
         
         header: TARPBroadcastHeader = payload.header
+        current_time = self.host.context.scheduler.now()
+
         
         tx_entry = self.nbr_tbl.get(tx_addr)
 
@@ -147,7 +159,58 @@ class TARP(Layer, Entity):
             self._nbr_tbl_refresh(addr=tx_addr)
             tx_entry.adv_metric = header.metric_q124
         else: #add a new neighbor
-            tx_entry = self.TARPRoute()
+            tx_entry = self.TARPRoute(
+                type=NodeType.NODE_NEIGHBOR,
+                age = current_time,
+                nexthop=tx_addr,
+                hops=header.hops,
+                etx = self._etx_est_rssi(rssi),
+                num_tx = 0,
+                num_ack=0,
+                adv_metric=header.metric_q124
+            )
+            self.nbr_tbl[tx_addr] = tx_entry
+        
+        #manage epoch change
+        if not self.sink and header.seqn > self.seqn:
+            self._reset_connection_status(header.seqn)
+
+        #parent selection logic
+        new_metric = self._metric(header.metric_q124, tx_entry.etx)
+
+        if self.preferred(new_metric, self.metric): # if metric from this transmitter is better, st it as a parent
+            self.parent = tx_addr
+            self.metric = new_metric
+            self.hops = header.hops + 1
+
+            #promote entry to parent
+            tx_entry.type = NodeType.NODE_PARENT
+
+            #schedule beacon forward
+            beacon_forward_jitter = self.rng.uniform(low=0, high= 0.125) #random jitter for beacon forward
+            beacon_forward_time  = current_time + TARP.TREE_BEACON_FORWARD_DELAY + beacon_forward_jitter
+            beacon_forward_event = NetBeaconSendEvent(time=beacon_forward_time, blame=self, callback=self._beacon_timer_cb)
+            self.host.context.scheduler.schedule(beacon_forward_event)
+
+            #schedule first topology report
+            first_report_time = current_time + self._subtree_report_base_delay()
+            first_report_event = NetTopologyReportSendEvent(time = first_report_time, blame=self, callback=self._subtree_report_cb)
+            self.host.context.scheduler.schedule(first_report_event)
+
+        else: 
+            '''
+            Either the transmitter is a neighbor with a worse metric, or it is a child that is forwarding its beacon.
+            If it is a child, then it has to be added to the buffer if it is still advertising this node as
+            a parent, otherwise it has to be removed from the buffer, because it found a better parent.
+            '''
+            
+
+
+
+        
+
+        
+
 
 
 
@@ -180,3 +243,32 @@ class TARP(Layer, Entity):
 
     def _nbr_tbl_cleanup_cb():
         pass
+
+
+    def _etx_est_rssi(rssi: float) -> float:
+        '''heuristic for the etx based on rssi'''
+        if rssi > TARP.RSSI_HIGH_REF:
+            return 1.0
+        if rssi < TARP.RSSI_LOW_THR:
+            return 10.0
+        span = TARP.RSSI_HIGH_REF - TARP.RSSI_LOW_THR
+        offset = TARP.RSSI_HIGH_REF - rssi
+        frac = offset / span
+
+        return 1.0 + frac * 9.0
+    
+    def _metric(self, adv_metric: float, etx: float) -> float:
+        return adv_metric + etx
+    
+    def _metric_improv_thr(self, cur_metric: float):
+        if cur_metric <= 0.0:
+            return float('inf')
+        thr = TARP.THR_H / cur_metric
+        return TARP.DELTA_ETX_MIN if thr < TARP.DELTA_ETX_MIN else thr
+    
+    def _preferred(self, new_m: float, cur_m: float) -> bool:
+        thr = self._metric_improv_thr(cur_m)
+        return (new_m + thr) < cur_m
+
+    def _subtree_report_base_delay(self) -> float:
+        return (5 / self.hops) + (self.rng(low=0, hig=0.4))

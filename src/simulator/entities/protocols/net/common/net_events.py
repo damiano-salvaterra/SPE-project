@@ -5,3 +5,6 @@ class NetBeaconSendEvent(Event):
 
 class NetRoutingTableCleanupEvent(Event):
     pass
+
+class NetTopologyReportSendEvent(Event):
+    pass
