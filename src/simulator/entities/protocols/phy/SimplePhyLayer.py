@@ -1,16 +1,18 @@
 from simulator.entities.protocols.common.Layer import Layer
+from entities.common.Entity import Entity
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
 from protocols.phy.common.Transmission import Transmission
 from protocols.common.packets import MACFrame, Frame_802154, Ack_802154
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
 
 
-class SimplePhyLayer(Layer):
-    def __init__(self, host: Node, transmission_media: WirelessChannel, transmission_power: float = 0):
-        super().__init__(self, host = host)
+class SimplePhyLayer(Layer, Entity):
+    def __init__(self, host: StaticNode, transmission_media: WirelessChannel, transmission_power: float = 0):
+        Layer.__init__(self, host = host)
+        Entity.__init__(self)
         self.capture_threshold_dB = 5 #dB threshold for SINR to check if the transmission can be decoded
         self.cca_Threshold_dBm = -85 #dBm. Threshold for CCA (for power lower than this threshold we consider the channel as free)
         self.correlator_threshold = -95 #dBm. It is the threshold required by the correlator to synchronize to the signal. AKA sensitivity

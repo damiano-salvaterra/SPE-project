@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Any
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 
 class Layer(ABC):
     """
     Abstract base class for all layers in the simulator.
     Each layer should implement at least the "send" and "receive" methods.
     """
-    def __init__(self, host: Node):
+    def __init__(self, host: StaticNode):
         super().__init__()
         self.host = host
         

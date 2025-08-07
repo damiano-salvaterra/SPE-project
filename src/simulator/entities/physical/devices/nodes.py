@@ -5,13 +5,15 @@ from protocols.mac.ContikiOS_MAC_802154 import ContikiOS_MAC_802154_Unslotted
 from simulator.entities.protocols.net.TARP import TARP
 from applications.Application import Application
 from engine.common.SimulationContext import SimulationContext
+from entities.common.Entity import Entity
 
 '''
 This class is an orchestrator for the stack layers.
 all the events from the various layers are sent to the Node object that dipatches them to the correct entities
 '''
-class Node():
+class StaticNode(Entity):
     def __init__(self, node_id: str, linkaddr: bytes, position: CartesianCoordinate, application: Application, context: SimulationContext):
+        Entity.__init__(self)
         self.id = node_id
         self.linkaddr = linkaddr
         self.position = position

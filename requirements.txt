@@ -18,6 +18,7 @@ matplotlib-inline==0.1.7
 nest-asyncio==1.6.0
 numpy==2.3.1
 packaging==25.0
+pandas==2.3.1
 parso==0.8.4
 pexpect==4.9.0
 pillow==11.3.0
@@ -29,10 +30,12 @@ pure_eval==0.2.3
 Pygments==2.19.2
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
+pytz==2025.2
 pyzmq==27.0.0
 scipy==1.16.0
 six==1.17.0
 stack-data==0.6.3
 tornado==6.5.1
 traitlets==5.14.3
+tzdata==2025.2
 wcwidth==0.2.13

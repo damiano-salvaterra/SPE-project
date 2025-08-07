@@ -1,6 +1,7 @@
 from entities.protocols.common.Layer import Layer
+from entities.common.Entity import Entity
 from protocols.common.packets import AppRequest, TARPPacket, TARPUnicastHeader, TARPBroadcastHeader, TARPUnicastType
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 from common.net_events import NetBeaconSendEvent, NetRoutingTableCleanupEvent
 from enum import Enum
 from dataclasses import dataclass
@@ -19,7 +20,7 @@ class NodeType(Enum):
     NODE_DESCENTANT = 2
     NODE_NEIGHBOR = 3
 
-class TARP(Layer):
+class TARP(Layer, Entity):
     MAX_PATH_LENGTH = 40 # maximum number of hops before dropping the packet
     CLEANUP_INTERVAL = 15 #cleanup the routing table from expired entries every 15 seconds
     ALWAYS_INVALID_AGE = -1 # time 0. Route having this age are always invalid.
@@ -41,9 +42,9 @@ class TARP(Layer):
         STATUS_REMOVE = 0
 
 
-    def __init__(self, host: Node, sink: bool = False):
-        super().__init__(self)
-        self.host = host
+    def __init__(self, host: StaticNode, sink: bool = False):
+        Layer.__init__(self, host = host)
+        Entity.__init__(self)
         self.sink = sink
         self.nbr_tbl: Dict[bytes, TARP.TARPRoute] = {} # routing table. key: linkaddr, value: TarpRoute record
 

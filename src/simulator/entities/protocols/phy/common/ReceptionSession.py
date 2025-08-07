@@ -1,4 +1,4 @@
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 from protocols.phy.common.Transmission import Transmission
 from typing import List, Dict
 import copy
@@ -15,14 +15,14 @@ class ReceptionSession:
     '''
     class ReceptionSegment:
 
-        def __init__(self, t0: float, t1: float = None, interferers: Dict[Node, Transmission] = []):
+        def __init__(self, t0: float, t1: float = None, interferers: Dict[StaticNode, Transmission] = []):
             self.t0 = t0
             self.t1 = t1
-            self.interferers: Dict[Node, Transmission] = interferers # keep a dict to remove elements fast
+            self.interferers: Dict[StaticNode, Transmission] = interferers # keep a dict to remove elements fast
                                                                     # end get the Node object fast later for the SINR
 
     
-    def __init__(self, receiving_node: Node, capturing_tx: Transmission, start_time: float, end_time: float = None):
+    def __init__(self, receiving_node: StaticNode, capturing_tx: Transmission, start_time: float, end_time: float = None):
         self.receiving_node = receiving_node
         self.capturing_tx = capturing_tx
         self.start_time = start_time

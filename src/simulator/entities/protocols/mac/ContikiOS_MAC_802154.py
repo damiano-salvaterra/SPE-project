@@ -1,5 +1,6 @@
 from simulator.entities.protocols.common.Layer import Layer
-from entities.physical.devices.Node import Node
+from entities.common.Entity import Entity
+from simulator.entities.physical.devices.nodes import StaticNode
 from protocols.common.packets import Frame_802154, Ack_802154, NetPacket
 from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
 from collections import deque
@@ -10,7 +11,7 @@ Reference to the C implementation of the CSMA in ContikiOS (offical repository):
 https://github.com/contiki-os/contiki/blob/master/core/net/mac/csma.c
 '''
 
-class ContikiOS_MAC_802154_Unslotted(Layer):
+class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     macMinBE = 3
     macMaxBE = 5
     macMaxCSMABackoffs = 4
@@ -21,9 +22,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer):
     macAckWaitDuration = 864 * 1e-6
     aTurnaroundTime = 192 * 1e-6
 
-    def __init__(self, host: Node):
-        super().__init__(self)
-        self.host = host
+    def __init__(self, host: StaticNode):
+        Layer.__init__(self, host = host)
+        Entity.__init__(self)
         rng_id = f"NODE:{self.host.id}/MAC"
         self.host.context.random_manager.create_stream(rng_id)
         self.rng = self.host.context.random_manager.get_stream(rng_id)

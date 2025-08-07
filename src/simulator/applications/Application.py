@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 from typing import Optional, Any
 
 class Application(ABC):
@@ -11,7 +11,7 @@ class Application(ABC):
         
         
     @abstractmethod
-    def generate_traffic_data(destination: Node = None, payload: Optional[Any] = Node):
+    def generate_traffic_data(destination: StaticNode = None, payload: Optional[Any] = StaticNode):
         pass
 
         

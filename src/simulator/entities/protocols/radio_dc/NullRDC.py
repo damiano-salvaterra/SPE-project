@@ -1,11 +1,13 @@
 from simulator.entities.protocols.common.Layer import Layer
+from entities.common.Entity import Entity
 from protocols.common.packets import Frame_802154, Ack_802154, MACFrame
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 
 
-class NullRDC(Layer):
-    def __init__(self, host: Node):
-        super().__init__(self, host = host)
+class NullRDC(Layer, Entity):
+    def __init__(self, host: StaticNode):
+        Layer.__init__(self, host = host)
+        Entity.__init__(self)
 
     def send(self, payload: Frame_802154 | Ack_802154):
         '''NullRDC does nothing in particular. just request the CCA to PHY.

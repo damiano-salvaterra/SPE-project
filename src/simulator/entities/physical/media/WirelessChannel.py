@@ -2,21 +2,23 @@
 from typing import List, Dict
 
 from environment.propagation.narrowband import NarrowbandChannelModel
+from entities.common.Entity import Entity
 from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyRxStartEvent, PhyRxEndEvent
 from protocols.phy.common.ReceptionSession import ReceptionSession
 from protocols.phy.common.Transmission import Transmission
 from protocols.common.packets import MACFrame
-from entities.physical.devices.Node import Node
+from simulator.entities.physical.devices.nodes import StaticNode
 from engine.common.SimulationContext import SimulationContext
 '''
 This class manages the transmissions and the observation of them to monitor collisions'''
-class WirelessChannel: # TODO: make this class a singleton
-    def __init__(self, propagation_model: NarrowbandChannelModel, nodes: List[Node], context: SimulationContext):
+class WirelessChannel(Entity): # TODO: make this class a singleton
+    def __init__(self, propagation_model: NarrowbandChannelModel, nodes: List[StaticNode], context: SimulationContext):
+        Entity.__init__(self)
         self.propagation_model = propagation_model
         self.nodes = nodes # list of nodes in the environment
         self.listeners: List[ReceptionSession] = [] # list of subscribers tha to observe the channel, subscibed by PhyLayer
         self.context = context
-        self.active_transmissions: Dict[Node, Transmission] = {} # list of currently active transmissions, indexed by the source
+        self.active_transmissions: Dict[StaticNode, Transmission] = {} # list of currently active transmissions, indexed by the source
         self.tx_counter = 0 # transmission id
 
 
@@ -81,7 +83,7 @@ class WirelessChannel: # TODO: make this class a singleton
         
 
 
-    def get_linear_link_budget(self, node1: Node, node2: Node, tx_power_dBm: float) -> float:
+    def get_linear_link_budget(self, node1: StaticNode, node2: StaticNode, tx_power_dBm: float) -> float:
         '''
         returns the link budget in linear scale (Watts)
         '''
