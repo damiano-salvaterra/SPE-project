@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional
 This class implements TARP (Tree-based Any-to-any Routing Protocol).
 It follows exactly the implementation of the C source code (readapted in pythonic
 way and avoiding some C specific coding paradigm, obviously).
+source:  https://github.com/DaMole98/LPWN-project2/tree/main
 '''
 
 class NodeType(Enum):
@@ -19,6 +20,49 @@ class NodeType(Enum):
     NODE_CHILD = 1
     NODE_DESCENTANT = 2
     NODE_NEIGHBOR = 3
+
+
+
+def _etx_est_rssi(rssi: float) -> float:
+    '''heuristic for the etx based on rssi'''
+    if rssi > TARP.RSSI_HIGH_REF:
+        return 1.0
+    if rssi < TARP.RSSI_LOW_THR:
+        return 10.0
+    span = TARP.RSSI_HIGH_REF - TARP.RSSI_LOW_THR
+    offset = TARP.RSSI_HIGH_REF - rssi
+    frac = offset / span
+    return 1.0 + frac * 9.0
+
+
+def _valid(current_time: float, route: TARP.TARPRoute) ->bool:
+    return current_time - route.age < TARP.ENTRY_EXPIRATION_TIME
+
+
+def _metric(adv_metric: float, etx: float) -> float:
+    return adv_metric + etx
+
+
+def _metric_improv_thr(cur_metric: float):
+    if cur_metric <= 0.0:
+        return float('inf')
+    thr = TARP.THR_H / cur_metric
+    return TARP.DELTA_ETX_MIN if thr < TARP.DELTA_ETX_MIN else thr
+
+
+def _preferred(new_m: float, cur_m: float) -> bool:
+    thr = _metric_improv_thr(cur_m)
+    return (new_m + thr) < cur_m
+
+def _etx_update(num_tx: int, num_ack: int, o_etx: float, rssi: float):
+    n_etx = 0.0
+    if num_ack == 0 or TARP.ALPHA == 1:
+        n_etx = _etx_est_rssi(rssi)
+    else:
+        #EWMA filtering
+        n_etx = num_tx / num_ack
+        n_etx = TARP.ALPHA * o_etx + (1 - TARP.ALPHA) * n_etx
+    return n_etx
 
 class TARP(Layer, Entity):
     MAX_STAT_PER_FRAGMENT = 37 #Max bytes allowed per packet (PHY) in 802.15.4 is 127. 
@@ -29,6 +73,7 @@ class TARP(Layer, Entity):
     CLEANUP_INTERVAL = 15 #cleanup the routing table from expired entries every 15 seconds
     ALWAYS_INVALID_AGE = -1 # time 0. Route having this age are always invalid.
                             #In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
+    ENTRY_EXPIRATION_TIME = 60
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
     RSSI_LOW_THR = -85
@@ -56,6 +101,7 @@ class TARP(Layer, Entity):
         STATUS_REMOVE = 0
 
 
+
     def __init__(self, host: StaticNode, sink: bool = False):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
@@ -63,7 +109,7 @@ class TARP(Layer, Entity):
         self.nbr_tbl: Dict[bytes, TARP.TARPRoute] = {} # routing table. key: linkaddr, value: TarpRoute record
 
         #TARP state
-        self.metric = float('inf')
+        _metric = float('inf')
         self.seqn = 0
         self.hops = TARP.MAX_PATH_LENGTH + 1
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
@@ -79,7 +125,7 @@ class TARP(Layer, Entity):
 
     def _bootstrap_TARP(self):
         if self.sink: # if the sink, init your status and schedule the first beaocn
-            self.metric = 0
+            _metric = 0
             self.hops = 0
             send_beacon_time = self.host.context.scheduler.now() + 1 # send a beaacon after one second 
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
@@ -103,7 +149,7 @@ class TARP(Layer, Entity):
                 entry.type = NodeType.NODE_NEIGHBOR
 
         self.parent = None
-        self.metric = 0 if self.sink else float('inf')
+        _metric = 0 if self.sink else float('inf')
         self.seqn = seqn
         self._flush_tpl_buf() # flush the diff buffer, no longer necessary
         self._nbr_tbl_cleanup_cb() #cleanup table
@@ -141,7 +187,7 @@ class TARP(Layer, Entity):
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
             self.host.context.scheduler.schedule(send_beacon_event) # schedule next beacon flood
 
-        broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=self.metric, hops=self.hops, parent=self.parent)
+        broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=_metric, hops=self.hops, parent=self.parent)
         self._broadcast_send(broadcast_header, data = None)
         
 
@@ -171,7 +217,7 @@ class TARP(Layer, Entity):
                 age = current_time,
                 nexthop=tx_addr,
                 hops=header.hops,
-                etx = self._etx_est_rssi(rssi),
+                etx = _etx_est_rssi(rssi),
                 num_tx = 0,
                 num_ack=0,
                 adv_metric=header.metric_q124
@@ -185,9 +231,9 @@ class TARP(Layer, Entity):
         #parent selection logic
         new_metric = self._metric(header.metric_q124, tx_entry.etx)
 
-        if self.preferred(new_metric, self.metric): # if metric from this transmitter is better, st it as a parent
+        if _preferred(new_metric, _metric): # if metric from this transmitter is better, st it as a parent
             self.parent = tx_addr
-            self.metric = new_metric
+            _metric = new_metric
             self.hops = header.hops + 1
 
             #promote entry to parent
@@ -298,7 +344,7 @@ class TARP(Layer, Entity):
 
         if new_parent_addr: # if a new parent has been found
             self.parent = new_parent_addr
-            self.metric = best_metric
+            _metric = best_metric
             self.nbr_tbl[new_parent_addr].type = NodeType.NODE_PARENT
             self.hops = self.nbr_tbl[new_parent_addr] + 1
 
@@ -307,13 +353,14 @@ class TARP(Layer, Entity):
 
         else: # there are no neighbors available, disconnect from the network
             self.parent = None
+            self.hops = TARP.MAX_PATH_LENGTH + 1 # NOTE: not present in rp.c
 
 
 
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
 
         header: TARPUnicastHeader = payload.header
-        header.hops = header.hops + 1# update hop counts in the header to reuse it in case of forward
+        header.hops = header.hops + 1 #update hop counts in the header to reuse it in case of forward
 
         if header.hops > TARP.MAX_PATH_LENGTH: #drop packets with too many hops
             return
@@ -327,11 +374,36 @@ class TARP(Layer, Entity):
                 self._forward_data(header, payload=payload.APDU)
 
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:
+            net_buf =  payload.APDU #dictionary of report voices incoming from the network
+            self._nbr_tbl_update(tx_addr= tx_addr, buf = net_buf)
+            #if not the sink, schedule the next report pigggybacking also local information, otherwsie flush the buffer
+            if not self.sink:
+                self._schedule_next_report() 
+            else:
+                self._flush_tpl_buf()
+
+
+
+
+    def _uc_sent(self, rx_addr: bytes, status_ok: bool, num_tx: int):
+        '''this function updates the metric based on the transmission result'''
+        self.nbr_tbl[rx_addr].num_tx += 1 # increment transmissions number
+
+        if status_ok:
+            self.nbr_tbl[rx_addr].num_ack += 1
+            self.nbr_tbl[rx_addr].etx = _etx_update(num_tx=self.nbr_tbl[rx_addr].num_tx,
+                                                    num_ack=self.nbr_tbl[rx_addr].num_ack,
+                                                    o_etx=self.nbr_tbl[rx_addr].etx,
+                                                    rssi=self.host.mac.get_last_packet_rssi()
+                                                    )
+            self._nbr_tbl_refresh(rx_addr) # refresh entry
+        if not status_ok:
+            self.nbr_tbl[rx_addr] = TARP.ALWAYS_INVALID_AGE
+            self._nbr_tbl_cleanup_cb() # cleanup table
+
+
+
             
-
-
-    def _uc_sent():
-        pass
 
 
 
@@ -363,37 +435,70 @@ class TARP(Layer, Entity):
         if addr in self.nbr_tbl.keys():
             self.nbr_tbl[addr].age = self.host.context.scheduler.now()
 
-    def _nbr_tbl_cleanup_cb():
-        pass
+    def _nbr_tbl_update(self, tx_addr: bytes, buf: Dict[bytes, "TARP.RouteStatus"]):
+        tx_entry = self.nbr_tbl[tx_addr]
+        if tx_entry and tx_entry.type == NodeType.NODE_NEIGHBOR: # if it is a neighbor that chose this node as parent, book the change into the buffer
+            self.tpl_buf[tx_addr] = TARP.RouteStatus.STATUS_ADD
+            tx_entry.adv_metric = float('inf') #set infinite metric to avoid looès
+            tx_entry.type == NodeType.NODE_CHILD # NOTE: not present in rp.c
+        #else it is an already known child
+
+       # update the routing table and the local buffer with the info contained in the topology report
+        for d_addr, d_status in buf.items():
+            #NOTE: here there is a check to skip entries if the neighbor table is full (due to RAM constraint), here we dont consider it
+            self.tpl_buf[d_addr] = d_status
+
+            if d_status == TARP.RouteStatus.STATUS_ADD: # add descendant in the neighbor table
+                d_entry = TARP.TARPRoute(type = NodeType.NODE_DESCENTANT,
+                                         adv_metric=float('inf'),
+                                         age=TARP.ALWAYS_INVALID_AGE,
+                                         hops= TARP.MAX_PATH_LENGTH+1,
+                                         nexthop=tx_addr)
+                self.nbr_tbl[d_addr] = d_entry
+
+            elif d_status == TARP.RouteStatus.STATUS_REMOVE:
+                self.nbr_tbl.pop(d_addr)
+                
 
 
-    def _etx_est_rssi(rssi: float) -> float:
-        '''heuristic for the etx based on rssi'''
-        if rssi > TARP.RSSI_HIGH_REF:
-            return 1.0
-        if rssi < TARP.RSSI_LOW_THR:
-            return 10.0
-        span = TARP.RSSI_HIGH_REF - TARP.RSSI_LOW_THR
-        offset = TARP.RSSI_HIGH_REF - rssi
-        frac = offset / span
 
-        return 1.0 + frac * 9.0
+    def _nbr_tbl_cleanup_cb(self):
+        current_time = self.host.context.scheduler.now()
+        expired_addr = [addr for addr, route in self.nbr_tbl.items() if not _valid(current_time=current_time, route=route) and route.type != NodeType.NODE_DESCENTANT]
+
+        parent_change = False
+        #remove expired keys
+        for addr in expired_addr:
+            if self.nbr_tbl[addr].type == NodeType.NODE_CHILD:
+                self._remove_subtree(addr)
+            elif self.nbr_tbl[addr].type == NodeType.NODE_PARENT:
+                parent_change = True
+                self.parent = None
+            else:
+                self.nbr_tbl.pop(addr)
+
+        cleanup_time = self.host.context.scheduler.now() + TARP.CLEANUP_INTERVAL
+        cleanup_event = NetRoutingTableCleanupEvent(time = cleanup_time, blame = self, callback=self._nbr_tbl_cleanup_cb)
+        self.host.context.scheduler.schedule(cleanup_event) #schedule next cleanup
+
+        if parent_change:
+            self._change_parent()
+            
+        
+
+    def _remove_subtree(self, child_addr: bytes):
+        subtree_addr = [addr for addr, route in self.nbr_tbl.items() if route.nexthop == child_addr] # subtree entries
+        for addr in subtree_addr: #remove entries from neighbor table
+            self.nbr_tbl.pop(addr)
+
+        self.tpl_buf.update({c_addr: TARP.RouteStatus.STATUS_REMOVE for c_addr in subtree_addr}) # update topology diff buffer
+  
     
-    def _metric(self, adv_metric: float, etx: float) -> float:
-        return adv_metric + etx
-    
-    def _metric_improv_thr(self, cur_metric: float):
-        if cur_metric <= 0.0:
-            return float('inf')
-        thr = TARP.THR_H / cur_metric
-        return TARP.DELTA_ETX_MIN if thr < TARP.DELTA_ETX_MIN else thr
-    
-    def _preferred(self, new_m: float, cur_m: float) -> bool:
-        thr = self._metric_improv_thr(cur_m)
-        return (new_m + thr) < cur_m
-
     def _subtree_report_base_delay_and_jitter(self) -> float:
         return (5 / self.hops) + (self.rng(low=0, hig=0.4))
     
     def _subtree_report_node_interval(self) -> float:
         return TARP.SUBTREE_REPORT_OFFEST * (1.0 + (1.0/self.hops))
+
+
+

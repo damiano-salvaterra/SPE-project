@@ -18,6 +18,10 @@ class NullRDC(Layer, Entity):
             self.host.phy.send(payload = payload)
 
 
+    def uc_tx_outcome(self, rx_addr: bytes, status_ok: bool, num_tx: int):
+        self.host.net._uc_sent(rx_addr=rx_addr, status_ok = status_ok, num_tx=num_tx)
+
+
     def _sense_channel(self, frame: Frame_802154):
         '''
         do CCA. If channel is free, send the packet, otherwise send an event back to MAC'''

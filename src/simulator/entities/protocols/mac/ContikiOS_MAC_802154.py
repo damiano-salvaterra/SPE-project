@@ -33,6 +33,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.current_output_frame: Frame_802154 = None
         self.last_received_rssi = 0.0
         self.is_busy = False # MAC status
+        self.retry_count = 0
         self.pending_ack_timeout_event = None
         self.seqn = 0
 
@@ -52,7 +53,6 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     def _reset_mac_state(self):
         self.is_busy = False
         self.current_output_frame = None
-        self.last_received_rssi = None
         self.retry_count = 0
         self._reset_contention_counters()
 
@@ -142,10 +142,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
     def receive(self, payload: Frame_802154 | Ack_802154):
         '''Mananges the packets received from RDC'''
-        self._last_received_rssi = self.host.phy.get_last_rssi()
 
         if isinstance(payload, Frame_802154):
-            self.last_received_rssi
+            self._last_received_rssi = self.host.phy.get_last_rssi() # get rssi onty if it is a frame, we dont care about ack (net layer never see acks)
             self.host.net.receive(payload.NPDU, sender = payload.tx_addr)
             if payload._requires_ack:
                 auto_ack = Ack_802154(seqn=payload.seqn)
@@ -163,13 +162,15 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
 
     def _handle_tx_success(self):
-        # TODO: notifuy upper layer
+        if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
+            self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=True, num_tx=self.retry_count)
         self._reset_mac_state()
         self._try_send_next() # send other packets in the queue
 
 
     def _handle_tx_failure(self):
-        # TODO: Notify upper layer
+        if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
+            self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=False, num_tx=self.retry_count)
         self._reset_mac_state()
         self._try_send_next() # send other packets in the queue
 
