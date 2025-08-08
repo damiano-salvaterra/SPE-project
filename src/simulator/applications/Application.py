@@ -11,7 +11,7 @@ class Application(ABC):
         
         
     @abstractmethod
-    def generate_traffic_data(destination: StaticNode = None, payload: Optional[Any] = StaticNode):
+    def generate_traffic(self):
         pass
 
         
