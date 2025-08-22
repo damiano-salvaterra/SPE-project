@@ -1,5 +1,7 @@
 import numpy as np
 from typing import Tuple
+from  numpy.typing import NDArray # static type hints for numpy
+
 
 
 '''support class for coordinates'''
