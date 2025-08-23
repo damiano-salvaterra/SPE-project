@@ -1,5 +1,5 @@
-from engine.RandomManager import RandomManager
-from engine.Scheduler import Scheduler
+from simulator.engine.RandomManager import RandomManager
+from simulator.engine.Scheduler import Scheduler
 
 '''
 This class provides the context of the simulation to the entities

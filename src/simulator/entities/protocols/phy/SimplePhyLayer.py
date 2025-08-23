@@ -1,16 +1,21 @@
 from simulator.entities.protocols.common.Layer import Layer
-from entities.common.Entity import Entity
-from protocols.phy.common.ReceptionSession import ReceptionSession
-from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
-from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import MACFrame, Frame_802154, Ack_802154
-from simulator.entities.physical.devices.nodes import StaticNode
-from entities.physical.media.WirelessChannel import WirelessChannel
+from simulator.entities.common.Entity import Entity
+#from protocols.phy.common.ReceptionSession import ReceptionSession
+from simulator.entities.protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
+from simulator.entities.protocols.phy.common.Transmission import Transmission
+from simulator.entities.protocols.common.packets import MACFrame, Frame_802154, Ack_802154
+#from simulator.entities.physical.devices.nodes import StaticNode
+#from entities.physical.media.WirelessChannel import WirelessChannel
 from numpy import log10
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession
+    from simulator.entities.physical.devices.nodes import StaticNode
+    from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 class SimplePhyLayer(Layer, Entity):
-    def __init__(self, host: StaticNode, transmission_media: WirelessChannel, transmission_power: float = 0):
+    def __init__(self, host: "StaticNode", transmission_media: "WirelessChannel", transmission_power: float = 0):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
         self.capture_threshold_dB = 5 #dB threshold for SINR to check if the transmission can be decoded
@@ -19,7 +24,7 @@ class SimplePhyLayer(Layer, Entity):
         self.transmission_power = transmission_power
         self.transmission_media = transmission_media
 
-        self.last_session: ReceptionSession = None
+        self.last_session: "ReceptionSession" = None
         self.active_session = False
         self.transmitting = False
     
@@ -28,7 +33,7 @@ class SimplePhyLayer(Layer, Entity):
         self._last_successful_rx_rssi_dBm: float = -150.0 #init to low value 
 
 
-    def _is_decoded(self, session: ReceptionSession):
+    def _is_decoded(self, session: "ReceptionSession"):
         '''
         compute SINR for each segment, pick the minimum SINR, compare it
         with some threshold (search radio parameters) and decide if the packet can be decoded
@@ -119,6 +124,8 @@ class SimplePhyLayer(Layer, Entity):
 
     def _open_session(self, transmission: Transmission):
         if not self.active_session:
+            from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession # import when all modules are loaded already
+
             self.last_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
             self.transmission_media.subscribe_listener(self.last_session) # attach reception session
             self.active_session = True

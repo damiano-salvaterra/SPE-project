@@ -1,14 +1,14 @@
 
 from typing import List, Dict
 
-from environment.propagation.narrowband import NarrowbandChannelModel
-from entities.common.Entity import Entity
-from protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyRxStartEvent, PhyRxEndEvent
-from protocols.phy.common.ReceptionSession import ReceptionSession
-from protocols.phy.common.Transmission import Transmission
-from protocols.common.packets import MACFrame
+from simulator.environment.propagation.narrowband import NarrowbandChannelModel
+from simulator.entities.common.Entity import Entity
+from simulator.entities.protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyRxStartEvent, PhyRxEndEvent
+from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession
+from simulator.entities.protocols.phy.common.Transmission import Transmission
+from simulator.entities.protocols.common.packets import MACFrame
 from simulator.entities.physical.devices.nodes import StaticNode
-from engine.common.SimulationContext import SimulationContext
+from simulator.engine.common.SimulationContext import SimulationContext
 '''
 This class manages the transmissions and the observation of them to monitor collisions'''
 class WirelessChannel(Entity): # TODO: make this class a singleton

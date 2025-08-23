@@ -1,12 +1,14 @@
-from entities.protocols.common.Layer import Layer
-from entities.common.Entity import Entity
-from protocols.common.packets import Frame_802154, TARPPacket, TARPUnicastHeader, TARPBroadcastHeader, TARPUnicastType
-from simulator.entities.physical.devices.nodes import StaticNode
-from common.net_events import NetBeaconSendEvent, NetRoutingTableCleanupEvent,NetTopologyReportSendEvent
+from simulator.entities.protocols.common.Layer import Layer
+from simulator.entities.common.Entity import Entity
+from simulator.entities.protocols.common.packets import Frame_802154, TARPPacket, TARPUnicastHeader, TARPBroadcastHeader, TARPUnicastType
+#from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.protocols.net.common.net_events import NetBeaconSendEvent, NetRoutingTableCleanupEvent,NetTopologyReportSendEvent
 from enum import Enum
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from simulator.entities.physical.devices.nodes import StaticNode
 
 '''
 This class implements TARP (Tree-based Any-to-any Routing Protocol).
@@ -35,7 +37,7 @@ def _etx_est_rssi(rssi: float) -> float:
     return 1.0 + frac * 9.0
 
 
-def _valid(current_time: float, route: TARP.TARPRoute) ->bool:
+def _valid(current_time: float, route: "TARP.TARPRoute") ->bool:
     return current_time - route.age < TARP.ENTRY_EXPIRATION_TIME
 
 
@@ -102,7 +104,7 @@ class TARP(Layer, Entity):
 
 
 
-    def __init__(self, host: StaticNode, sink: bool = False):
+    def __init__(self, host: "StaticNode", sink: bool = False):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
         self.sink = sink

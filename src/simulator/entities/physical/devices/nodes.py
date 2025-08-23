@@ -1,12 +1,13 @@
-from environment.geometry import CartesianCoordinate
-from protocols.phy.SimplePhyLayer import SimplePhyLayer
-from protocols.radio_dc.NullRDC import NullRDC
-from protocols.mac.ContikiOS_MAC_802154 import ContikiOS_MAC_802154_Unslotted
+from simulator.environment.geometry import CartesianCoordinate
+from simulator.entities.protocols.phy.SimplePhyLayer import SimplePhyLayer
+from simulator.entities.protocols.radio_dc.NullRDC import NullRDC
+from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import ContikiOS_MAC_802154_Unslotted
 from simulator.entities.protocols.net.TARP import TARP
-from applications.Application import Application
-from engine.common.SimulationContext import SimulationContext
-from entities.common.Entity import Entity
+from simulator.entities.common.Entity import Entity
+from simulator.applications.Application import Application
+from simulator.engine.common.SimulationContext import SimulationContext
 
+#TODO: to remove circular dependencies we should define a Node interface and use it for the imports
 '''
 This class is an orchestrator for the stack layers.
 all the events from the various layers are sent to the Node object that dipatches them to the correct entities

@@ -1,9 +1,13 @@
 from simulator.entities.protocols.common.Layer import Layer
-from entities.common.Entity import Entity
-from simulator.entities.physical.devices.nodes import StaticNode
-from protocols.common.packets import Frame_802154, Ack_802154, NetPacket
-from protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
+from simulator.entities.common.Entity import Entity
+#from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, NetPacket
+from simulator.entities.protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
 from collections import deque
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.entities.physical.devices.nodes import StaticNode
 '''
 This class implements the non-beacon enabled 802.15.4 MAC CSMA protocol AS IT IS IMPLEMENTED in ContikiOS.
 This means that it may not be strictly compliant to the IEEE 802.15.4 standard MAC.
@@ -22,7 +26,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     macAckWaitDuration = 864 * 1e-6
     aTurnaroundTime = 192 * 1e-6
 
-    def __init__(self, host: StaticNode):
+    def __init__(self, host: "StaticNode"):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
         rng_id = f"NODE:{self.host.id}/MAC"

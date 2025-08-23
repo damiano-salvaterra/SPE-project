@@ -4,8 +4,8 @@ from scipy.interpolate import RegularGridInterpolator
 import scipy.constants as const
 from scipy.stats import nakagami
 
-from environment.geometry import CartesianCoordinate, DSpace
-from engine.RandomManager import RandomManager
+from simulator.environment.geometry import CartesianCoordinate, DSpace
+from simulator.engine.RandomManager import RandomManager
 
 '''
 This class implement the wireless channel model of attenuation. The model is the classical

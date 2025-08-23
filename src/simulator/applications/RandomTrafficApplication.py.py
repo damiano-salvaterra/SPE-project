@@ -1,15 +1,18 @@
 
-from applications.Application import Application
-from common.app_events import AppSendEvent, AppWaitNetworkBootEvent
-from entities.physical.devices.nodes import StaticNode
-from typing import Dict, Any
+from simulator.applications.Application import Application
+from simulator.applications.common.app_events import AppSendEvent, AppWaitNetworkBootEvent
+#from simulator.entities.physical.devices.nodes import StaticNode
+from typing import Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from simulator.entities.physical.devices.nodes import StaticNode
 
 class RandomTrafficApplication(Application):
     '''
     An application that generates network traffic to random destinations
     with exponentially distributed inter-arrival times (a Poisson process).
     '''
-    def __init__(self, host: StaticNode, nodes: Dict[str, bytes], mean_interarrival_time: float):
+    def __init__(self, host: "StaticNode", nodes: Dict[str, bytes], mean_interarrival_time: float):
         super().__init__()
         self.host = host
         self.destinations:  Dict[str, bytes] = {id : addr for id, addr in nodes.items if id != self.host.id}    # dictionary of destinations string_id : linkaddr     

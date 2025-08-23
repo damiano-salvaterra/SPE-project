@@ -1,4 +1,4 @@
-from engine.common.Event import Event
+from simulator.engine.common.Event import Event
 
 class NetBeaconSendEvent(Event):
     pass

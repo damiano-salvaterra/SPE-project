@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 
-from entities.common.Entity import EntitySignal, Entity
+from simulator.entities.common.Entity import EntitySignal, Entity
 
 
 class Monitor(ABC):

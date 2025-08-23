@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from simulator.entities.physical.devices.nodes import StaticNode
-from typing import Optional, Any
+#from simulator.entities.physical.devices.nodes import StaticNode
 
 class Application(ABC):
     """

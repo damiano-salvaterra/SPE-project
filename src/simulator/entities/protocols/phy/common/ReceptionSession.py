@@ -1,8 +1,10 @@
-from simulator.entities.physical.devices.nodes import StaticNode
-from protocols.phy.common.Transmission import Transmission
-from typing import List, Dict
+#from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.protocols.phy.common.Transmission import Transmission
+from typing import List, Dict, TYPE_CHECKING
 import copy
 
+if TYPE_CHECKING:
+    from simulator.entities.physical.devices.nodes import StaticNode
 
 '''This class implements the observer of the wireless channel
 when a node starts receiving a packet. This object has no particular domain meaning (for now):
@@ -15,14 +17,14 @@ class ReceptionSession:
     '''
     class ReceptionSegment:
 
-        def __init__(self, t0: float, t1: float = None, interferers: Dict[StaticNode, Transmission] = []):
+        def __init__(self, interferers: Dict["StaticNode", "Transmission"], t0: float, t1: float = None):
             self.t0 = t0
             self.t1 = t1
-            self.interferers: Dict[StaticNode, Transmission] = interferers # keep a dict to remove elements fast
+            self.interferers: Dict["StaticNode", "Transmission"] = interferers # keep a dict to remove elements fast
                                                                     # end get the Node object fast later for the SINR
 
     
-    def __init__(self, receiving_node: StaticNode, capturing_tx: Transmission, start_time: float, end_time: float = None):
+    def __init__(self, receiving_node: "StaticNode", capturing_tx: "Transmission", start_time: float, end_time: float = None):
         self.receiving_node = receiving_node
         self.capturing_tx = capturing_tx
         self.start_time = start_time
@@ -32,7 +34,7 @@ class ReceptionSession:
                                                                           # so at the end of the reception we can process this and decide if the collision occured or not
                                                                           # (example (this project policy): find the segments with the highest amount of SINR and decide based on that) 
 
-    def notify_tx_start(self, transmission: Transmission):
+    def notify_tx_start(self, transmission: "Transmission"):
         '''
         create a new segment with the current interferes plus the new one
         '''
@@ -43,7 +45,7 @@ class ReceptionSession:
 
 
 
-    def notify_tx_end(self, transmission: Transmission):
+    def notify_tx_end(self, transmission: "Transmission"):
         '''
         create a new segment with the old interferes minus the ended one.
         Set also t1 for the just finished segment

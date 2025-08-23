@@ -1,22 +1,22 @@
 from typing import List, Dict, Optional
 
 # Core Engine Components
-from engine.Scheduler import Scheduler
-from engine.RandomManager import RandomManager
-from engine.common.SimulationContext import SimulationContext
+from simulator.engine.Scheduler import Scheduler
+from simulator.engine.RandomManager import RandomManager
+from simulator.engine.common.SimulationContext import SimulationContext
 
 # Environment and Propagation
-from environment.geometry import DSpace, CartesianCoordinate
-from environment.propagation.narrowband import NarrowbandChannelModel
-from entities.physical.media.WirelessChannel import WirelessChannel
+from simulator.environment.geometry import DSpace, CartesianCoordinate
+from simulator.environment.propagation.narrowband import NarrowbandChannelModel
+from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 # Simulation Entities
 from simulator.entities.physical.devices.nodes import StaticNode
-from entities.common.Entity import Entity
-from common.Monitor import Monitor
+from simulator.entities.common.Entity import Entity
+from simulator.engine.common.Monitor import Monitor
 
 # Application Layer (for node creation)
-from applications.Application import Application
+from simulator.applications.Application import Application
 
 
 class Kernel:
@@ -67,7 +67,7 @@ class Kernel:
             fading_shape (float): The shape parameter (m) for the Nakagami-m fading model.
         """
         # Initialize core components
-        self.context.random_manager.reset(root_seed=seed)
+        self.context.random_manager.reset(new_root_seed=seed)
         self.context.scheduler.flush()
 
         # Create the physical environment

@@ -1,5 +1,5 @@
 import heapq
-from config import SCHEDULER_TIME_SCALE
+from simulator.engine.config import SCHEDULER_TIME_SCALE
 from typing import Optional, List
 
 from simulator.engine.common.Event import Event
