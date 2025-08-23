@@ -1,6 +1,8 @@
 from typing import Optional, Any
 from abc import ABC, abstractmethod
 from enum import Enum
+from dataclasses import dataclass
+
 
 '''
 This module implments the Packet class and subclasses
@@ -10,41 +12,36 @@ This module implments the Packet class and subclasses
 '''Network layer stuff'''
 
 '''Some interfaces. Mostly for future extensibility of the simulator'''
-class NetPacket(ABC):
-    pass
 
-class TARPHeader:
+@dataclass
+class NetPacket:
+    payload: Any
+
+class TARPHeader(ABC):
     pass
 
 class TARPUnicastType(Enum):
     UC_TYPE_DATA = 0
     UC_TYPE_REPORT = 1
 
+@dataclass
 class TARPUnicastHeader(TARPHeader):
+    type: TARPUnicastType
+    s_addr: bytes
+    d_addr: bytes
+    hops: int
 
-    def __init__(self, type: TARPUnicastType, s_addr: bytes, d_addr: bytes, hops: int):
-        self.type = type
-        self.s_addr = s_addr # destination address
-        self.d_addr = d_addr # source address
-        self.hops = hops
-
-        
+@dataclass
 class TARPBroadcastHeader(TARPHeader):
-    
-    def __init__(self, seqn: int, metric_q124: float, hops: int, parent: bytes):
-        self.seqn = seqn
-        self.metric_q124 = metric_q124
-        self.hops = hops
-        self.parent = parent
+    seqn: int
+    metric_q124: float
+    hops: int
+    parent: Optional[bytes]
 
-
+@dataclass
 class TARPPacket(NetPacket):
-
-    def __init__(self, header: TARPHeader, APDU: Optional[Any] = None):
-        self.header = header
-        self.APDU = APDU
-
-
+    header: TARPUnicastHeader | TARPBroadcastHeader
+    APDU: Optional[Any] = None # Application Protocol Data Unit
 
 '''Mac layer stuff'''
 

@@ -61,7 +61,7 @@ class Scheduler:
     def run_next_event(self) -> None:
         '''Run the next event'''
         if self.event_queue:
-            event = heapq.heapop(self.event_queue)
+            event = heapq.heappop(self.event_queue)
             if not event._cancelled:
                 self._current_time = event.time # update simulation time
                 #convert time back to seconds

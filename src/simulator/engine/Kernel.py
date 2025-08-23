@@ -143,7 +143,7 @@ class Kernel:
         self.channel.nodes.append(node)
         
         # Link the PHY layer of the node to the channel
-        node.phy.transmission_media = self.channel
+        node.phy.connect_transmission_media(self.channel)
         
         print(f"Node '{node_id}' added at position ({position.x}, {position.y}).")
         return node

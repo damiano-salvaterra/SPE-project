@@ -108,14 +108,15 @@ class TARP(Layer, Entity):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
         self.sink = sink
+        self.parent = None
         self.nbr_tbl: Dict[bytes, TARP.TARPRoute] = {} # routing table. key: linkaddr, value: TarpRoute record
 
         #TARP state
-        _metric = float('inf')
+        self._metric = float('inf')
         self.seqn = 0
         self.hops = TARP.MAX_PATH_LENGTH + 1
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
-        self.tpl_buf_offset # offset to be kept between one fragment and another
+        self.tpl_buf_offset = 0 # offset to be kept between one fragment and another
 
         rng_id = f"NODE:{self.host.id}/NET_TARP"
         self.host.context.random_manager.create_stream(rng_id)
@@ -127,7 +128,7 @@ class TARP(Layer, Entity):
 
     def _bootstrap_TARP(self):
         if self.sink: # if the sink, init your status and schedule the first beaocn
-            _metric = 0
+            self._metric = 0
             self.hops = 0
             send_beacon_time = self.host.context.scheduler.now() + 1 # send a beaacon after one second 
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)

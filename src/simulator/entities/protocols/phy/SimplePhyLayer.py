@@ -15,14 +15,14 @@ if TYPE_CHECKING:
     from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 class SimplePhyLayer(Layer, Entity):
-    def __init__(self, host: "StaticNode", transmission_media: "WirelessChannel", transmission_power: float = 0):
+    def __init__(self, host: "StaticNode", transmission_power: float = 0):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
         self.capture_threshold_dB = 5 #dB threshold for SINR to check if the transmission can be decoded
         self.cca_Threshold_dBm = -85 #dBm. Threshold for CCA (for power lower than this threshold we consider the channel as free)
         self.correlator_threshold = -95 #dBm. It is the threshold required by the correlator to synchronize to the signal. AKA sensitivity
         self.transmission_power = transmission_power
-        self.transmission_media = transmission_media
+        self.transmission_media = None
 
         self.last_session: "ReceptionSession" = None
         self.active_session = False
@@ -32,6 +32,8 @@ class SimplePhyLayer(Layer, Entity):
         self._last_seqn = 0 #sequence number of the last sended frame. Used to filter ACKs
         self._last_successful_rx_rssi_dBm: float = -150.0 #init to low value 
 
+    def connect_transmission_media(self, transmission_media: "WirelessChannel"):
+        self.transmission_media = transmission_media
 
     def _is_decoded(self, session: "ReceptionSession"):
         '''

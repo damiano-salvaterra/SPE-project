@@ -46,4 +46,4 @@ class Event:
             return self.priority < other.priority
         
         # If times and priorities are equal, compare by unique_id
-        return self.id < other.id
+        return self._unique_id < other._unique_id
