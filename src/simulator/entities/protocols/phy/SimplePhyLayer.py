@@ -87,7 +87,7 @@ class SimplePhyLayer(Layer, Entity):
             return
         
         if not self.active_session: # if there is no active session, open a new one
-            self._open_session(transmission) #TODO: there is a bug here. if I have a session already open, I am NOT going to open a new session, so if the pakcet is not for me I am going to close the old session
+            self._open_session(transmission) 
             self.synchronized_tx = transmission # the new session synchronizes on this transmission
 
         if isinstance(transmission.packet, Ack_802154):

@@ -53,6 +53,25 @@ class ReceptionSession:
         Set also t1 for the just finished segment
         If the ended transmission is the one that is being captured, do nothing
         '''
+
+        
+        print("---------------------------------------------")
+
+        print("---------------------------------------------")
+
+        print("--- DEBUG: ReceptionSession.notify_tx_end ---")
+        print(f"Current Simulation Time: {self.receiving_node.context.scheduler.now():.6f}s")
+        print(f"This Node: {self.receiving_node.id}")
+        print(f"Attempting to remove transmitter: {transmission.transmitter.id}")
+        print(f"Interferers in the current segment: {[node.name for node in self.reception_segments[-1].interferers.keys()]}")
+        print("---------------------------------------------")
+
+
+        print("---------------------------------------------")
+
+        print("---------------------------------------------")
+        
+
         if self.capturing_tx != transmission:
             self.reception_segments[-1].t1 = self.receiving_node.context.scheduler.now()
             interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)

@@ -150,7 +150,7 @@ class Kernel:
         return node
 
 
-    def remove_node(self, node_id: str):
+    def remove_node(self, node_id: str): #TODO: check if the node has current sessions or other open states before removing.
         '''Removes a node from the simulation.'''
         if node_id not in self.nodes:
             print(f"Error: Node with ID '{node_id}' not found.")
