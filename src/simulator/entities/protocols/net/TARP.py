@@ -112,7 +112,7 @@ class TARP(Layer, Entity):
         self.nbr_tbl: Dict[bytes, TARP.TARPRoute] = {} # routing table. key: linkaddr, value: TarpRoute record
 
         #TARP state
-        self._metric = float('inf')
+        self.metric = float('inf')
         self.seqn = 0
         self.hops = TARP.MAX_PATH_LENGTH + 1
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
@@ -128,7 +128,7 @@ class TARP(Layer, Entity):
 
     def _bootstrap_TARP(self):
         if self.sink: # if the sink, init your status and schedule the first beaocn
-            self._metric = 0
+            self.metric = 0
             self.hops = 0
             send_beacon_time = self.host.context.scheduler.now() + 1 # send a beaacon after one second 
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
@@ -152,7 +152,7 @@ class TARP(Layer, Entity):
                 entry.type = NodeType.NODE_NEIGHBOR
 
         self.parent = None
-        _metric = 0 if self.sink else float('inf')
+        self.metric = 0 if self.sink else float('inf')
         self.seqn = seqn
         self._flush_tpl_buf() # flush the diff buffer, no longer necessary
         self._nbr_tbl_cleanup_cb() #cleanup table
@@ -190,7 +190,7 @@ class TARP(Layer, Entity):
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
             self.host.context.scheduler.schedule(send_beacon_event) # schedule next beacon flood
 
-        broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=_metric, hops=self.hops, parent=self.parent)
+        broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=self.metric, hops=self.hops, parent=self.parent)
         self._broadcast_send(broadcast_header, data = None)
         
 
@@ -232,11 +232,11 @@ class TARP(Layer, Entity):
             self._reset_connection_status(header.seqn)
 
         #parent selection logic
-        new_metric = self._metric(header.metric_q124, tx_entry.etx)
+        new_metric = _metric(header.metric_q124, tx_entry.etx)
 
-        if _preferred(new_metric, _metric): # if metric from this transmitter is better, st it as a parent
+        if _preferred(new_metric, self.metric): # if metric from this transmitter is better, st it as a parent
             self.parent = tx_addr
-            _metric = new_metric
+            self.metric = new_metric
             self.hops = header.hops + 1
 
             #promote entry to parent
@@ -281,8 +281,8 @@ class TARP(Layer, Entity):
             self._schedule_next_report()
 
             header = TARPUnicastHeader(type=TARPUnicastType.UC_TYPE_REPORT, s_addr=self.host.linkaddr, d_addr=self.parent, hops=0)
-            packet = TARPPacket(header=header, APDU=None)
-            self.host.mac.send(packet, self.parent, self._uc_sent)
+            packet = TARPPacket(header=header, APDU={})
+            self.host.mac.send(packet, self.parent)
 
         
         else: # the buffer is not empty, handle fragmentation and sending.
@@ -336,7 +336,7 @@ class TARP(Layer, Entity):
         #find neighbor with best metric (excluding descendants and children)
         for addr, entry in self.nbr_tbl.items():
            if entry.type == NodeType.NODE_NEIGHBOR:
-               metric = self._metric(entry.adv_metric, entry.etx)
+               metric = self.metric(entry.adv_metric, entry.etx)
                if metric < best_metric:
                    best_metric = metric
                    new_parent_addr = addr
@@ -347,7 +347,7 @@ class TARP(Layer, Entity):
 
         if new_parent_addr: # if a new parent has been found
             self.parent = new_parent_addr
-            _metric = best_metric
+            self.metric = best_metric
             self.nbr_tbl[new_parent_addr].type = NodeType.NODE_PARENT
             self.hops = self.nbr_tbl[new_parent_addr] + 1
 
@@ -372,7 +372,7 @@ class TARP(Layer, Entity):
 
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
-                self.host.app.receive(payload.APDU) #deliver to application
+                self.host.app.receive(payload.APDU, sender_addr = tx_addr) #deliver to application
             else:
                 self._forward_data(header, payload=payload.APDU)
 
@@ -498,7 +498,7 @@ class TARP(Layer, Entity):
   
     
     def _subtree_report_base_delay_and_jitter(self) -> float:
-        return (5 / self.hops) + (self.rng(low=0, hig=0.4))
+        return (5 / self.hops) + (self.rng.uniform(low=0, high=0.4))
     
     def _subtree_report_node_interval(self) -> float:
         return TARP.SUBTREE_REPORT_OFFEST * (1.0 + (1.0/self.hops))

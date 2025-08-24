@@ -61,7 +61,7 @@ class PingPongApp(Application):
 
         self.ping_count += 1
         payload_str = f"PING #{self.ping_count} from {self.host.id}"
-        packet = NetPacket(payload=payload_str.encode('utf-8'))
+        packet = NetPacket(APDU=payload_str.encode('utf-8'))
         
         log(self, f">>> Sending '{payload_str}' to {self.peer_addr.hex()}.")
         
@@ -73,13 +73,13 @@ class PingPongApp(Application):
         Handles an incoming packet from the network layer.
         If it's a PING, it replies with a PONG.
         """
-        payload_str = packet.payload.decode('utf-8', errors='ignore')
+        payload_str = packet.APDU.decode('utf-8', errors='ignore')
         log(self, f"<<< Received '{payload_str}' from {sender_addr.hex()}.")
 
         # If this node is the 'ponger' and receives a PING, it replies.
         if "PING" in payload_str and not self.is_pinger:
             reply_payload_str = f"PONG in response to '{payload_str}'"
-            reply_packet = NetPacket(payload=reply_payload_str.encode('utf-8'))
+            reply_packet = NetPacket(APDU=reply_payload_str.encode('utf-8'))
             
             log(self, f">>> Replying with '{reply_payload_str}' to {sender_addr.hex()}.")
             

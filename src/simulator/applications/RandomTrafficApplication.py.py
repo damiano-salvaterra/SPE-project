@@ -46,7 +46,7 @@ class RandomTrafficApplication(Application):
         if not self.destinations:
             print(f"Node {self.host.id}: No destinations to send traffic to.")
             return
-        destination_id = self.rng.choice(lsist(self.destinations.keys())) # choose a random destination
+        destination_id = self.rng.choice(list(self.destinations.keys())) # choose a random destination
         self._send_packet += 1
 
         payload = f"App-Node:{self.host.id}--->Node:{destination_id}|SENT_TIME:{self.host.context.scheduler.now()}"

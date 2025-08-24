@@ -51,9 +51,11 @@ class ReceptionSession:
         '''
         create a new segment with the old interferes minus the ended one.
         Set also t1 for the just finished segment
+        If the ended transmission is the one that is being captured, do nothing
         '''
-        self.reception_segments[-1].t1 = self.receiving_node.context.scheduler.now()
-        interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
-        interferers_snapshot.pop(transmission.transmitter) # remove the ended transmission
-        new_segment = ReceptionSession.ReceptionSegment(t0=self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
-        self.reception_segments.append(new_segment)
+        if self.capturing_tx != transmission:
+            self.reception_segments[-1].t1 = self.receiving_node.context.scheduler.now()
+            interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
+            interferers_snapshot.pop(transmission.transmitter) # remove the ended transmission
+            new_segment = ReceptionSession.ReceptionSegment(t0=self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
+            self.reception_segments.append(new_segment)

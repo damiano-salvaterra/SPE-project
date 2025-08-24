@@ -125,6 +125,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
     def on_RDCSent(self):
         '''Called by RDC when the phy transmission is terminated'''
+        if self.current_output_frame is None: # if the current output frame is None, the callback is called by the sending of an ACK: nothing to do
+            return 
+        
         if self.current_output_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
             ack_timeout_time = self.host.context.scheduler.now() + self.macAckWaitDuration
             ack_timeout_event = MacACKTimeoutEvent(time=ack_timeout_time, blame=self, callback=self._schedule_cca, is_retry=True)
@@ -149,7 +152,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
         if isinstance(payload, Frame_802154):
             self._last_received_rssi = self.host.phy.get_last_rssi() # get rssi onty if it is a frame, we dont care about ack (net layer never see acks)
-            self.host.net.receive(payload.NPDU, sender = payload.tx_addr)
+            self.host.net.receive(payload.NPDU, tx_addr = payload.tx_addr)
             if payload._requires_ack:
                 auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
