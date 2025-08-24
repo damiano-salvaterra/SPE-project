@@ -118,6 +118,8 @@ class TARP(Layer, Entity):
         self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {} #topology diff buffer
         self.tpl_buf_offset = 0 # offset to be kept between one fragment and another
 
+        self._cleanup_timer = None # to avoid scheduling multiple cleanups at the same time
+
         rng_id = f"NODE:{self.host.id}/NET_TARP"
         self.host.context.random_manager.create_stream(rng_id)
         self.rng = self.host.context.random_manager.get_stream(rng_id)
@@ -134,9 +136,8 @@ class TARP(Layer, Entity):
             send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
             self.host.context.scheduler.schedule(send_beacon_event)
 
-        cleanup_time = self.host.context.scheduler.now() + TARP.CLEANUP_INTERVAL
-        cleanup_event = NetRoutingTableCleanupEvent(time = cleanup_time, blame = self, callback=self._nbr_tbl_cleanup_cb)
-        self.host.context.scheduler.schedule(cleanup_event) #schedule first cleanup
+        self._reschedule_cleanup()
+
 
     def _flush_tpl_buf(self): #flushes the diff buffer
         self.tpl_buf.clear()
@@ -155,7 +156,18 @@ class TARP(Layer, Entity):
         self.metric = 0 if self.sink else float('inf')
         self.seqn = seqn
         self._flush_tpl_buf() # flush the diff buffer, no longer necessary
-        self._nbr_tbl_cleanup_cb() #cleanup table
+        self._do_cleanup() #cleanup table
+
+
+    def _reschedule_cleanup(self):
+        '''reschedules a cleanup if one is already scheduled, otherwise schedule new one'''
+        if self._cleanup_timer:
+            self.host.context.scheduler.unschedule(self._cleanup_timer)
+
+        cleanup_time = self.host.context.scheduler.now() + TARP.CLEANUP_INTERVAL
+        self._cleanup_timer = NetRoutingTableCleanupEvent(time=cleanup_time, blame=self, descriptor = f"Node:{self.host.id}",callback=self._nbr_tbl_cleanup_cb)
+        self.host.context.scheduler.schedule(self._cleanup_timer)
+
 
   
     def send(self, payload: Any, destination: bytes) -> bool:
@@ -193,9 +205,6 @@ class TARP(Layer, Entity):
         broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=self.metric, hops=self.hops, parent=self.parent)
         self._broadcast_send(broadcast_header, data = None)
         
-
-    def _subtree_report_cb(self):
-        pass
 
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes):
         '''
@@ -297,7 +306,7 @@ class TARP(Layer, Entity):
 
             header = TARPUnicastHeader(type=TARPUnicastType.UC_TYPE_REPORT, s_addr=self.host.linkaddr, d_addr=self.parent, hops=0)
             packet = TARPPacket(header=header, APDU=fragment_payload)
-            self.host.mac.send(packet, self.parent, self._uc_sent)
+            self.host.mac.send(packet, self.parent)
 
             # move the offset for the next fragment.
             self.tpl_buf_offset += frag_size
@@ -401,8 +410,8 @@ class TARP(Layer, Entity):
                                                     )
             self._nbr_tbl_refresh(rx_addr) # refresh entry
         if not status_ok:
-            self.nbr_tbl[rx_addr] = TARP.ALWAYS_INVALID_AGE
-            self._nbr_tbl_cleanup_cb() # cleanup table
+            self.nbr_tbl[rx_addr].age = TARP.ALWAYS_INVALID_AGE
+            self._do_cleanup() # cleanup table
 
 
 
@@ -465,7 +474,7 @@ class TARP(Layer, Entity):
 
 
 
-    def _nbr_tbl_cleanup_cb(self):
+    def _do_cleanup(self):
         current_time = self.host.context.scheduler.now()
         expired_addr = [addr for addr, route in self.nbr_tbl.items() if not _valid(current_time=current_time, route=route) and route.type != NodeType.NODE_DESCENTANT]
 
@@ -480,13 +489,15 @@ class TARP(Layer, Entity):
             else:
                 self.nbr_tbl.pop(addr)
 
-        cleanup_time = self.host.context.scheduler.now() + TARP.CLEANUP_INTERVAL
-        cleanup_event = NetRoutingTableCleanupEvent(time = cleanup_time, blame = self, callback=self._nbr_tbl_cleanup_cb)
-        self.host.context.scheduler.schedule(cleanup_event) #schedule next cleanup
 
         if parent_change:
             self._change_parent()
             
+
+
+    def _nbr_tbl_cleanup_cb(self):
+        self._do_cleanup()
+        self._reschedule_cleanup()
         
 
     def _remove_subtree(self, child_addr: bytes):
