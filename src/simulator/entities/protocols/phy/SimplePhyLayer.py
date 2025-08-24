@@ -27,6 +27,7 @@ class SimplePhyLayer(Layer, Entity):
         self.last_session: "ReceptionSession" = None
         self.active_session = False
         self.transmitting = False
+        self.synchronized_tx = None
     
 
         self._last_seqn = 0 #sequence number of the last sended frame. Used to filter ACKs
@@ -83,23 +84,27 @@ class SimplePhyLayer(Layer, Entity):
         if received_power < self.correlator_threshold: # if the received power is under the sensitivity, ignore everything
             return
         
-        self._open_session(transmission)
+        if not self.active_session: # if there is no active session, open a new one
+            self._open_session(transmission) #TODO: there is a bug here. if I have a session already open, I am NOT going to open a new session, so if the pakcet is not for me I am going to close the old session
+            self.synchronized_tx = transmission # the new session synchronizes on this transmission
 
         if isinstance(transmission.packet, Ack_802154):
             pending_ack = True if transmission.packet.seqn == self._last_seqn else False
             type_detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
-            type_detection_event =  PhyPacketTypeDetectionEvent(time = type_detection_time, blame = self, callback = self._close_session if not pending_ack else None, transmission = transmission) # if is not a pending ack, close the session. If it is a pending ack continue decoding till PhyRxEndEvent
+            close_session = True if self.synchronized_tx == transmission and not pending_ack else False # the session has to be closed if it is synchronized on this transmission, but (and)vthe ack is not for me
+            type_detection_event =  PhyPacketTypeDetectionEvent(time = type_detection_time, blame = self, callback = self._close_session if close_session else None, transmission = transmission) # if is not a pending ack, close the session. If it is a pending ack continue decoding till PhyRxEndEvent
             self.host.context.scheduler.schedule(type_detection_event)
 
         elif isinstance(transmission.packet, Frame_802154):
             this_destination = True if (transmission.packet.rx_addr == self.host.linkaddr or transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr) else False
             daddr_detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
-            daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if not this_destination else None, transmission = transmission) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
+            close_session = True if self.synchronized_tx == transmission and not this_destination else False# this session has to be closed if it is synchronized on this transmisison, but (and) the pakcet is not for me
+            daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if close_session else None, transmission = transmission) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
             self.host.context.scheduler.schedule(daddr_detection_event)
 
         
     def on_PhyRxEndEvent(self, transmission: Transmission):
-        if self.active_session:
+        if self.active_session and self.synchronized_tx == transmission: #if there is an active session synchronized on this transmission, close the session, compute RSSI and decide if it is decodable
             rssi_dBm = self.transmission_media.propagation_model.link_budget(A=self.host.position, B=transmission.transmitter.position, Pt_dBm=transmission.transmission_power_dBm)
             self._close_session()
             if self._is_decoded(self.last_session):
@@ -125,18 +130,16 @@ class SimplePhyLayer(Layer, Entity):
 
 
     def _open_session(self, transmission: Transmission):
-        if not self.active_session:
-            from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession # import when all modules are loaded already
+        from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession # import when all modules are loaded already
 
-            self.last_session = ReceptionSession(receiving_node=self.host, capturing = transmission, start_time = self.host.context.scheduler.now())
-            self.transmission_media.subscribe_listener(self.last_session) # attach reception session
-            self.active_session = True
+        self.last_session = ReceptionSession(receiving_node=self.host, capturing_tx = transmission, start_time = self.host.context.scheduler.now())
+        self.transmission_media.subscribe_listener(self.last_session) # attach reception session
+        self.active_session = True
         
     def _close_session(self):
-        if self.active_session:
-           self.last_session.end_time = self.host.context.scheduler.now()
-           self.transmission_media.unsubscribe_listener(self.last_session)
-           self.active_session = False
+        self.last_session.end_time = self.host.context.scheduler.now()
+        self.transmission_media.unsubscribe_listener(self.last_session)
+        self.active_session = False
 
 
 

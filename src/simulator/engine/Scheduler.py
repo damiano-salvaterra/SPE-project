@@ -1,91 +1,65 @@
 import heapq
 from simulator.engine.config import SCHEDULER_TIME_SCALE
-from typing import Optional, List
+from typing import Optional
 
 from simulator.engine.common.Event import Event
 
-#TODO: fix the singleton implementation
-
 class Scheduler:
-    _instance: Optional["Scheduler"] = None # "" is a forward reference (class is not defined yet)
+    """
+    Manages the event queue for the discrete-event simulation.
+    It is a standard class; the Kernel ensures a single instance is used per simulation.
+    The public API works in seconds, while an internal time scale is used for precision.
+    """
+    def __init__(self):
+        self.event_queue = []
+        self._current_time_internal = 0.0  # Time in internal scale (e.g., ms)
+        self.last_event_id = 0
+        self._time_scale = SCHEDULER_TIME_SCALE
 
-    def __new__(cls) -> "Scheduler":
-        """
-        Constructor. Control instance creation to be a singleton
-        """
-        if cls._instance is None:
-            print("Creating new Scheduler instance")
-            cls._instance = super(Scheduler, cls).__new__(cls)
-            cls._instance.event_queue = []
-            cls._instance._current_time = 0.0
-            cls._instance.last_event_id= 0
-            cls._instance._time_scale = SCHEDULER_TIME_SCALE
-        return cls._instance
-    
-
-    def schedule(self, event: Event) -> float:
-        """
-        Schedule an event.
-        """
-        #assign a unique id
+    def schedule(self, event: Event) -> None:
+        """Schedules an event. The event's time is expected in seconds."""
         self.last_event_id += 1
         event._unique_id = self.last_event_id
-        #convert time to the scheduler time scale
-        event.time = event.time / self._time_scale
+        
+        # Convert time from seconds to the internal time scale for storage
+        event_time_internal = event.time / self._time_scale
 
-        if event.time < self._current_time:
-            raise ValueError(f"Cannot schedule event in the past: event.time={event.time} [scheduler time scale] < current_time={self.current_time} [scheduler time scale]")
+        if event_time_internal < self._current_time_internal:
+            current_time_s = self.now()
+            raise ValueError(f"Cannot schedule event in the past: event_time={event.time}s < current_time={current_time_s}s")
 
-        heapq.heappush(self.event_queue, event)  # heapq implements a min-heap, so the smallest
-        # (accordingly to the overloaded "<" in the Event class")
-        # event will be at the root
-        return event.time
-    
+        # The event tuple in the heap stores the internal time for correct sorting
+        heapq.heappush(self.event_queue, (event_time_internal, event))
+
     def unschedule(self, event: Event) -> bool:
-        '''Removes an event from the schedule'''
+        """Marks an event as cancelled so it will not be executed."""
         event._cancelled = True
         return True
-
-
-
-    def peek_next_event(self) -> Optional[Event]:
-        """
-        Get the next event from the queue.
-        """
-        if self.event_queue:
-            return self.event_queue[0]
-        else:
-            return None
-        
         
     def run_next_event(self) -> None:
-        '''Run the next event'''
+        """Pops the next event, updates simulation time, and runs it."""
         if self.event_queue:
-            event = heapq.heappop(self.event_queue)
+            internal_time, event = heapq.heappop(self.event_queue)
+            
             if not event._cancelled:
-                self._current_time = event.time # update simulation time
-                #convert time back to seconds
-                event.time = event.time * self._time_scale
+                self._current_time_internal = internal_time
+                
+                # Restore the original time in seconds before executing the callback
+                event.time = self.now()
                 event.run()
 
-
     def now(self) -> float:
-        return self._current_time
+        """Returns the current simulation time in SECONDS."""
+        return self._current_time_internal * self._time_scale
 
     def is_empty(self) -> bool:
-        """
-        Check if the event queue is empty.
-        """
         return len(self.event_queue) == 0
 
     def get_queue_length(self) -> int:
-        """
-        Get the length of the event queue.
-        """
         return len(self.event_queue)
 
     def flush(self) -> None:
-        """
-        Flush the event queue.
-        """
+        """Resets the scheduler to its initial state."""
         self.event_queue = []
+        self._current_time_internal = 0.0
+        self.last_event_id = 0

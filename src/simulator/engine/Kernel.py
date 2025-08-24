@@ -110,7 +110,7 @@ class Kernel:
         # to update specific parameters on-the-fly if possible.
         print(f"Setting parameters: {kwargs}. Note: a re-bootstrap may be needed for some changes.")
 
-    def add_node(self, node_id: str, position: CartesianCoordinate, app: Application, linkaddr: bytes) -> Optional[StaticNode]:
+    def add_node(self, node_id: str, position: CartesianCoordinate, app: Application, linkaddr: bytes, is_sink: bool = False) -> Optional[StaticNode]:
         '''
         Adds a new node to the simulation.
 
@@ -135,7 +135,8 @@ class Kernel:
             linkaddr=linkaddr,
             position=position,
             application=app,
-            context=self.context
+            context=self.context,
+            is_sink = True if is_sink else False 
         )
         
         # Add node to the kernel's list and the channel's list

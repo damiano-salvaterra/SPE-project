@@ -33,14 +33,16 @@ class ReceptionSession:
                                                                           # the point of this is to register all the amount of interference during the reception session
                                                                           # so at the end of the reception we can process this and decide if the collision occured or not
                                                                           # (example (this project policy): find the segments with the highest amount of SINR and decide based on that) 
+        initial_segment = self.ReceptionSegment(t0=self.start_time, interferers={})
+        self.reception_segments.append(initial_segment) #TODO: check this fix
 
-    def notify_tx_start(self, transmission: "Transmission"):
+    def notify_tx_start(self, transmission: "Transmission", propagation_delay: float):
         '''
         create a new segment with the current interferes plus the new one
         '''
         interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
         interferers_snapshot[transmission.transmitter] = transmission
-        new_segment = ReceptionSession.ReceptionSegment(t0 = self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
+        new_segment = ReceptionSession.ReceptionSegment(t0 = self.receiving_node.context.scheduler.now() + propagation_delay, interferers = interferers_snapshot)
         self.reception_segments.append(new_segment)
 
 

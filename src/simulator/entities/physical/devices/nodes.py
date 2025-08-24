@@ -13,7 +13,7 @@ This class is an orchestrator for the stack layers.
 all the events from the various layers are sent to the Node object that dipatches them to the correct entities
 '''
 class StaticNode(Entity):
-    def __init__(self, node_id: str, linkaddr: bytes, position: CartesianCoordinate, application: Application, context: SimulationContext):
+    def __init__(self, node_id: str, linkaddr: bytes, position: CartesianCoordinate, application: Application, context: SimulationContext, is_sink = False):
         Entity.__init__(self)
         self.id = node_id
         self.linkaddr = linkaddr
@@ -22,7 +22,7 @@ class StaticNode(Entity):
         self.phy = SimplePhyLayer(self)
         self.rdc = NullRDC(self)
         self.mac = ContikiOS_MAC_802154_Unslotted(self)
-        self.net = TARP(self)
+        self.net = TARP(self, sink = is_sink)
         self.app = application
 
 

@@ -15,7 +15,7 @@ This module implments the Packet class and subclasses
 
 @dataclass
 class NetPacket:
-    payload: Any
+    APDU: Optional[Any] # Application Protocol Data Unit
 
 class TARPHeader(ABC):
     pass
@@ -41,7 +41,6 @@ class TARPBroadcastHeader(TARPHeader):
 @dataclass
 class TARPPacket(NetPacket):
     header: TARPUnicastHeader | TARPBroadcastHeader
-    APDU: Optional[Any] = None # Application Protocol Data Unit
 
 '''Mac layer stuff'''
 
