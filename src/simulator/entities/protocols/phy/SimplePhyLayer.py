@@ -1,5 +1,7 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
+from simulator.engine.common.monitors import PacketMonitor
+from simulator.engine.common.signals import PacketSignal
 #from protocols.phy.common.ReceptionSession import ReceptionSession
 from simulator.entities.protocols.phy.common.phy_events import PhyTxEndEvent, PhyTxStartEvent, PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent
 from simulator.entities.protocols.phy.common.Transmission import Transmission
@@ -147,6 +149,15 @@ class SimplePhyLayer(Layer, Entity):
         '''
         create transmission and schedule the phy_tx events
         '''
+        signal = PacketSignal(
+            descriptor="PHY Packet Transmission",
+            timestamp=self.host.context.scheduler.now(),
+            event_type="PacketSent",
+            packet=payload
+        )
+        self._notify_monitors(signal)
+
+
         if isinstance(payload, Frame_802154):
             self._last_seqn = payload.seqn
 
@@ -187,6 +198,14 @@ class SimplePhyLayer(Layer, Entity):
 
     def receive(self, payload: MACFrame):
         '''call the RDC'''
+        signal = PacketSignal(
+            descriptor="PHY Packet Reception",
+            timestamp=self.host.context.scheduler.now(),
+            event_type="PacketReceived",
+            packet=payload
+        )
+        self._notify_monitors(signal)
+
         self.host.rdc.receive(payload = payload)
 
     def get_last_rssi(self) -> float:

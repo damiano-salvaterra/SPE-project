@@ -1,5 +1,6 @@
-from typing import List, Any
-
+from typing import List, Any, TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.engine.common.Monitor import Monitor
 
 '''
 This base class is the base class of any entiy. It makes
@@ -43,7 +44,7 @@ class EntitySignal:
 
 class Entity:
     def __init__(self):
-        self._monitors: List[Any] = []
+        self._monitors: List["Monitor"] = []
 
 
     def attach_monitor(self, monitor: Any):
@@ -63,7 +64,6 @@ class Entity:
             self._monitors.remove(monitor)
 
     def _notify_monitors(self, signal: EntitySignal):
-
         if not self._monitors: # if no monitor are attached, return
             return
         
