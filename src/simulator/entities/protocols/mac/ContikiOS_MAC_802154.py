@@ -1,7 +1,7 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
 #from simulator.entities.physical.devices.nodes import StaticNode
-from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, NetPacket
+from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, NetPacket, MACFrame
 from simulator.entities.protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
 from collections import deque
 
@@ -70,7 +70,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         mac_frame = Frame_802154(seqn = None, tx_addr = self.host.linkaddr, rx_addr = nexthop, requires_ack = requires_ack, NPDU = payload) # seqnum is set later, just before trying to send this frame
         
         self.tx_queue.append(mac_frame)
-        if not self.is_busy:
+        if not self.is_busy and not self.host.rdc.is_radio_busy():
             self._try_send_next()
 
 
@@ -123,9 +123,11 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
 
 
-    def on_RDCSent(self):
+    def on_RDCSent(self, packet: MACFrame):
         '''Called by RDC when the phy transmission is terminated'''
-        if self.current_output_frame is None: # if the current output frame is None, the callback is called by the sending of an ACK: nothing to do
+        if isinstance(packet, Ack_802154):
+            self.is_busy = False
+            self._try_send_next() 
             return 
         
         if self.current_output_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
@@ -154,6 +156,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             self._last_received_rssi = self.host.phy.get_last_rssi() # get rssi onty if it is a frame, we dont care about ack (net layer never see acks)
             self.host.net.receive(payload.NPDU, tx_addr = payload.tx_addr)
             if payload._requires_ack:
+                self.is_busy = True #become busy till the ack is not sent
                 auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
                 send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=auto_ack)

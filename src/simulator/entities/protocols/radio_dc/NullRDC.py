@@ -33,12 +33,15 @@ class NullRDC(Layer, Entity):
         else:
             self.host.mac.on_RDCNotSent() # if transmission attempt is not succesful, inform the mac
         
+
+    def is_radio_busy(self) -> bool:
+        return self.host.phy.is_radio_busy()
         
-    def on_PhyTxEndEvent(self):
+    def on_PhyTxEndEvent(self, packet: MACFrame):
         '''
         When the transmission is finished, inform the mac
         '''
-        self.host.mac.on_RDCSent()
+        self.host.mac.on_RDCSent(packet)
 
 
     def receive(self, payload: MACFrame):

@@ -46,8 +46,10 @@ class TARPPacket(NetPacket):
 
 class MACFrame(ABC):
      on_air_duration = 0.0 #default, just for polymorphism
-     def __init__(self):
+     def __init__(self, NPDU: Optional[NetPacket] = None):
         super().__init__()
+        self.NPDU = NPDU # PDU from upper layer
+
          
 class Frame_802154(MACFrame):
     on_air_duration = 4.83 * 1e-3# gross estimate of the longest packet duration (SHR + PHR + MAC Header + FCS + payload) for 802.15.4 @ 2.4Ghz, 250 kbps
@@ -58,11 +60,11 @@ class Frame_802154(MACFrame):
 
     
     def __init__(self, seqn: int, tx_addr: bytes, rx_addr: bytes, requires_ack: bool = False, NPDU: Optional[NetPacket] = None):
+        super().__init__(NPDU=NPDU)
         self.seqn = seqn
         self.tx_addr = tx_addr # transmitter address
         self.rx_addr = rx_addr # receiver address
         self._requires_ack = requires_ack # false if it is broadcast
-        self.NPDU = NPDU # PDU from upper layer
 
 
 class Ack_802154(MACFrame):
@@ -70,6 +72,7 @@ class Ack_802154(MACFrame):
     ack_detection_time = 288 * 1e-6 #time required to successfully detect an ack  at the receiver. TODO: reference?
                                     # i can detect it afte 9 bytes
     def __init__(self, seqn: int):
+        super().__init__(NPDU=None)
         self.seqn = seqn
 
 '''

@@ -28,18 +28,22 @@ class PacketMonitor(Monitor):
 
         packet = signal.packet
         event_type = signal.event_type
-        
-        # Estrai le informazioni in modo sicuro
+
         packet_type = type(packet).__name__
         seqn = getattr(packet, 'seqn', 'N/A')
-        tx_addr = getattr(packet, 'tx_addr', b'N/A').hex()
-        rx_addr = getattr(packet, 'rx_addr', b'N/A').hex()
+
+        # Safely get addresses
+        tx_addr_bytes = getattr(packet, 'tx_addr', None)
+        rx_addr_bytes = getattr(packet, 'rx_addr', None)
+
+        tx_addr = tx_addr_bytes.hex() if isinstance(tx_addr_bytes, bytes) else 'N/A'
+        rx_addr = rx_addr_bytes.hex() if isinstance(rx_addr_bytes, bytes) else 'N/A'
 
         packet_info = f"Type={packet_type}, Seqn={seqn}, Tx={tx_addr}, Rx={rx_addr}"
-        
+
         print(f"MONITOR [{signal.timestamp:.6f}s] [{entity.host.id}]"
               f" - Event: {event_type}, Packet: {packet_info}")
-
+        
     def print_log(self):
         # Questo metodo ora non è più necessario per il debug, ma lo lasciamo vuoto
         # per non rompere la compatibilità se venisse chiamato.

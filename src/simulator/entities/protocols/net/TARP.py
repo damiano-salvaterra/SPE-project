@@ -179,17 +179,31 @@ class TARP(Layer, Entity):
             return False # TODO: this may be useful to put in an instance status attribute, to be monitored from the outside
         
         nexthop = self._nbr_tbl_lookup(destination)
+        if nexthop is None:
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
+                  f"No route to destination {destination.hex()}. Dropping packet.", flush=True)
+            
+            return False
+        
         packet_header = TARPUnicastHeader(type = TARPUnicastType.UC_TYPE_DATA, s_addr = self.host.linkaddr, d_addr = destination, hops = 0)
         net_packet = TARPPacket(header = packet_header, APDU = payload)
-        self.host.mac.send(payload = net_packet, nexthop = nexthop)            
+        self.host.mac.send(payload = net_packet, nexthop = nexthop)   
+        return True         
 
 
     def _forward_data(self, header: TARPUnicastHeader, payload: Any):
         '''called when unicast packets has to be forwarded'''
         
         nexthop = self._nbr_tbl_lookup(header.d_addr)
+        if nexthop is None:
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/FORWARD] "
+                  f"No route to destination {header.d_addr.hex()}. Dropping packet.", flush=True)
+            
+            return False
+        
         net_packet = TARPPacket(header = header, APDU = payload)
-        self.host.mac.send(payload = net_packet, nexthop = nexthop)            
+        self.host.mac.send(payload = net_packet, nexthop = nexthop)  
+        return True          
 
 
     def _beacon_timer_cb(self):
@@ -250,6 +264,9 @@ class TARP(Layer, Entity):
 
             #promote entry to parent
             tx_entry.type = NodeType.NODE_PARENT
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/BC_RECV] "
+                  f"SELECTING NEW PARENT {tx_addr.hex()}.", flush=True)
+            
 
             #schedule beacon forward
             beacon_forward_jitter = self.rng.uniform(low=0, high= 0.125) #random jitter for beacon forward
@@ -338,7 +355,7 @@ class TARP(Layer, Entity):
             if entry.type ==  NodeType.NODE_CHILD or entry.type == NodeType.NODE_DESCENTANT:
                 self.tpl_buf[addr] = self.RouteStatus.STATUS_ADD
 
-    def _change_parent(self):
+    def _change_parent(self, old_parent_addr: bytes):
         best_metric = float('inf')
         new_parent_addr = None
 
@@ -350,7 +367,7 @@ class TARP(Layer, Entity):
                    best_metric = metric
                    new_parent_addr = addr
 
-        old_parent_entry = self.nbr_tbl[self.parent]
+        old_parent_entry = self.nbr_tbl[old_parent_addr]
         old_parent_entry.type = NodeType.NODE_NEIGHBOR
         old_parent_entry.age = TARP.ALWAYS_INVALID_AGE
 
@@ -367,7 +384,8 @@ class TARP(Layer, Entity):
             self.parent = None
             self.hops = TARP.MAX_PATH_LENGTH + 1 # NOTE: not present in rp.c
 
-
+        print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/CHANGE_PARENT] "
+                  f"SELECTING NEW PARENT {new_parent_addr.hex() if new_parent_addr else None}.", flush=True)
 
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
 
@@ -452,7 +470,7 @@ class TARP(Layer, Entity):
         if tx_entry and tx_entry.type == NodeType.NODE_NEIGHBOR: # if it is a neighbor that chose this node as parent, book the change into the buffer
             self.tpl_buf[tx_addr] = TARP.RouteStatus.STATUS_ADD
             tx_entry.adv_metric = float('inf') #set infinite metric to avoid looès
-            tx_entry.type == NodeType.NODE_CHILD # NOTE: not present in rp.c
+            tx_entry.type = NodeType.NODE_CHILD # NOTE: not present in rp.c
         #else it is an already known child
 
        # update the routing table and the local buffer with the info contained in the topology report
@@ -478,20 +496,20 @@ class TARP(Layer, Entity):
         current_time = self.host.context.scheduler.now()
         expired_addr = [addr for addr, route in self.nbr_tbl.items() if not _valid(current_time=current_time, route=route) and route.type != NodeType.NODE_DESCENTANT]
 
-        parent_change = False
+        parent_to_change = None
         #remove expired keys
         for addr in expired_addr:
             if self.nbr_tbl[addr].type == NodeType.NODE_CHILD:
                 self._remove_subtree(addr)
             elif self.nbr_tbl[addr].type == NodeType.NODE_PARENT:
-                parent_change = True
+                parent_to_change = self.parent
                 self.parent = None
             else:
                 self.nbr_tbl.pop(addr)
 
 
-        if parent_change:
-            self._change_parent()
+        if parent_to_change:
+            self._change_parent(old_parent_addr=parent_to_change)
             
 
 

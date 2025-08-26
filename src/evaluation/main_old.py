@@ -13,7 +13,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # --- Simulator Imports ---
-from simulator.engine.common.monitors import PacketMonitor
+from simulator.engine.common.monitors import PacketMonitor 
 from simulator.engine.Kernel import Kernel
 from simulator.environment.geometry import CartesianCoordinate
 from simulator.applications.Application import Application
@@ -43,11 +43,11 @@ def log_event_execution(event: Event):
     """Callback function to log every event as it is executed by the scheduler."""
     if LOG_LEVEL != "DEBUG":
         return
-
+    
     time = event.time
     blame = type(event.blame).__name__ if event.blame else "Kernel"
     event_type = type(event).__name__
-
+    
     details = ""
     if hasattr(event, 'transmission'):
         packet_type = type(event.transmission.packet).__name__
@@ -62,7 +62,7 @@ def log_event_execution(event: Event):
 
 
 # ======================================================================================
-# TEST APPLICATION: PingPongApp (with retry logic)
+# TEST APPLICATION: PingPongApp
 # ======================================================================================
 
 class PingPongApp(Application):
@@ -70,7 +70,7 @@ class PingPongApp(Application):
     An extended application that continuously exchanges PING and PONG messages.
     - The 'pinger' sends a PING.
     - The 'ponger' replies with a PONG.
-    - Upon receiving a PONG, the 'pinger' waits for a defined interval
+    - Upon receiving a PONG, the 'pinger' waits for a defined interval 
       and then sends the next PING.
     """
     def __init__(self, host: Optional["StaticNode"], is_pinger: bool = False, peer_addr: Optional[bytes] = None, ping_interval: float = 60.0):
@@ -85,7 +85,7 @@ class PingPongApp(Application):
         """Called by the main script to start the application's logic."""
         log(self, "Application started.")
         if self.is_pinger:
-            # Schedula il primissimo PING dopo un ritardo iniziale per permettere
+            # Schedula il primissimo PING dopo un ritardo iniziale per permettere 
             # alla rete di stabilizzarsi.
             initial_send_time = 30.0
             log(self, f"Scheduling first PING at t={initial_send_time:.2f}s.")
@@ -95,31 +95,17 @@ class PingPongApp(Application):
     def generate_traffic(self):
         """
         Generates and sends a single PING packet.
-        If sending fails because no route is available, it reschedules itself to retry.
+        This method is called both for the initial PING and for all subsequent ones.
         """
         if not self.peer_addr:
             return
-
+        
         self.ping_count += 1
         payload_str = f"PING #{self.ping_count} from {self.host.id}"
         packet = NetPacket(APDU=payload_str.encode('utf-8'))
-
-        log(self, f">>> Attempting to send '{payload_str}' to {self.peer_addr.hex()}.", level="INFO")
         
-        sent_successfully = self.host.net.send(packet, destination=self.peer_addr)
-
-        # --- MODIFIED LOGIC: RETRY ON FAILURE ---
-        if not sent_successfully and self.is_pinger:
-            retry_interval = 35.0
-            retry_time = self.host.context.scheduler.now() + retry_interval
-            log(self, f"Send failed. Retrying PING at t={retry_time:.2f}s.", level="INFO")
-            
-            retry_event = Event(
-                time=retry_time,
-                blame=self,
-                callback=self.generate_traffic
-            )
-            self.host.context.scheduler.schedule(retry_event)
+        log(self, f">>> Sending '{payload_str}' to {self.peer_addr.hex()}.", level="INFO")
+        self.host.net.send(packet, destination=self.peer_addr)
 
     def receive(self, packet: NetPacket, sender_addr: bytes):
         """
@@ -136,13 +122,13 @@ class PingPongApp(Application):
             reply_packet = NetPacket(APDU=reply_payload_str.encode('utf-8'))
             log(self, f">>> Replying with '{reply_payload_str}' to {sender_addr.hex()}.", level="INFO")
             self.host.net.send(reply_packet, destination=sender_addr)
-
+            
         # --- NUOVA LOGICA PER IL NODO PINGER (continua il ciclo) ---
         if "PONG" in payload_str and self.is_pinger:
             # Ha ricevuto una risposta, ora schedula il prossimo PING dopo l'intervallo.
             next_ping_time = self.host.context.scheduler.now() + self.ping_interval
             log(self, f"PONG received. Scheduling next PING at t={next_ping_time:.2f}s.")
-
+            
             next_ping_event = Event(
                 time=next_ping_time,
                 blame=self,
@@ -155,23 +141,16 @@ class PingPongApp(Application):
 # ======================================================================================
 
 def run_simulation():
-    print("--- Starting Network Stack Test: Ping-Pong (STABLE CHANNEL) ---")
+    print("--- Starting Network Stack Test: Ping-Pong ---")
 
     kernel = Kernel(root_seed=12345)
-
+    
     # AGGIUNTA: Hook per il logging degli eventi
     kernel.context.scheduler.event_execution_callback = log_event_execution
 
-    # --- MODIFIED PARAMETERS FOR "STABLE" DEBUG CHANNEL ---
-    # This configuration uses a numerically stable channel with very little
-    # randomness to ensure high reliability for debugging protocol logic.
     kernel.bootstrap(
         seed=12345, dspace_step=1, dspace_npt=100, freq=2.4e9, filter_bandwidth=2e6,
-        coh_d=50,
-        shadow_dev=0.1,          # <-- Very low, non-zero shadowing
-        pl_exponent=2.1,         # <-- Path loss slightly better than free-space
-        d0=1.0,
-        fading_shape=20.0        # <-- High value minimizes fading effects
+        coh_d=50, shadow_dev=4.0, pl_exponent=2.5, d0=1.0, fading_shape=1.0
     )
 
     print("\n--- Creating Network Nodes ---")
@@ -194,11 +173,12 @@ def run_simulation():
 
     print("\n--- Attaching Packet Monitor ---")
     packet_monitor = PacketMonitor()
-
+    
     # Collega il monitor al layer fisico di entrambi i nodi.
+    # Questo è il punto migliore per catturare TUTTO il traffico.
     kernel.attach_monitor(packet_monitor, "Node-A (Pinger, Sink).phy")
     kernel.attach_monitor(packet_monitor, "Node-B (Ponger).phy")
-
+    
     app_A.start()
     app_B.start()
 
@@ -207,7 +187,7 @@ def run_simulation():
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")
-
+    
     # AGGIUNTA: Stampa dettagliata della coda eventi finale
     scheduler = kernel.context.scheduler
     queue_len = scheduler.get_queue_length()

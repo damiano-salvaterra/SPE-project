@@ -16,7 +16,7 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
         Entity.__init__(self)
         self.propagation_model = propagation_model
         self.nodes = nodes # list of nodes in the environment
-        self.listeners: Dict[StaticNode, ReceptionSession] = {} # dict of subscribers tha to observe the channel, subscibed by PhyLayer
+        #self.listeners: Dict[StaticNode, ReceptionSession] = {} # dict of subscribers tha to observe the channel, subscibed by PhyLayer
         self.context = context
         self.active_transmissions: Dict[StaticNode, Transmission] = {} # list of currently active transmissions, indexed by the source
         self.tx_counter = 0 # transmission id
@@ -49,9 +49,9 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
                 self.context.scheduler.schedule(rx_start_event)
                 self.context.scheduler.schedule(rx_end_event)
 
-                # if this receiver has an active session, notify it
-                if receiver in self.listeners.keys():
-                    self.listeners[receiver].notify_tx_start(transmission, propagation_delay)
+            #    # if this receiver has an active session, notify it
+            #    if receiver in self.listeners.keys():
+            #        self.listeners[receiver].notify_tx_start(transmission, propagation_delay) #TODO: i am messing with the future here, maybe i should move the listener to the phy layer and let it manage it from there
 
         #for listener in self.listeners:
         #    if listener.capturing_tx is not transmission: #in theory, never happens
@@ -62,22 +62,23 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
 
     def on_PhyTxEndEvent(self, transmission: Transmission):
         self.active_transmissions.pop(transmission.transmitter) # remove the transmission from the current transmissions
-        for session in self.listeners.values():
-            session.notify_tx_end(transmission) #notify the observers
+        #for session in self.listeners.values():
+        #    if session.receiving_node != transmission.transmitter:
+        #        session.notify_tx_end(transmission) #notify the observers
 
 
 
-    def subscribe_listener(self, session: ReceptionSession):
-        '''
-        This function subscribes an observer object of the wireless channel.
-        This way, we can easily update and notify the observer objects of new interferers/state change of the wireless channel.
-        When the transmission ends, we detach the object and compute the reception/collision probability
-        TODO: check if it makes more sense to attach PhyLayer objects (of Node) instead of this
-        '''
-        self.listeners[session.receiving_node] = session
-
-    def unsubscribe_listener(self, session: ReceptionSession):
-        self.listeners.pop(session.receiving_node)
+    #def subscribe_listener(self, session: ReceptionSession):
+    #    '''
+    #    This function subscribes an observer object of the wireless channel.
+    #    This way, we can easily update and notify the observer objects of new interferers/state change of the wireless channel.
+    #    When the transmission ends, we detach the object and compute the reception/collision probability
+    #    TODO: check if it makes more sense to attach PhyLayer objects (of Node) instead of this
+    #    '''
+    #    self.listeners[session.receiving_node] = session
+#
+    #def unsubscribe_listener(self, session: ReceptionSession):
+    #    self.listeners.pop(session.receiving_node)
 
 
 

@@ -6,7 +6,7 @@ import copy
 if TYPE_CHECKING:
     from simulator.entities.physical.devices.nodes import StaticNode
 
-'''This class implements the observer of the wireless channel
+'''This class implements the observer for the incoming transmissions
 when a node starts receiving a packet. This object has no particular domain meaning (for now):
 it is only a utiliy object to observing the evolving state in the wireless channel during the reception
 '''
@@ -24,7 +24,7 @@ class ReceptionSession:
                                                                     # end get the Node object fast later for the SINR
 
     
-    def __init__(self, receiving_node: "StaticNode", capturing_tx: "Transmission", start_time: float, end_time: float = None):
+    def __init__(self, receiving_node: "StaticNode", capturing_tx: "Transmission", interferers: Dict["StaticNode", "Transmission"], start_time: float, end_time: float = None):
         self.receiving_node = receiving_node
         self.capturing_tx = capturing_tx
         self.start_time = start_time
@@ -33,16 +33,16 @@ class ReceptionSession:
                                                                           # the point of this is to register all the amount of interference during the reception session
                                                                           # so at the end of the reception we can process this and decide if the collision occured or not
                                                                           # (example (this project policy): find the segments with the highest amount of SINR and decide based on that) 
-        initial_segment = self.ReceptionSegment(t0=self.start_time, interferers={})
-        self.reception_segments.append(initial_segment) #TODO: check this fix
+        initial_segment = self.ReceptionSegment(t0=self.start_time, interferers=copy.deepcopy(interferers))
+        self.reception_segments.append(initial_segment)
 
-    def notify_tx_start(self, transmission: "Transmission", propagation_delay: float):
+    def notify_tx_start(self, transmission: "Transmission"):
         '''
         create a new segment with the current interferes plus the new one
         '''
         interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
         interferers_snapshot[transmission.transmitter] = transmission
-        new_segment = ReceptionSession.ReceptionSegment(t0 = self.receiving_node.context.scheduler.now() + propagation_delay, interferers = interferers_snapshot)
+        new_segment = ReceptionSession.ReceptionSegment(t0 = self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
         self.reception_segments.append(new_segment)
 
 
@@ -63,7 +63,7 @@ class ReceptionSession:
         print(f"Current Simulation Time: {self.receiving_node.context.scheduler.now():.6f}s")
         print(f"This Node: {self.receiving_node.id}")
         print(f"Attempting to remove transmitter: {transmission.transmitter.id}")
-        print(f"Interferers in the current segment: {[node.name for node in self.reception_segments[-1].interferers.keys()]}")
+        print(f"Interferers in the current segment: {[node.id for node in self.reception_segments[-1].interferers.keys()]}")
         print("---------------------------------------------")
 
 

@@ -86,7 +86,9 @@ class SimplePhyLayer(Layer, Entity):
         if received_power < self.correlator_threshold: # if the received power is under the sensitivity, ignore everything
             return
         
-        if not self.active_session: # if there is no active session, open a new one
+        if self.active_session:
+            self.last_session.notify_tx_start(transmission=transmission)
+        else: # if there is no active session, open a new one
             self._open_session(transmission) 
             self.synchronized_tx = transmission # the new session synchronizes on this transmission
 
@@ -94,14 +96,14 @@ class SimplePhyLayer(Layer, Entity):
             pending_ack = True if transmission.packet.seqn == self._last_seqn else False
             type_detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
             close_session = True if self.synchronized_tx == transmission and not pending_ack else False # the session has to be closed if it is synchronized on this transmission, but (and)vthe ack is not for me
-            type_detection_event =  PhyPacketTypeDetectionEvent(time = type_detection_time, blame = self, callback = self._close_session if close_session else None, transmission = transmission) # if is not a pending ack, close the session. If it is a pending ack continue decoding till PhyRxEndEvent
+            type_detection_event =  PhyPacketTypeDetectionEvent(time = type_detection_time, blame = self, callback = self._close_session if close_session else None) # if is not a pending ack, close the session. If it is a pending ack continue decoding till PhyRxEndEvent
             self.host.context.scheduler.schedule(type_detection_event)
 
         elif isinstance(transmission.packet, Frame_802154):
             this_destination = True if (transmission.packet.rx_addr == self.host.linkaddr or transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr) else False
             daddr_detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
             close_session = True if self.synchronized_tx == transmission and not this_destination else False# this session has to be closed if it is synchronized on this transmisison, but (and) the pakcet is not for me
-            daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if close_session else None, transmission = transmission) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
+            daddr_detection_event  = PhyDaddrDetectionEvent(time = daddr_detection_time, blame = self, callback = self._close_session if close_session else None) # if this node is not the destination, close the session. If it is the destination, continue decoding till PhyRxEndEvent
             self.host.context.scheduler.schedule(daddr_detection_event)
 
         
@@ -111,11 +113,12 @@ class SimplePhyLayer(Layer, Entity):
             self._close_session()
             if self._is_decoded(self.last_session):
                 self._last_successful_rx_rssi_dbm = rssi_dBm
+                print(f"DEBUG/PHY/{self.host.id}: Packet received from {transmission.transmitter.id} | type : {type(transmission.packet).__name__} | payload: {transmission.packet.NPDU}", flush=True)
                 self.receive(payload = self.last_session.capturing_tx.packet)
             else:
                 pass #TODO: else what? just update a monitor counter probably
-        else: # if the session was already closed (because was an ack with different seqnum or because the packet had another destination address), do nothing
-            pass
+        elif self.active_session and self.synchronized_tx != transmission: #this is the end of an interference
+            self.last_session.notify_tx_end(transmission=transmission)
 
 
 
@@ -126,22 +129,22 @@ class SimplePhyLayer(Layer, Entity):
     def on_PhyTxEndEvent(self, transmission: Transmission):
         self.transmitting = False
         self.transmission_media.on_PhyTxEndEvent(transmission=transmission) # notify channel
-        self.host.rdc.on_PhyTxEndEvent() # notify rdc
+        self.host.rdc.on_PhyTxEndEvent(packet=transmission.packet) # notify rdc
 
 
 
 
     def _open_session(self, transmission: Transmission):
         from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession # import when all modules are loaded already
-
-        self.last_session = ReceptionSession(receiving_node=self.host, capturing_tx = transmission, start_time = self.host.context.scheduler.now())
-        self.transmission_media.subscribe_listener(self.last_session) # attach reception session
+        #get current channel state
+        current_interferers = {tx.transmitter: tx for tx in self.transmission_media.active_transmissions.values() if tx.transmitter is not self.host}
+        self.last_session = ReceptionSession(receiving_node=self.host, capturing_tx = transmission, interferers = current_interferers, start_time = self.host.context.scheduler.now())
         self.active_session = True
         
     def _close_session(self):
         self.last_session.end_time = self.host.context.scheduler.now()
-        self.transmission_media.unsubscribe_listener(self.last_session)
         self.active_session = False
+        self.synchronized_tx = None
 
 
 
@@ -183,6 +186,9 @@ class SimplePhyLayer(Layer, Entity):
 
          Returns True if channel is busy, False if the channel is free.
          '''
+        if self.is_radio_busy():
+            return True
+        
         noise_floor = self.transmission_media.get_linear_noise_floor()
         channel_power = 0.0
         for transmission in self.transmission_media.active_transmissions.values():
@@ -194,6 +200,8 @@ class SimplePhyLayer(Layer, Entity):
         total_dBm = 10 * log10(total_received_power) + 30 #go back in dBm (threshold is in dBm)
         return total_dBm > self.cca_Threshold_dBm
 
+    def is_radio_busy(self) -> bool:
+        return self.transmitting or self.active_session
 
 
     def receive(self, payload: MACFrame):
