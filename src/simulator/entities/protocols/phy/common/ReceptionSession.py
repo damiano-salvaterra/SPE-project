@@ -20,11 +20,10 @@ class ReceptionSession:
         def __init__(self, interferers: Dict["StaticNode", "Transmission"], t0: float, t1: float = None):
             self.t0 = t0
             self.t1 = t1
-            self.interferers: Dict["StaticNode", "Transmission"] = interferers # keep a dict to remove elements fast
-                                                                    # end get the Node object fast later for the SINR
+            self.interferers: List["Transmission"] = interferers #list of interferers
 
     
-    def __init__(self, receiving_node: "StaticNode", capturing_tx: "Transmission", interferers: Dict["StaticNode", "Transmission"], start_time: float, end_time: float = None):
+    def __init__(self, receiving_node: "StaticNode", capturing_tx: "Transmission", interferers: List["Transmission"], start_time: float, end_time: float = None):
         self.receiving_node = receiving_node
         self.capturing_tx = capturing_tx
         self.start_time = start_time
@@ -33,15 +32,15 @@ class ReceptionSession:
                                                                           # the point of this is to register all the amount of interference during the reception session
                                                                           # so at the end of the reception we can process this and decide if the collision occured or not
                                                                           # (example (this project policy): find the segments with the highest amount of SINR and decide based on that) 
-        initial_segment = self.ReceptionSegment(t0=self.start_time, interferers=copy.deepcopy(interferers))
+        initial_segment = self.ReceptionSegment(t0=self.start_time, interferers=copy.copy(interferers))
         self.reception_segments.append(initial_segment)
 
     def notify_tx_start(self, transmission: "Transmission"):
         '''
         create a new segment with the current interferes plus the new one
         '''
-        interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
-        interferers_snapshot[transmission.transmitter] = transmission
+        interferers_snapshot = copy.copy(self.reception_segments[-1].interferers)
+        interferers_snapshot.append(transmission)
         new_segment = ReceptionSession.ReceptionSegment(t0 = self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
         self.reception_segments.append(new_segment)
 
@@ -63,7 +62,7 @@ class ReceptionSession:
         print(f"Current Simulation Time: {self.receiving_node.context.scheduler.now():.6f}s")
         print(f"This Node: {self.receiving_node.id}")
         print(f"Attempting to remove transmitter: {transmission.transmitter.id}")
-        print(f"Interferers in the current segment: {[node.id for node in self.reception_segments[-1].interferers.keys()]}")
+        print(f"Interferers in the current segment: {[tx.transmitter.id for tx in self.reception_segments[-1].interferers]}")
         print("---------------------------------------------")
 
 
@@ -74,7 +73,7 @@ class ReceptionSession:
 
         if self.capturing_tx != transmission:
             self.reception_segments[-1].t1 = self.receiving_node.context.scheduler.now()
-            interferers_snapshot = copy.deepcopy(self.reception_segments[-1].interferers)
-            interferers_snapshot.pop(transmission.transmitter) # remove the ended transmission
+            interferers_snapshot = copy.copy(self.reception_segments[-1].interferers)
+            interferers_snapshot.remove(transmission) # remove the ended transmission
             new_segment = ReceptionSession.ReceptionSegment(t0=self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
             self.reception_segments.append(new_segment)

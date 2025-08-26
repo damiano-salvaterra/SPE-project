@@ -33,7 +33,7 @@ class TARPUnicastHeader(TARPHeader):
 
 @dataclass
 class TARPBroadcastHeader(TARPHeader):
-    seqn: int
+    epoch: int
     metric_q124: float
     hops: int
     parent: Optional[bytes]

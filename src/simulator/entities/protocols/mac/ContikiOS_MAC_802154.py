@@ -100,6 +100,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         '''
         Backoff and CCA logic
         '''
+        if self.current_output_frame is None:
+            return
+        
         if is_retry:
             if self.retry_count > self.macMaxFrameRetries:
                 # set transmission as failed
@@ -153,15 +156,16 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         '''Mananges the packets received from RDC'''
 
         if isinstance(payload, Frame_802154):
-            self._last_received_rssi = self.host.phy.get_last_rssi() # get rssi onty if it is a frame, we dont care about ack (net layer never see acks)
-            self.host.net.receive(payload.NPDU, tx_addr = payload.tx_addr)
             if payload._requires_ack:
-                self.is_busy = True #become busy till the ack is not sent
+                self.is_busy = True # Become busy till the ack is not sent
                 auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
                 send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=auto_ack)
                 self.host.context.scheduler.schedule(send_ack_event)
-        
+
+            self._last_received_rssi = self.host.phy.get_last_rssi()
+            self.host.net.receive(payload.NPDU, tx_addr = payload.tx_addr)
+
         elif isinstance(payload, Ack_802154):
             if self.is_busy and self.current_output_frame and payload.seqn == self.current_output_frame.seqn:
                 # If mac is busy, the current frame is not null and the seqnum f the received ack corresponds, then this ack is for me

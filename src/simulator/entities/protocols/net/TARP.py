@@ -212,11 +212,11 @@ class TARP(Layer, Entity):
         if self.sink:
             new_seqn = self.seqn + 1
             self._reset_connection_status(new_seqn)
-            send_beacon_time = self.host.context.scheduler.now() + TARP.TREE_BEACON_INTERVAL
-            send_beacon_event = NetBeaconSendEvent(time=send_beacon_time, blame=self, callback=self._beacon_timer_cb)
-            self.host.context.scheduler.schedule(send_beacon_event) # schedule next beacon flood
+            next_beacon_time = self.host.context.scheduler.now() + TARP.TREE_BEACON_INTERVAL
+            next_beacon_event = NetBeaconSendEvent(time=next_beacon_time, blame=self, callback=self._beacon_timer_cb)
+            self.host.context.scheduler.schedule(next_beacon_event) # schedule next beacon flood
 
-        broadcast_header = TARPBroadcastHeader(seqn=self.seqn, metric_q124=self.metric, hops=self.hops, parent=self.parent)
+        broadcast_header = TARPBroadcastHeader(epoch=self.seqn, metric_q124=self.metric, hops=self.hops, parent=self.parent)
         self._broadcast_send(broadcast_header, data = None)
         
 
@@ -251,8 +251,8 @@ class TARP(Layer, Entity):
             self.nbr_tbl[tx_addr] = tx_entry
         
         #manage epoch change
-        if not self.sink and header.seqn > self.seqn:
-            self._reset_connection_status(header.seqn)
+        if not self.sink and header.epoch > self.seqn:
+            self._reset_connection_status(header.epoch)
 
         #parent selection logic
         new_metric = _metric(header.metric_q124, tx_entry.etx)
@@ -417,6 +417,8 @@ class TARP(Layer, Entity):
 
     def _uc_sent(self, rx_addr: bytes, status_ok: bool, num_tx: int):
         '''this function updates the metric based on the transmission result'''
+        if rx_addr is None or rx_addr not in self.nbr_tbl: #may happen is the route is removed while the mac is still trying
+          return
         self.nbr_tbl[rx_addr].num_tx += 1 # increment transmissions number
 
         if status_ok:
@@ -445,6 +447,8 @@ class TARP(Layer, Entity):
             self._uc_recv(payload, tx_addr)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, tx_addr)
+
+
     ##################################################################################
     '''utils functions implemented in files different from rp.c'''
     
