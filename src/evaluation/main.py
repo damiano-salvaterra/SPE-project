@@ -16,6 +16,7 @@ from simulator.engine.common.monitors import PacketMonitor  # noqa: E402
 from simulator.engine.Kernel import Kernel  # noqa: E402
 from simulator.environment.geometry import CartesianCoordinate  # noqa: E402
 from simulator.applications.Application import Application  # noqa: E402
+from simulator.entities.physical.devices.nodes import StaticNode  # noqa: E402
 from simulator.entities.protocols.common.packets import (  # noqa: E402
     NetPacket,
     TARPPacket,
@@ -74,16 +75,16 @@ def log_event_execution(event: Event):
 
 class PingPongApp(Application):
     """
-        An extended application that continuously exchanges PING and PONG messages.
-        - The 'pinger' sends a PING.
-        - The 'ponger' replies with a PONG.
-        - Upon receiving a PONG, the 'pinger' waits for a defined interval
-          and then sends the next PING.
+    An extended application that continuously exchanges PING and PONG messages.
+    - The 'pinger' sends a PING.
+    - The 'ponger' replies with a PONG.
+    - Upon receiving a PONG, the 'pinger' waits for a defined interval
+      and then sends the next PING.
     """
 
     def __init__(
         self,
-        host: Optional["StaticNode"],
+        host: Optional[StaticNode] = None,
         is_pinger: bool = False,
         peer_addr: Optional[bytes] = None,
         ping_interval: float = 60.0,
