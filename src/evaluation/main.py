@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 # ENHANCED LOGGING
 # ======================================================================================
 
-LOG_LEVEL = "DEBUG"  # Cambia in "INFO" per meno dettagli
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()  # run `export LOG_LEVEL=INFO` in your shell for less verbosity
 
 
 def log(instance: object, message: str, level: str = "INFO"):
@@ -173,7 +173,13 @@ class PingPongApp(Application):
         # --- NUOVA LOGICA PER IL NODO PINGER (continua il ciclo) ---
         if "PONG" in payload_str and self.is_pinger:
             # Ha ricevuto una risposta, ora schedula il prossimo PING dopo l'intervallo.
-            next_ping_time = self.host.context.scheduler.now() + self.ping_interval
+            next_ping_time = self.host.context.scheduler# --- Simulator Imports ---
+from simulator.engine.common.monitors import PacketMonitor
+from simulator.engine.Kernel import Kernel
+from simulator.environment.geometry import CartesianCoordinate
+from simulator.applications.Application import Application
+from simulator.entities.protocols.common.packets import NetPacket, TARPPacket, Frame_802154
+from simulator.engine.common.Event import Event.now() + self.ping_interval
             log(
                 self, f"PONG received. Scheduling next PING at t={next_ping_time:.2f}s."
             )
