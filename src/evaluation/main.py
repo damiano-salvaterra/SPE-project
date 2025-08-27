@@ -108,7 +108,7 @@ class PingPongApp(Application):
             )
             self.host.context.scheduler.schedule(start_ping_event)
 
-    def generate_traffic(self):
+    def generate_traffic(self) -> None:
         """
         Generates and sends a single PING packet.
         If sending fails because no route is available, it reschedules itself to retry.

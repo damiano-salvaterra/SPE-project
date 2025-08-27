@@ -10,7 +10,7 @@ class Application(ABC):
         
         
     @abstractmethod
-    def generate_traffic(self):
+    def generate_traffic(self) -> None:
         pass
 
         
