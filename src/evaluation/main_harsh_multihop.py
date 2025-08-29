@@ -204,7 +204,7 @@ def run_simulation():
     nodes[f"Node-{chr(ord('A') + num_nodes - 1)}"].app.start()
 
     print("\n--- Running Simulation ---")
-    kernel.run(until=1000.0)
+    kernel.run(until=60000.0)
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")

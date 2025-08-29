@@ -29,3 +29,7 @@ class PhyPacketTypeDetectionEvent(Event):
 
 class PhyDaddrDetectionEvent(Event):
     pass
+
+
+class PhyUnsyncEvent(Event):
+    pass

@@ -2,7 +2,7 @@ from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
 #from simulator.entities.physical.devices.nodes import StaticNode
 from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, NetPacket, MACFrame
-from simulator.entities.protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent
+from simulator.entities.protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent, MacTrySendNextEvent
 from collections import deque
 
 from typing import TYPE_CHECKING
@@ -25,6 +25,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     # Derived from: aUnitBackoffPeriod(20) + aTurnaroundTime(12) + SHR_duration(10) + PHR_and_payload_symbols
     macAckWaitDuration = 864 * 1e-6
     aTurnaroundTime = 192 * 1e-6
+    next_send_delay = 5e-6 #wait 5 microseconds before sending next packet (NOTE: this time was chosen just to be small enough, it may not be the best time to choose)
 
     def __init__(self, host: "StaticNode"):
         Layer.__init__(self, host = host)
@@ -72,7 +73,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         
         self.tx_queue.append(mac_frame)
         if not self.is_busy and not self.host.rdc.is_radio_busy():
-            self._try_send_next()
+            if not self.is_busy:
+             send_delay = 1e-6
+             send_event = MacTrySendNextEvent(time=self.host.context.scheduler.now() + send_delay, blame=self, callback=self._try_send_next)
+             self.host.context.scheduler.schedule(send_event)
 
 
     def _try_send_next(self):
@@ -179,8 +183,9 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         elif isinstance(payload, Ack_802154):
             if self.is_busy and self.current_output_frame and payload.seqn == self.current_output_frame.seqn:
                 # If mac is busy, the current frame is not null and the seqnum f the received ack corresponds, then this ack is for me
-                self.host.context.scheduler.unschedule(self.pending_ack_timeout_event)
-                self.pending_ack_timeout_event = None
+                if self.pending_ack_timeout_event:
+                    self.host.context.scheduler.unschedule(self.pending_ack_timeout_event)
+                    self.pending_ack_timeout_event = None
                 self._handle_tx_success() # YAY
 
 
@@ -193,7 +198,11 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=True, num_tx=self.retry_count)
         self._reset_mac_state()
-        self._try_send_next() # send other packets in the queue
+        send_next_time = self.host.context.scheduler.now() + self.next_send_delay
+        send_next_event = MacTrySendNextEvent(time=send_next_time, blame=self, callback=self._try_send_next)
+        self.host.context.scheduler.schedule(send_next_event)
+
+        #self._try_send_next() # send other packets in the queue
 
 
     def _handle_tx_failure(self):
@@ -204,6 +213,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=False, num_tx=self.retry_count)
         self._reset_mac_state()
+        send_next_time = self.host.context.scheduler.now() + self.next_send_delay
+        send_next_event = MacTrySendNextEvent(time=send_next_time, blame=self, callback=self._try_send_next)
+        self.host.context.scheduler.schedule(send_next_event)
+
         #self._try_send_next() # send other packets in the queue
 
     def get_last_packet_rssi(self) -> float:
