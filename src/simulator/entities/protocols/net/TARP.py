@@ -73,9 +73,10 @@ class TARP(Layer, Entity):
                             #voices in the topology report. However, Contiki often keep the packetbuf smaller than 127 bytes. So we may want to set an arbitrary value
     MAX_PATH_LENGTH = 40 # maximum number of hops before dropping the packet
     CLEANUP_INTERVAL = 15 #cleanup the routing table from expired entries every 15 seconds
+    ALWAYS_VALID_AGE = float('inf')
     ALWAYS_INVALID_AGE = -1 # time 0. Route having this age are always invalid.
                             #In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
-    ENTRY_EXPIRATION_TIME = 60
+    ENTRY_EXPIRATION_TIME = 90
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
     RSSI_LOW_THR = -85
@@ -362,7 +363,7 @@ class TARP(Layer, Entity):
         #find neighbor with best metric (excluding descendants and children)
         for addr, entry in self.nbr_tbl.items():
            if entry.type == NodeType.NODE_NEIGHBOR:
-               metric = self.metric(entry.adv_metric, entry.etx)
+               metric = _metric(entry.adv_metric, entry.etx)
                if metric < best_metric:
                    best_metric = metric
                    new_parent_addr = addr
@@ -375,7 +376,7 @@ class TARP(Layer, Entity):
             self.parent = new_parent_addr
             self.metric = best_metric
             self.nbr_tbl[new_parent_addr].type = NodeType.NODE_PARENT
-            self.hops = self.nbr_tbl[new_parent_addr] + 1
+            self.hops = self.nbr_tbl[new_parent_addr].hops + 1
 
             self._buff_subtree() # bufferize the subtree
             self._subtree_report_cb() #send the buffer to the new parent
@@ -388,7 +389,9 @@ class TARP(Layer, Entity):
                   f"SELECTING NEW PARENT {new_parent_addr.hex() if new_parent_addr else None}.", flush=True)
 
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
-
+        if tx_addr not in self.nbr_tbl:
+            return # ignore the packet if transmitter is not in the routing table: discovery is only allowed by broadcasts
+    
         header: TARPUnicastHeader = payload.header
         header.hops = header.hops + 1 #update hop counts in the header to reuse it in case of forward
 
@@ -485,9 +488,12 @@ class TARP(Layer, Entity):
             if d_status == TARP.RouteStatus.STATUS_ADD: # add descendant in the neighbor table
                 d_entry = TARP.TARPRoute(type = NodeType.NODE_DESCENTANT,
                                          adv_metric=float('inf'),
-                                         age=TARP.ALWAYS_INVALID_AGE,
+                                         age=TARP.ALWAYS_VALID_AGE,
                                          hops= TARP.MAX_PATH_LENGTH+1,
-                                         nexthop=tx_addr)
+                                         nexthop=tx_addr,
+                                         etx= 0.0,
+                                         num_tx =0,
+                                         num_ack = 0)
                 self.nbr_tbl[d_addr] = d_entry
 
             elif d_status == TARP.RouteStatus.STATUS_REMOVE:

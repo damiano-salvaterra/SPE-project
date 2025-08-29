@@ -1,4 +1,4 @@
-# src/evaluation/main.py
+# src/evaluation/main_multihop.py
 
 import sys
 import os
@@ -7,7 +7,6 @@ import functools
 
 
 # --- Python Path Setup ---
-# This ensures that the script can find the 'simulator' package when run as a module.
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
@@ -28,14 +27,13 @@ if TYPE_CHECKING:
 # ENHANCED LOGGING
 # ======================================================================================
 
-LOG_LEVEL = "DEBUG"  # Cambia in "INFO" per meno dettagli
+LOG_LEVEL = "DEBUG"
 
 def log(instance: object, message: str, level: str = "INFO"):
     """A standardized logging function for cleaner, time-stamped output."""
     if LOG_LEVEL == "DEBUG" or level == "INFO":
         time = instance.host.context.scheduler.now()
         node_id = instance.host.id
-        # Cerca di identificare il layer per un log più chiaro
         layer_name = instance.__class__.__name__
         print(f"[{time:.6f}s] [{node_id}] [{layer_name}] {message}")
 
@@ -79,14 +77,12 @@ class PingPongApp(Application):
         self.is_pinger = is_pinger
         self.peer_addr = peer_addr
         self.ping_count = 0
-        self.ping_interval = ping_interval # Intervallo tra la ricezione di un PONG e l'invio del PING successivo
+        self.ping_interval = ping_interval
 
     def start(self):
         """Called by the main script to start the application's logic."""
         log(self, "Application started.")
         if self.is_pinger:
-            # Schedula il primissimo PING dopo un ritardo iniziale per permettere
-            # alla rete di stabilizzarsi.
             initial_send_time = 30.0
             log(self, f"Scheduling first PING at t={initial_send_time:.2f}s.")
             start_ping_event = Event(time=initial_send_time, blame=self, callback=self.generate_traffic)
@@ -108,7 +104,6 @@ class PingPongApp(Application):
         
         sent_successfully = self.host.net.send(packet, destination=self.peer_addr)
 
-        # --- MODIFIED LOGIC: RETRY ON FAILURE ---
         if not sent_successfully and self.is_pinger:
             retry_interval = 35.0
             retry_time = self.host.context.scheduler.now() + retry_interval
@@ -124,22 +119,17 @@ class PingPongApp(Application):
     def receive(self, packet: NetPacket, sender_addr: bytes):
         """
         Handles an incoming packet from the network layer.
-        - If 'ponger', replies to PINGs with PONGs.
-        - If 'pinger', schedules the next PING upon receiving a PONG.
         """
         payload_str = packet.APDU.decode('utf-8', errors='ignore')
         log(self, f"<<< Received '{payload_str}' from {sender_addr.hex()}.", level="INFO")
 
-        # Logica per il NODO PONGER (risponde ai PING)
         if "PING" in payload_str and not self.is_pinger:
             reply_payload_str = f"PONG in response to '{payload_str}'"
             reply_packet = NetPacket(APDU=reply_payload_str.encode('utf-8'))
             log(self, f">>> Replying with '{reply_payload_str}' to {sender_addr.hex()}.", level="INFO")
             self.host.net.send(reply_packet, destination=sender_addr)
 
-        # --- NUOVA LOGICA PER IL NODO PINGER (continua il ciclo) ---
         if "PONG" in payload_str and self.is_pinger:
-            # Ha ricevuto una risposta, ora schedula il prossimo PING dopo l'intervallo.
             next_ping_time = self.host.context.scheduler.now() + self.ping_interval
             log(self, f"PONG received. Scheduling next PING at t={next_ping_time:.2f}s.")
 
@@ -155,72 +145,80 @@ class PingPongApp(Application):
 # ======================================================================================
 
 def run_simulation():
-    print("--- Starting Network Stack Test: Ping-Pong (STABLE CHANNEL) ---")
+    print("--- Starting Network Stack Test: Multi-Hop Ping-Pong (STABLE CHANNEL) ---")
 
     kernel = Kernel(root_seed=12345)
-
-    # AGGIUNTA: Hook per il logging degli eventi
     kernel.context.scheduler.event_execution_callback = log_event_execution
 
-    # --- MODIFIED PARAMETERS FOR "STABLE" DEBUG CHANNEL ---
-    # This configuration uses a numerically stable channel with very little
-    # randomness to ensure high reliability for debugging protocol logic.
     kernel.bootstrap(
-        seed=12345, dspace_step=1, dspace_npt=100, freq=2.4e9, filter_bandwidth=2e6,
+        seed=12345, dspace_step=1, dspace_npt=200, freq=2.4e9, filter_bandwidth=2e6,
         coh_d=50,
-        shadow_dev=0.1,          # <-- Very low, non-zero shadowing
-        pl_exponent=2.1,         # <-- Path loss slightly better than free-space
+        shadow_dev=0.1,
+        pl_exponent=2.1,
         d0=1.0,
-        fading_shape=20.0        # <-- High value minimizes fading effects
+        fading_shape=20.0
     )
 
-    print("\n--- Creating Network Nodes ---")
-    addr_node_A = b'\x00\x01'
-    addr_node_B = b'\x00\x02'
+    print("\n--- Creating Network Nodes in a Line Topology ---")
+    
+    num_nodes = 5
+    node_distance = 30  # meters
+    nodes = {}
+    addrs = {}
 
-    node_A = kernel.add_node(
-        node_id="Node-A (Pinger, Sink)", position=CartesianCoordinate(10, 10),
-        app=None, linkaddr=addr_node_A, is_sink=True
-    )
-    node_B = kernel.add_node(
-        node_id="Node-B (Ponger)", position=CartesianCoordinate(40, 10),
-        app=None, linkaddr=addr_node_B, is_sink=False
-    )
+    for i in range(num_nodes):
+        node_char = chr(ord('A') + i)
+        node_id = f"Node-{node_char}"
+        addr = (i + 1).to_bytes(2, 'big')
+        
+        is_pinger = (i == 0)
+        is_sink = (i == 0) # Node A is the sink/root
+        is_ponger = (i == num_nodes - 1)
 
-    app_A = PingPongApp(host=node_A, is_pinger=True, peer_addr=addr_node_B)
-    node_A.app = app_A
-    app_B = PingPongApp(host=node_B, is_pinger=False, peer_addr=addr_node_A)
-    node_B.app = app_B
+        peer_addr = None
+        if is_pinger:
+            peer_addr = (num_nodes).to_bytes(2, 'big')
+        elif is_ponger:
+            peer_addr = (1).to_bytes(2, 'big')
 
-    print("\n--- Attaching Packet Monitor ---")
+        app = PingPongApp(host=None, is_pinger=is_pinger, peer_addr=peer_addr)
+
+        node = kernel.add_node(
+            node_id=node_id,
+            position=CartesianCoordinate(10 + i * node_distance, 10),
+            app=app,
+            linkaddr=addr,
+            is_sink=is_sink
+        )
+        app.host = node
+        nodes[node_id] = node
+        addrs[node_id] = addr
+
+    print("\n--- Attaching Packet Monitor to all nodes ---")
     packet_monitor = PacketMonitor()
-
-    # Collega il monitor al layer fisico di entrambi i nodi.
-    kernel.attach_monitor(packet_monitor, "Node-A (Pinger, Sink).phy")
-    kernel.attach_monitor(packet_monitor, "Node-B (Ponger).phy")
-
-    app_A.start()
-    app_B.start()
+    for node_id in nodes:
+        kernel.attach_monitor(packet_monitor, f"{node_id}.phy")
+    
+    # Start applications
+    nodes["Node-A"].app.start()
+    nodes[f"Node-{chr(ord('A') + num_nodes - 1)}"].app.start()
 
     print("\n--- Running Simulation ---")
-    kernel.run(until=60000.0)
+    kernel.run(until=1000.0)
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")
 
-    # AGGIUNTA: Stampa dettagliata della coda eventi finale
     scheduler = kernel.context.scheduler
     queue_len = scheduler.get_queue_length()
     print(f"Events remaining in queue: {queue_len}")
 
     if queue_len > 0:
         print("\n--- First 5 Events in Queue ---")
-        # Mostra i primi 5 eventi senza estrarli
         for i, (time, event) in enumerate(sorted(scheduler.event_queue)[:5]):
             print(f"{i+1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}")
 
         print("\n--- Last 5 Events in Queue ---")
-        # Mostra gli ultimi 5 eventi senza estrarli
         for i, (time, event) in enumerate(sorted(scheduler.event_queue)[-5:]):
             print(f"{queue_len - 5 + i + 1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}")
 

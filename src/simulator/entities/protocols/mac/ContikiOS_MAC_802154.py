@@ -39,6 +39,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.is_busy = False # MAC status
         self.retry_count = 0
         self.pending_ack_timeout_event = None
+        self.pending_send_req_event = None
         self.seqn = 0
 
         self._last_received_rssi: float = -150.0 #init to low value 
@@ -122,16 +123,25 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         
         send_req_time = self.host.context.scheduler.now() + backoff_time
         send_req_event = MacSendReqEvent(time=send_req_time, blame=self, callback=self.host.rdc.send, payload=self.current_output_frame)
-        self.host.context.scheduler.schedule(send_req_event)
+
+        if self.pending_send_req_event:
+            self.host.context.scheduler.unschedule(self.pending_send_req_event)
+        self.pending_send_req_event = send_req_event
+        self.host.context.scheduler.schedule(self.pending_send_req_event)
 
 
 
     def on_RDCSent(self, packet: MACFrame):
         '''Called by RDC when the phy transmission is terminated'''
+        self.pending_send_req_event = None
+
         if isinstance(packet, Ack_802154):
             self.is_busy = False
-            self._try_send_next() 
-            return 
+            #self._try_send_next() 
+            return
+        
+        if self.current_output_frame is None:
+            return
         
         if self.current_output_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
             ack_timeout_time = self.host.context.scheduler.now() + self.macAckWaitDuration
@@ -176,6 +186,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
 
     def _handle_tx_success(self):
+        if self.pending_send_req_event:
+            self.host.context.scheduler.unschedule(self.pending_send_req_event)
+            self.pending_send_req_event = None
+            
         if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=True, num_tx=self.retry_count)
         self._reset_mac_state()
@@ -183,10 +197,14 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
 
     def _handle_tx_failure(self):
+        if self.pending_send_req_event:
+            self.host.context.scheduler.unschedule(self.pending_send_req_event)
+            self.pending_send_req_event = None
+
         if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr: #if not a broadcas, callback the uc_sent
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=False, num_tx=self.retry_count)
         self._reset_mac_state()
-        self._try_send_next() # send other packets in the queue
+        #self._try_send_next() # send other packets in the queue
 
     def get_last_packet_rssi(self) -> float:
         return self._last_received_rssi
