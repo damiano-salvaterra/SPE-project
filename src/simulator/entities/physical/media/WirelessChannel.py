@@ -61,7 +61,8 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
 
 
     def on_PhyTxEndEvent(self, transmission: Transmission):
-        self.active_transmissions.pop(transmission.transmitter) # remove the transmission from the current transmissions
+            if transmission.transmitter in self.active_transmissions:
+                self.active_transmissions.pop(transmission.transmitter) # remove the transmission from the current transmissions
         #for session in self.listeners.values(): #TODO: who is notifying the nodes of the end of the transmission  now?
         #    if session.receiving_node != transmission.transmitter:
         #        session.notify_tx_end(transmission) #notify the observers

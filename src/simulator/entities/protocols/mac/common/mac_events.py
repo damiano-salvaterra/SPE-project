@@ -9,3 +9,6 @@ class MacACKTimeoutEvent(Event):
 
 class MacACKSendEvent(Event):
     pass
+
+class MacTrySendNextEvent(Event):
+    pass

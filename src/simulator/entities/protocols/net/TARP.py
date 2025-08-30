@@ -92,9 +92,10 @@ class TARP(Layer, Entity):
     CLEANUP_INTERVAL = (
         15  # cleanup the routing table from expired entries every 15 seconds
     )
+    ALWAYS_VALID_AGE = float("inf")
     ALWAYS_INVALID_AGE = -1  # time 0. Route having this age are always invalid.
     # In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
-    ENTRY_EXPIRATION_TIME = 60
+    ENTRY_EXPIRATION_TIME = 600  # 90
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
     RSSI_LOW_THR = -85
@@ -181,7 +182,7 @@ class TARP(Layer, Entity):
         self.metric = 0 if self.sink else float("inf")
         self.seqn = seqn
         self._flush_tpl_buf()  # flush the diff buffer, no longer necessary
-        self._do_cleanup()  # cleanup table
+        # self._do_cleanup() #cleanup table
 
     def _reschedule_cleanup(self):
         """reschedules a cleanup if one is already scheduled, otherwise schedule new one"""
@@ -244,6 +245,10 @@ class TARP(Layer, Entity):
     def _beacon_timer_cb(self):
         """callback for the beacon timer expiration"""
 
+        print(
+            f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}]: _beacon_timer_cb EXECUTED."
+        )
+
         if self.sink:
             new_seqn = self.seqn + 1
             self._reset_connection_status(new_seqn)
@@ -266,12 +271,17 @@ class TARP(Layer, Entity):
         """
         function called from receive() function when it understands tha t is receiving a broadcast
         """
+
         rssi = self.host.mac.get_last_packet_rssi()
         if rssi < TARP.RSSI_LOW_THR:
             return  # discard beacon if too low rssi
 
         header: TARPBroadcastHeader = payload.header
         current_time = self.host.context.scheduler.now()
+
+        print(
+            f"DEBUG [{current_time:.6f}s] [{self.host.id}]: Received beacon from {tx_addr.hex()} with epoch {header.epoch}. My epoch is {self.seqn}."
+        )
 
         tx_entry = self.nbr_tbl.get(tx_addr)
 
@@ -439,7 +449,7 @@ class TARP(Layer, Entity):
         # find neighbor with best metric (excluding descendants and children)
         for addr, entry in self.nbr_tbl.items():
             if entry.type == NodeType.NODE_NEIGHBOR:
-                metric = self.metric(entry.adv_metric, entry.etx)
+                metric = _metric(entry.adv_metric, entry.etx)
                 if metric < best_metric:
                     best_metric = metric
                     new_parent_addr = addr
@@ -452,7 +462,7 @@ class TARP(Layer, Entity):
             self.parent = new_parent_addr
             self.metric = best_metric
             self.nbr_tbl[new_parent_addr].type = NodeType.NODE_PARENT
-            self.hops = self.nbr_tbl[new_parent_addr] + 1
+            self.hops = self.nbr_tbl[new_parent_addr].hops + 1
 
             self._buff_subtree()  # bufferize the subtree
             self._subtree_report_cb()  # send the buffer to the new parent
@@ -468,6 +478,8 @@ class TARP(Layer, Entity):
         )
 
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
+        if tx_addr not in self.nbr_tbl:
+            return  # ignore the packet if transmitter is not in the routing table: discovery is only allowed by broadcasts
 
         header: TARPUnicastHeader = payload.header
         header.hops = (
@@ -570,9 +582,12 @@ class TARP(Layer, Entity):
                 d_entry = TARP.TARPRoute(
                     type=NodeType.NODE_DESCENTANT,
                     adv_metric=float("inf"),
-                    age=TARP.ALWAYS_INVALID_AGE,
+                    age=TARP.ALWAYS_VALID_AGE,
                     hops=TARP.MAX_PATH_LENGTH + 1,
                     nexthop=tx_addr,
+                    etx=0.0,
+                    num_tx=0,
+                    num_ack=0,
                 )
                 self.nbr_tbl[d_addr] = d_entry
 
