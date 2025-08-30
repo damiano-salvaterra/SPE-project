@@ -97,11 +97,11 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
         self.retry_count = 0
         self._reset_contention_counters()
-        self._schedule_cca()
+        self._backoff_and_send()
 
 
 
-    def _schedule_cca(self, is_retry: bool = False):
+    def _backoff_and_send(self, is_retry: bool = False):
         '''
         Backoff and CCA logic
         '''
@@ -140,8 +140,11 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.pending_send_req_event = None
 
         if isinstance(packet, Ack_802154):
-            self.is_busy = False
-            #self._try_send_next() 
+            #self.is_busy = False
+            if not self.is_busy:
+                send_next_time = self.host.context.scheduler.now() + self.next_send_delay
+                send_next_event = MacTrySendNextEvent(time=send_next_time, blame=self, callback=self._try_send_next)
+                self.host.context.scheduler.schedule(send_next_event)
             return
         
         if self.current_output_frame is None:
@@ -149,7 +152,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         
         if self.current_output_frame._requires_ack: # if the last packet sent requires ack, schedule the timeout
             ack_timeout_time = self.host.context.scheduler.now() + self.macAckWaitDuration
-            ack_timeout_event = MacACKTimeoutEvent(time=ack_timeout_time, blame=self, callback=self._schedule_cca, is_retry=True)
+            ack_timeout_event = MacACKTimeoutEvent(time=ack_timeout_time, blame=self, callback=self._backoff_and_send, is_retry=True)
             self.pending_ack_timeout_event = ack_timeout_event
             self.host.context.scheduler.schedule(ack_timeout_event)
         else:
@@ -162,7 +165,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         '''called by RDC if CCA fails'''
         self.NB += 1
         self.BE = min(self.BE + 1, self.macMaxBE)
-        self._schedule_cca() # update coutners and retry backoff
+        self._backoff_and_send() # update coutners and retry backoff
 
 
 
@@ -171,7 +174,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
         if isinstance(payload, Frame_802154):
             if payload._requires_ack:
-                self.is_busy = True # Become busy till the ack is not sent
+                #self.is_busy = True # Become busy till the ack is not sent
                 auto_ack = Ack_802154(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
                 send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=auto_ack)

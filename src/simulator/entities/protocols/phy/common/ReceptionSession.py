@@ -54,16 +54,16 @@ class ReceptionSession:
         '''
 
     
-        print("--- DEBUG: ReceptionSession.notify_tx_end ---")
-        print(f"Current Simulation Time: {self.receiving_node.context.scheduler.now():.6f}s")
-        print(f"This Node: {self.receiving_node.id}")
-        print(f"Attempting to remove transmitter: {transmission.transmitter.id}")
-        print(f"Interferers in the current segment: {[tx.transmitter.id for tx in self.reception_segments[-1].interferers]}")
-        print("---------------------------------------------")
+        #print("--- DEBUG: ReceptionSession.notify_tx_end ---")
+        #print(f"Current Simulation Time: {self.receiving_node.context.scheduler.now():.6f}s")
+        #print(f"This Node: {self.receiving_node.id}")
+        #print(f"Attempting to remove transmitter: {transmission.transmitter.id}")
+        #print(f"Interferers in the current segment: {[tx.transmitter.id for tx in self.reception_segments[-1].interferers]}")
+        #print("---------------------------------------------")
 
         if self.capturing_tx == transmission:
-            print("  - Action: This was the captured TX. No change to interferers list.")
-            print("---------------------------------------------")
+            #print("  - Action: This was the captured TX. No change to interferers list.")
+            #print("---------------------------------------------")
             return
 
         self.reception_segments[-1].t1 = self.receiving_node.context.scheduler.now()
@@ -71,13 +71,13 @@ class ReceptionSession:
 
         if transmission in interferers_snapshot:
             interferers_snapshot.remove(transmission) # remove the ended transmission
-            print("  - Action: Removed from interferers list.")
+            #print("  - Action: Removed from interferers list.")
         else:
-            print("  - WARNING: Ended TX was not in the interferers list as expected.")
-
+            #print("  - WARNING: Ended TX was not in the interferers list as expected.")
+            pass
         new_segment = ReceptionSession.ReceptionSegment(t0=self.receiving_node.context.scheduler.now(), interferers = interferers_snapshot)
         self.reception_segments.append(new_segment)
-        print("---------------------------------------------")
+        #print("---------------------------------------------")
 
         
         #if self.capturing_tx != transmission:

@@ -76,7 +76,7 @@ class TARP(Layer, Entity):
     ALWAYS_VALID_AGE = float('inf')
     ALWAYS_INVALID_AGE = -1 # time 0. Route having this age are always invalid.
                             #In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
-    ENTRY_EXPIRATION_TIME = 90
+    ENTRY_EXPIRATION_TIME = 600#90
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
     RSSI_LOW_THR = -85
@@ -157,7 +157,7 @@ class TARP(Layer, Entity):
         self.metric = 0 if self.sink else float('inf')
         self.seqn = seqn
         self._flush_tpl_buf() # flush the diff buffer, no longer necessary
-        self._do_cleanup() #cleanup table
+        #self._do_cleanup() #cleanup table
 
 
     def _reschedule_cleanup(self):
@@ -210,6 +210,8 @@ class TARP(Layer, Entity):
     def _beacon_timer_cb(self):
         '''callback for the beacon timer expiration'''
 
+        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}]: _beacon_timer_cb EXECUTED.")
+
         if self.sink:
             new_seqn = self.seqn + 1
             self._reset_connection_status(new_seqn)
@@ -225,6 +227,7 @@ class TARP(Layer, Entity):
         '''
         function called from receive() function when it understands tha t is receiving a broadcast
         '''
+
         rssi = self.host.mac.get_last_packet_rssi()
         if rssi < TARP.RSSI_LOW_THR:
             return #discard beacon if too low rssi
@@ -232,6 +235,7 @@ class TARP(Layer, Entity):
         header: TARPBroadcastHeader = payload.header
         current_time = self.host.context.scheduler.now()
 
+        print(f"DEBUG [{current_time:.6f}s] [{self.host.id}]: Received beacon from {tx_addr.hex()} with epoch {header.epoch}. My epoch is {self.seqn}.")
         
         tx_entry = self.nbr_tbl.get(tx_addr)
 

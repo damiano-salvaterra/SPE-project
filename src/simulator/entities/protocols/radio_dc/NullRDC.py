@@ -26,7 +26,9 @@ class NullRDC(Layer, Entity):
 
     def _sense_channel(self, frame: Frame_802154):
         '''
-        do CCA. If channel is free, send the packet, otherwise send an event back to MAC'''
+        do CCA. If channel is free, send the packet, otherwise send an event back to MAC
+        '''
+
         busy = self.host.phy.cca_802154_Mode1() # TODO: check if broadcast packets perform CCA or not, in case skip it fro broadcasts
         if not busy: # if channel is free, transmit
             self.host.phy.send(payload = frame) #TODO: i think there is a small period between the backoff and the actual send, check if we should model it

@@ -41,14 +41,14 @@ class SimplePhyLayer(Layer, Entity):
         noise_floor_linear = self.transmission_media.get_linear_noise_floor()
         capturing_tx_power_linear = self.reception_power_state.get(session.capturing_tx, 0.0)
         
-        print(f"\n--- DEBUG: _is_decoded on Node {self.host.id} at t={self.host.context.scheduler.now():.6f}s ---")
-        print(f"  - Capturing TX from: {session.capturing_tx.transmitter.id}")
-        print(f"  - Signal Power (Linear): {capturing_tx_power_linear:.4e} W")
-        print(f"  - Noise Floor (Linear): {noise_floor_linear:.4e} W")
+        #print(f"\n--- DEBUG: _is_decoded on Node {self.host.id} at t={self.host.context.scheduler.now():.6f}s ---")
+        #print(f"  - Capturing TX from: {session.capturing_tx.transmitter.id}")
+        #print(f"  - Signal Power (Linear): {capturing_tx_power_linear:.4e} W")
+        #print(f"  - Noise Floor (Linear): {noise_floor_linear:.4e} W")
 
         if not session.reception_segments or capturing_tx_power_linear == 0.0:
-            print("  - DECODING FAILED: No reception segments or zero signal power.")
-            print("------------------------------------------------------------------\n")
+            #print("  - DECODING FAILED: No reception segments or zero signal power.")
+            #print("------------------------------------------------------------------\n")
             return False
 
         segments_SINR = []
@@ -58,18 +58,18 @@ class SimplePhyLayer(Layer, Entity):
             )
             segment_SINR = capturing_tx_power_linear / (noise_floor_linear + interferers_power)
             segments_SINR.append(segment_SINR)
-            print(f"  - Segment {i}:")
-            print(f"    - Interferers Power (Linear): {interferers_power:.4e} W")
-            print(f"    - SINR (Linear): {segment_SINR:.4e}")
+            #print(f"  - Segment {i}:")
+            #print(f"    - Interferers Power (Linear): {interferers_power:.4e} W")
+            #print(f"    - SINR (Linear): {segment_SINR:.4e}")
 
         min_SINR = min(segments_SINR)
         min_SINR_dB = 10 * log10(min_SINR) if min_SINR > 0 else -float('inf')
 
         result = min_SINR_dB >= self.capture_threshold_dB
-        print(f"  - Min SINR: {min_SINR_dB:.2f} dB")
-        print(f"  - Capture Threshold: {self.capture_threshold_dB} dB")
-        print(f"  - DECODING RESULT: {'SUCCESS' if result else 'FAILURE'}")
-        print("------------------------------------------------------------------\n")
+        #print(f"  - Min SINR: {min_SINR_dB:.2f} dB")
+        #print(f"  - Capture Threshold: {self.capture_threshold_dB} dB")
+        #print(f"  - DECODING RESULT: {'SUCCESS' if result else 'FAILURE'}")
+        #print("------------------------------------------------------------------\n")
         
         return result
 
@@ -81,11 +81,11 @@ class SimplePhyLayer(Layer, Entity):
         
         self.reception_power_state[transmission] = received_power_linear
 
-        print("_____________________________________________")
-        print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] Signal detected from {transmission.transmitter.id}. "
-              f"RSSI: {received_power_dBm:.2f} dBm. "
-              f"Sensitivity: {self.correlator_threshold:.2f} dBm.", flush=True)
-        print("_____________________________________________")
+        #print("_____________________________________________")
+        #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] Signal detected from {transmission.transmitter.id}. "
+        #      f"RSSI: {received_power_dBm:.2f} dBm. "
+        #      f"Sensitivity: {self.correlator_threshold:.2f} dBm.", flush=True)
+        #print("_____________________________________________")
 
         if received_power_dBm < self.correlator_threshold:
             del self.reception_power_state[transmission]
@@ -150,15 +150,15 @@ class SimplePhyLayer(Layer, Entity):
             if is_decoded and ended_tx_power_linear is not None:
                 rssi_dBm = 10 * log10(ended_tx_power_linear * 1000)
                 self._last_successful_rx_rssi_dBm = rssi_dBm
-                print("_____________________________________________")
-                print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET DECODED SUCCESSFULLY from {transmission.transmitter.id}", flush=True)
-                print("_____________________________________________")
+                #print("_____________________________________________")
+                #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET DECODED SUCCESSFULLY from {transmission.transmitter.id}", flush=True)
+                #print("_____________________________________________")
                 self.receive(payload=received_packet)
             else:
-                print("_____________________________________________")
-                print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET LOST (DECODING FAILED) from {transmission.transmitter.id}", flush=True)
-                print("_____________________________________________")
-
+                #print("_____________________________________________")
+                #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET LOST (DECODING FAILED) from {transmission.transmitter.id}", flush=True)
+                #print("_____________________________________________")
+                pass
             # After closing the session, if there are other signals still being received,
             # we must open a new session to try and capture one of them.
             if self.reception_power_state:
