@@ -1,9 +1,7 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
 from simulator.engine.common.signals import PacketSignal
-from simulator.entities.protocols.phy.common.phy_events import (PhyTxEndEvent, PhyTxStartEvent,
-                                                               PhyPacketTypeDetectionEvent, PhyDaddrDetectionEvent,
-                                                               PhyUnsyncEvent)
+from simulator.entities.protocols.phy.common.phy_events import (PhyTxEndEvent, PhyTxStartEvent, PhyUnsyncEvent)
 from simulator.entities.protocols.phy.common.Transmission import Transmission
 from simulator.entities.protocols.common.packets import MACFrame, Frame_802154, Ack_802154
 from numpy import log10
@@ -41,14 +39,7 @@ class SimplePhyLayer(Layer, Entity):
         noise_floor_linear = self.transmission_media.get_linear_noise_floor()
         capturing_tx_power_linear = self.reception_power_state.get(session.capturing_tx, 0.0)
         
-        #print(f"\n--- DEBUG: _is_decoded on Node {self.host.id} at t={self.host.context.scheduler.now():.6f}s ---")
-        #print(f"  - Capturing TX from: {session.capturing_tx.transmitter.id}")
-        #print(f"  - Signal Power (Linear): {capturing_tx_power_linear:.4e} W")
-        #print(f"  - Noise Floor (Linear): {noise_floor_linear:.4e} W")
-
         if not session.reception_segments or capturing_tx_power_linear == 0.0:
-            #print("  - DECODING FAILED: No reception segments or zero signal power.")
-            #print("------------------------------------------------------------------\n")
             return False
 
         segments_SINR = []
@@ -58,20 +49,13 @@ class SimplePhyLayer(Layer, Entity):
             )
             segment_SINR = capturing_tx_power_linear / (noise_floor_linear + interferers_power)
             segments_SINR.append(segment_SINR)
-            #print(f"  - Segment {i}:")
-            #print(f"    - Interferers Power (Linear): {interferers_power:.4e} W")
-            #print(f"    - SINR (Linear): {segment_SINR:.4e}")
 
         min_SINR = min(segments_SINR)
         min_SINR_dB = 10 * log10(min_SINR) if min_SINR > 0 else -float('inf')
 
         result = min_SINR_dB >= self.capture_threshold_dB
-        #print(f"  - Min SINR: {min_SINR_dB:.2f} dB")
-        #print(f"  - Capture Threshold: {self.capture_threshold_dB} dB")
-        #print(f"  - DECODING RESULT: {'SUCCESS' if result else 'FAILURE'}")
-        #print("------------------------------------------------------------------\n")
-        
         return result
+
 
     def on_PhyRxStartEvent(self, transmission: Transmission):
         received_power_linear = self.transmission_media.get_linear_link_budget(
@@ -81,12 +65,6 @@ class SimplePhyLayer(Layer, Entity):
         
         self.reception_power_state[transmission] = received_power_linear
 
-        #print("_____________________________________________")
-        #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] Signal detected from {transmission.transmitter.id}. "
-        #      f"RSSI: {received_power_dBm:.2f} dBm. "
-        #      f"Sensitivity: {self.correlator_threshold:.2f} dBm.", flush=True)
-        #print("_____________________________________________")
-
         if received_power_dBm < self.correlator_threshold:
             del self.reception_power_state[transmission]
             if not self.reception_power_state and self.active_session:
@@ -94,13 +72,30 @@ class SimplePhyLayer(Layer, Entity):
             return
 
         if not self.active_session:
+            # Radio is idle, this transmission starts a new session.
             self._open_session(transmission)
-        else:
-            self.last_session.notify_tx_start(transmission=transmission)
-        
-        if not self.synchronized_tx:
             self.synchronized_tx = transmission
+        else:
+            # Radio is busy. Check if the new signal can capture the receiver.
+            current_capturing_power = self.reception_power_state.get(self.last_session.capturing_tx, 0.0)
+            new_signal_power = received_power_linear
             
+            # Convert capture threshold from dB to a linear ratio
+            capture_ratio = 10**(self.capture_threshold_dB / 10)
+
+            if new_signal_power > current_capturing_power * capture_ratio:
+                # CAPTURE! The new signal is significantly stronger.
+                # The old packet is now considered lost due to this capture event.
+                # Close the old session and start a new one for the new signal.
+                self._close_session()
+                self._open_session(transmission)
+                self.synchronized_tx = transmission
+            else:
+                # No capture. The new signal is just an interferer for the ongoing session.
+                self.last_session.notify_tx_start(transmission=transmission)
+        
+        # This logic now applies to whichever transmission is currently synchronized
+        if self.synchronized_tx == transmission:
             if isinstance(transmission.packet, Ack_802154):
                 is_for_me = (transmission.packet.seqn == self._last_seqn)
                 detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
@@ -116,19 +111,14 @@ class SimplePhyLayer(Layer, Entity):
                     unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
                     self.host.context.scheduler.schedule(unsync_event)
 
+
     def _unsynchronize(self):
         """Called when the radio determines the packet is not for it."""
         self.synchronized_tx = None
 
+
     def on_PhyRxEndEvent(self, transmission: Transmission):
-        """
-        Handles the end of a packet reception with robust state management.
-        The logic ensures that a reception session is tied to the specific packet
-        it was created to capture.
-        """
-        if not self.active_session:
-            # This can happen if a weak signal that started a session ends
-            # after a stronger signal was already decoded, which closed the session.
+        if not self.active_session or transmission not in self.reception_power_state:
             self.reception_power_state.pop(transmission, None)
             return
 
@@ -136,42 +126,32 @@ class SimplePhyLayer(Layer, Entity):
 
         if is_capturing_ended:
             # This is the end of the packet we were trying to receive.
-            # This session's lifecycle is now complete.
             received_packet = self.last_session.capturing_tx.packet
             is_decoded = self._is_decoded(self.last_session)
-
-            # Get power before we potentially clear the state
+            
             ended_tx_power_linear = self.reception_power_state.get(transmission, None)
             
-            # First, clean up the state for the completed session
             self.reception_power_state.pop(transmission, None)
             self._close_session() # End the current session immediately.
 
             if is_decoded and ended_tx_power_linear is not None:
                 rssi_dBm = 10 * log10(ended_tx_power_linear * 1000)
                 self._last_successful_rx_rssi_dBm = rssi_dBm
-                #print("_____________________________________________")
-                #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET DECODED SUCCESSFULLY from {transmission.transmitter.id}", flush=True)
-                #print("_____________________________________________")
                 self.receive(payload=received_packet)
             else:
-                #print("_____________________________________________")
-                #print(f"[{self.host.context.scheduler.now():.6f}s] [PHY/{self.host.id}] PACKET LOST (DECODING FAILED) from {transmission.transmitter.id}", flush=True)
-                #print("_____________________________________________")
+                # Packet was lost, do nothing.
                 pass
-            # After closing the session, if there are other signals still being received,
-            # we must open a new session to try and capture one of them.
-            if self.reception_power_state:
-                # Find the strongest remaining signal to become the new capturing_tx
-                strongest_remaining_tx = max(self.reception_power_state, key=self.reception_power_state.get)
-                self._open_session(strongest_remaining_tx)
-                self.synchronized_tx = strongest_remaining_tx # Synchronize to the new strongest signal
+            
+            # --- REMOVED LOGIC ---
+            # The original code had a block here to find the "strongest_remaining_tx"
+            # and start a new session. This was the source of the unrealistic
+            # "late-stage capture" and has been REMOVED. The radio is now idle
+            # and will wait for a new PhyRxStartEvent to begin the next reception.
 
-        else: # The ended transmission was just an interferer
+        else: # The ended transmission was an interferer for the active session
             self.reception_power_state.pop(transmission, None)
             if self.last_session:
                  self.last_session.notify_tx_end(transmission=transmission)
-
 
     def _open_session(self, transmission: Transmission):
         from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession
@@ -194,8 +174,6 @@ class SimplePhyLayer(Layer, Entity):
             self.active_session = False
             self.synchronized_tx = None
             self.last_session = None
-            # Do NOT clear the power state here, as other signals might be ongoing.
-            # It's managed on a per-transmission basis in on_PhyRxEndEvent.
 
     def on_PhyTxStartEvent(self, transmission: Transmission):
         self.transmitting = True
