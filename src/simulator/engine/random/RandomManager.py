@@ -10,7 +10,10 @@ from typing import Dict
 
 
 class RandomManager:
-    def __init__(self, root_seed: int = 0, worker_id=0) -> None:
+    def __init__(
+        self, root_seed: int = 0, worker_id=0, antithetic: bool = False
+    ) -> None:
+        self.antithetic = antithetic
         self._root_seed = root_seed
         self._worker_id = worker_id
         self._worker_seed = [
@@ -43,3 +46,6 @@ class RandomManager:
 
     def reset(self, new_root_seed: int = 0) -> None:
         self.__init__(new_root_seed, self._worker_id)
+
+    def is_antithetic(self) -> bool:
+        return self.antithetic
