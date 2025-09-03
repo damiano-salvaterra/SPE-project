@@ -22,159 +22,158 @@ class SimplePhyLayer(Layer, Entity):
         self.transmission_power = transmission_power
         self.transmission_media = None
 
-        self.last_session: "ReceptionSession" = None
-        self.active_session = False
+        # State management for the receiver
+        self.active_session: "ReceptionSession" = None
         self.transmitting = False
         self.synchronized_tx: "Transmission" = None
-        
         self.reception_power_state: Dict["Transmission", float] = {}
 
+        # State for MAC/NET layers
         self._last_seqn = 0
         self._last_successful_rx_rssi_dBm: float = -150.0
 
     def connect_transmission_media(self, transmission_media: "WirelessChannel"):
         self.transmission_media = transmission_media
 
-    def _is_decoded(self, session: "ReceptionSession"):
+    def _is_decoded(self, session: "ReceptionSession") -> bool:
+        """
+        Calculates the SINR for the captured transmission and determines if it can be decoded.
+        This method uses the "worst-case SINR" model: the packet is lost if the SINR
+        drops below the capture threshold at any point during the reception.
+        """
         noise_floor_linear = self.transmission_media.get_linear_noise_floor()
         capturing_tx_power_linear = self.reception_power_state.get(session.capturing_tx, 0.0)
         
         if not session.reception_segments or capturing_tx_power_linear == 0.0:
             return False
 
-        segments_SINR = []
-        for i, segment in enumerate(session.reception_segments):
+        min_sinr = float('inf')
+        for segment in session.reception_segments:
             interferers_power = sum(
                 self.reception_power_state.get(tx, 0.0) for tx in segment.interferers
             )
-            segment_SINR = capturing_tx_power_linear / (noise_floor_linear + interferers_power)
-            segments_SINR.append(segment_SINR)
+            segment_sinr = capturing_tx_power_linear / (noise_floor_linear + interferers_power)
+            if segment_sinr < min_sinr:
+                min_sinr = segment_sinr
 
-        min_SINR = min(segments_SINR)
-        min_SINR_dB = 10 * log10(min_SINR) if min_SINR > 0 else -float('inf')
-
-        result = min_SINR_dB >= self.capture_threshold_dB
-        return result
-
+        min_sinr_db = 10 * log10(min_sinr) if min_sinr > 0 else -float('inf')
+        return min_sinr_db >= self.capture_threshold_dB
 
     def on_PhyRxStartEvent(self, transmission: Transmission):
+        """
+        Handles the start of a signal's arrival at the receiver.
+        REVISED LOGIC: Implements a "first-come, first-served" model.
+        - If the radio is idle, it attempts to lock onto the new signal.
+        - If the radio is already locked onto a signal, any new arrival is treated as interference.
+        This removes the unrealistic "mid-packet capture" model.
+        """
+        # Sample the channel for the new transmission and store its power.
         received_power_linear = self.transmission_media.get_linear_link_budget(
             node1=self.host, node2=transmission.transmitter, tx_power_dBm=transmission.transmission_power_dBm
         )
-        received_power_dBm = 10 * log10(received_power_linear * 1000)
-        
         self.reception_power_state[transmission] = received_power_linear
 
-        if received_power_dBm < self.correlator_threshold:
-            del self.reception_power_state[transmission]
-            if not self.reception_power_state and self.active_session:
-                self._close_session()
+        # If the radio is already busy receiving a packet, this new signal is just an interferer.
+        if self.active_session:
+            self.active_session.notify_tx_start(transmission=transmission)
             return
 
-        if not self.active_session:
-            # Radio is idle, this transmission starts a new session.
-            self._open_session(transmission)
-            self.synchronized_tx = transmission
-        else:
-            # Radio is busy. Check if the new signal can capture the receiver.
-            current_capturing_power = self.reception_power_state.get(self.last_session.capturing_tx, 0.0)
-            new_signal_power = received_power_linear
-            
-            # Convert capture threshold from dB to a linear ratio
-            capture_ratio = 10**(self.capture_threshold_dB / 10)
+        # --- The Radio is currently IDLE ---
+        # Check if the signal is strong enough to be detected and start a reception.
+        received_power_dBm = 10 * log10(received_power_linear * 1000)
+        if received_power_dBm < self.correlator_threshold:
+            # Signal is too weak to be detected. Clean up its state and remain idle.
+            del self.reception_power_state[transmission]
+            return
 
-            if new_signal_power > current_capturing_power * capture_ratio:
-                # CAPTURE! The new signal is significantly stronger.
-                # The old packet is now considered lost due to this capture event.
-                # Close the old session and start a new one for the new signal.
-                self._close_session()
-                self._open_session(transmission)
-                self.synchronized_tx = transmission
-            else:
-                # No capture. The new signal is just an interferer for the ongoing session.
-                self.last_session.notify_tx_start(transmission=transmission)
+        # The signal is strong enough. Start a new reception session and lock onto it.
+        self._open_session(transmission)
+        self.synchronized_tx = transmission # This is the packet we are now trying to decode.
+
+        # Schedule events to check if the packet is addressed to us after the address fields are received.
+        if isinstance(transmission.packet, Ack_802154):
+            is_for_me = (transmission.packet.seqn == self._last_seqn)
+            detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
+            if not is_for_me:
+                unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
+                self.host.context.scheduler.schedule(unsync_event)
         
-        # This logic now applies to whichever transmission is currently synchronized
-        if self.synchronized_tx == transmission:
-            if isinstance(transmission.packet, Ack_802154):
-                is_for_me = (transmission.packet.seqn == self._last_seqn)
-                detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
-                if not is_for_me:
-                    unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
-                    self.host.context.scheduler.schedule(unsync_event)
-            
-            elif isinstance(transmission.packet, Frame_802154):
-                is_for_me = (transmission.packet.rx_addr == self.host.linkaddr or
-                             transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr)
-                detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
-                if not is_for_me:
-                    unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
-                    self.host.context.scheduler.schedule(unsync_event)
-
+        elif isinstance(transmission.packet, Frame_802154):
+            is_for_me = (transmission.packet.rx_addr == self.host.linkaddr or
+                         transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr)
+            detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
+            if not is_for_me:
+                unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
+                self.host.context.scheduler.schedule(unsync_event)
 
     def _unsynchronize(self):
-        """Called when the radio determines the packet is not for it."""
+        """Called when the radio determines the packet is not for it. It will continue receiving
+        to assess CCA but will not attempt to decode the frame."""
         self.synchronized_tx = None
 
-
     def on_PhyRxEndEvent(self, transmission: Transmission):
+        """
+        Handles the end of a signal's arrival at the receiver.
+        REVISED LOGIC: The radio only makes a decoding decision if the ending transmission
+        was the one it was synchronized to.
+        """
+        # Ignore if there's no active session or if this transmission wasn't being tracked.
         if not self.active_session or transmission not in self.reception_power_state:
-            self.reception_power_state.pop(transmission, None)
+            self.reception_power_state.pop(transmission, None) # Cleanup just in case
             return
 
-        is_capturing_ended = (self.last_session.capturing_tx == transmission)
+        is_capturing_tx_ended = (self.active_session.capturing_tx == transmission)
 
-        if is_capturing_ended:
-            # This is the end of the packet we were trying to receive.
-            received_packet = self.last_session.capturing_tx.packet
-            is_decoded = self._is_decoded(self.last_session)
+        if is_capturing_tx_ended:
+            # The reception attempt is now complete. We must decide its fate.
+            is_decoded = self._is_decoded(self.active_session)
             
-            ended_tx_power_linear = self.reception_power_state.get(transmission, None)
-            
-            self.reception_power_state.pop(transmission, None)
-            self._close_session() # End the current session immediately.
+            # Retrieve packet info before we clean up the session.
+            received_packet = self.active_session.capturing_tx.packet
+            capturing_tx_power_linear = self.reception_power_state.get(transmission)
 
-            if is_decoded and ended_tx_power_linear is not None:
-                rssi_dBm = 10 * log10(ended_tx_power_linear * 1000)
+            # The reception attempt is over. The radio is now idle.
+            self._close_session()
+
+            # Pass the packet up the stack ONLY if it was successfully decoded and for us.
+            if is_decoded and self.synchronized_tx:
+                rssi_dBm = 10 * log10(capturing_tx_power_linear * 1000)
                 self._last_successful_rx_rssi_dBm = rssi_dBm
                 self.receive(payload=received_packet)
-            else:
-                # Packet was lost, do nothing.
-                pass
-            
-            # --- REMOVED LOGIC ---
-            # The original code had a block here to find the "strongest_remaining_tx"
-            # and start a new session. This was the source of the unrealistic
-            # "late-stage capture" and has been REMOVED. The radio is now idle
-            # and will wait for a new PhyRxStartEvent to begin the next reception.
-
-        else: # The ended transmission was an interferer for the active session
+            # else: The packet was lost to interference/noise or was not for us. Do nothing.
+        else:
+            # An interfering transmission has ended. This improves the SINR for the rest
+            # of our reception. Notify the session and remove the interferer from our state.
+            self.active_session.notify_tx_end(transmission=transmission)
             self.reception_power_state.pop(transmission, None)
-            if self.last_session:
-                 self.last_session.notify_tx_end(transmission=transmission)
 
     def _open_session(self, transmission: Transmission):
         from simulator.entities.protocols.phy.common.ReceptionSession import ReceptionSession
         
+        # When a new session opens, any other signals already being received are interferers.
         current_interferers = [
-            tx for tx in self.reception_power_state.keys()
-            if tx is not transmission
+            tx for tx in self.reception_power_state.keys() if tx is not transmission
         ]
 
-        self.last_session = ReceptionSession(
+        self.active_session = ReceptionSession(
             receiving_node=self.host,
             capturing_tx=transmission,
             interferers=current_interferers,
             start_time=self.host.context.scheduler.now()
         )
-        self.active_session = True
 
     def _close_session(self):
+        """
+        REVISED: Ends a reception session and fully clears all related receiver state,
+        making the radio truly idle.
+        """
         if self.active_session:
-            self.active_session = False
+            self.active_session = None
             self.synchronized_tx = None
-            self.last_session = None
-
+            # Crucially, when a reception attempt ends, we no longer track any powers.
+            # A new session will re-sample everything from a clean slate.
+            self.reception_power_state.clear()
+            
     def on_PhyTxStartEvent(self, transmission: Transmission):
         self.transmitting = True
         self.transmission_media.on_PhyTxStartEvent(transmission=transmission)
@@ -212,6 +211,7 @@ class SimplePhyLayer(Layer, Entity):
         
         noise_floor = self.transmission_media.get_linear_noise_floor()
         channel_power = 0.0
+        # Sample all active transmissions on the channel right now.
         for transmission in self.transmission_media.active_transmissions.values():
             power_contribute = self.transmission_media.get_linear_link_budget(self.host, transmission.transmitter, transmission.transmission_power_dBm)
             channel_power += power_contribute
@@ -221,7 +221,8 @@ class SimplePhyLayer(Layer, Entity):
         return total_dBm > self.cca_Threshold_dBm
 
     def is_radio_busy(self) -> bool:
-        return self.transmitting or self.active_session
+        # The radio is considered busy if it's transmitting OR in the middle of a reception attempt.
+        return self.transmitting or (self.active_session is not None)
 
     def receive(self, payload: MACFrame):
         signal = PacketSignal(
