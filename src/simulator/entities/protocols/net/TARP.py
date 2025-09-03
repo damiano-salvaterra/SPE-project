@@ -1,5 +1,6 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
+from simulator.engine.random import RandomGenerator
 from simulator.entities.protocols.common.packets import (
     Frame_802154,
     TARPPacket,
@@ -143,8 +144,10 @@ class TARP(Layer, Entity):
         )
 
         rng_id = f"NODE:{self.host.id}/NET_TARP"
-        self.host.context.random_manager.create_stream(rng_id)
-        self.rng = self.host.context.random_manager.get_stream(rng_id)
+        self.rng = RandomGenerator(
+            random_manager=self.host.context.random_manager,
+            stream_key=rng_id,
+        )
 
         self._bootstrap_TARP()  # bootstrap the protocol
 

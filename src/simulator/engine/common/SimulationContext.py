@@ -1,4 +1,4 @@
-from simulator.engine.RandomManager import RandomManager
+from simulator.engine.random import RandomManager
 from simulator.engine.Scheduler import Scheduler
 
 
