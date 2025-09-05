@@ -15,8 +15,9 @@ from simulator.entities.protocols.net.common.net_events import (
     NetRoutingTableCleanupEvent,
     NetTopologyReportSendEvent,
 )
-from enum import Enum
-from dataclasses import dataclass
+from simulator.entities.protocols.net.tarp.route import TARPRoute, NodeType, RouteStatus
+from simulator.entities.protocols.net.tarp.parameters import TARPParameters
+
 from typing import Dict, Any, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -30,27 +31,20 @@ source:  https://github.com/DaMole98/LPWN-project2/tree/main
 """
 
 
-class NodeType(Enum):
-    NODE_PARENT = 0
-    NODE_CHILD = 1
-    NODE_DESCENTANT = 2
-    NODE_NEIGHBOR = 3
-
-
 def _etx_est_rssi(rssi: float) -> float:
-    """heuristic for the etx based on rssi"""
-    if rssi > TARProtocol.RSSI_HIGH_REF:
+    """heuristic for calculating initial ETX based on RSSI"""
+    if rssi > TARPParameters.RSSI_HIGH_REF:
         return 1.0
-    if rssi < TARProtocol.RSSI_LOW_THR:
+    if rssi < TARPParameters.RSSI_LOW_THR:
         return 10.0
-    span = TARProtocol.RSSI_HIGH_REF - TARProtocol.RSSI_LOW_THR
-    offset = TARProtocol.RSSI_HIGH_REF - rssi
+    span = TARPParameters.RSSI_HIGH_REF - TARPParameters.RSSI_LOW_THR
+    offset = TARPParameters.RSSI_HIGH_REF - rssi
     frac = offset / span
     return 1.0 + frac * 9.0
 
 
-def _valid(current_time: float, route: "TARProtocol.TARPRoute") -> bool:
-    return current_time - route.age < TARProtocol.ENTRY_EXPIRATION_TIME
+def _valid(current_time: float, route: TARPRoute) -> bool:
+    return current_time - route.age < TARPParameters.ENTRY_EXPIRATION_TIME
 
 
 def _metric(adv_metric: float, etx: float) -> float:
@@ -61,7 +55,7 @@ def _metric_improv_thr(cur_metric: float):
     if cur_metric <= 0.0:
         return float("inf")
     thr = TARProtocol.THR_H / cur_metric
-    return TARProtocol.DELTA_ETX_MIN if thr < TARProtocol.DELTA_ETX_MIN else thr
+    return TARPParameters.DELTA_ETX_MIN if thr < TARPParameters.DELTA_ETX_MIN else thr
 
 
 def _preferred(new_m: float, cur_m: float) -> bool:
@@ -71,12 +65,12 @@ def _preferred(new_m: float, cur_m: float) -> bool:
 
 def _etx_update(num_tx: int, num_ack: int, o_etx: float, rssi: float):
     n_etx = 0.0
-    if num_ack == 0 or TARProtocol.ALPHA == 1:
+    if num_ack == 0 or TARPParameters.ALPHA == 1:
         n_etx = _etx_est_rssi(rssi)
     else:
         # EWMA filtering
         n_etx = num_tx / num_ack
-        n_etx = TARProtocol.ALPHA * o_etx + (1 - TARProtocol.ALPHA) * n_etx
+        n_etx = TARPParameters.ALPHA * o_etx + (1 - TARPParameters.ALPHA) * n_etx
     return n_etx
 
 
@@ -85,58 +79,20 @@ class TARProtocol(Layer, Entity):
     This class implements TARP (Tree-based Any-to-any Routing Protocol).
     """
 
-    MAX_STAT_PER_FRAGMENT = 37  # Max bytes allowed per packet (PHY) in 802.15.4 is 127.
-    # Approximately, taking out all the overhead due to header (TARP included), we are left with around 112 bytes
-    # now, each status voice in the report is 3 bytes, plus une byte for the number of voices. so we can send maximum 37
-    # voices in the topology report. However, Contiki often keep the packetbuf smaller than 127 bytes. So we may want to set an arbitrary value
-    MAX_PATH_LENGTH = 40  # maximum number of hops before dropping the packet
-    CLEANUP_INTERVAL = (
-        15  # cleanup the routing table from expired entries every 15 seconds
-    )
-    ALWAYS_VALID_AGE = float("inf")
-    ALWAYS_INVALID_AGE = -1  # time 0. Route having this age are always invalid.
-    # In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
-    ENTRY_EXPIRATION_TIME = 600  # 90
-    TREE_BEACON_INTERVAL = 60
-    SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
-    RSSI_LOW_THR = -85
-    RSSI_HIGH_REF = -35
-    DELTA_ETX_MIN = 0.3
-    THR_H = 100
-
-    # NullRDC mode constants  and delays
-    ALPHA = 0.9
-    TREE_BEACON_FORWARD_DELAY = 1 / 10
-
-    @dataclass
-    class TARPRoute:  # routing table entry class
-        type: NodeType
-        age: float
-        nexthop: bytes
-        hops: int
-        etx: float
-        num_tx: int
-        num_ack: int
-        adv_metric: float
-
-    class RouteStatus(Enum):
-        STATUS_ADD = 1
-        STATUS_REMOVE = 0
-
     def __init__(self, host: "StaticNode", sink: bool = False):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.sink = sink
         self.parent = None
-        self.nbr_tbl: Dict[bytes, TARProtocol.TARPRoute] = (
+        self.nbr_tbl: Dict[bytes, TARPRoute] = (
             {}
         )  # routing table. key: linkaddr, value: TarpRoute record
 
         # TARP state
         self.metric = float("inf")
         self.seqn = 0
-        self.hops = TARProtocol.MAX_PATH_LENGTH + 1
-        self.tpl_buf: Dict[bytes, TARProtocol.RouteStatus] = {}  # topology diff buffer
+        self.hops = TARPParameters.MAX_PATH_LENGTH + 1
+        self.tpl_buf: Dict[bytes, RouteStatus] = {}  # topology diff buffer
         self.tpl_buf_offset = 0  # offset to be kept between one fragment and another
 
         self._cleanup_timer = (
@@ -175,7 +131,7 @@ class TARProtocol(Layer, Entity):
             if (
                 entry.type == NodeType.NODE_DESCENTANT
             ):  # make descendants old enough to be removed (sounds very bad, but is necessary)
-                entry.age = TARProtocol.ALWAYS_INVALID_AGE
+                entry.age = TARPParameters.ALWAYS_INVALID_AGE
             elif (
                 entry.type == NodeType.NODE_CHILD or entry.type == NodeType.NODE_PARENT
             ):  # downgrade all the other entries to neighbors
@@ -192,7 +148,9 @@ class TARProtocol(Layer, Entity):
         if self._cleanup_timer:
             self.host.context.scheduler.unschedule(self._cleanup_timer)
 
-        cleanup_time = self.host.context.scheduler.now() + TARProtocol.CLEANUP_INTERVAL
+        cleanup_time = (
+            self.host.context.scheduler.now() + TARPParameters.CLEANUP_INTERVAL
+        )
         self._cleanup_timer = NetRoutingTableCleanupEvent(
             time=cleanup_time,
             blame=self,
@@ -256,7 +214,7 @@ class TARProtocol(Layer, Entity):
             new_seqn = self.seqn + 1
             self._reset_connection_status(new_seqn)
             next_beacon_time = (
-                self.host.context.scheduler.now() + TARProtocol.TREE_BEACON_INTERVAL
+                self.host.context.scheduler.now() + TARPParameters.TREE_BEACON_INTERVAL
             )
             next_beacon_event = NetBeaconSendEvent(
                 time=next_beacon_time, blame=self, callback=self._beacon_timer_cb
@@ -276,7 +234,7 @@ class TARProtocol(Layer, Entity):
         """
 
         rssi = self.host.mac.get_last_packet_rssi()
-        if rssi < TARProtocol.RSSI_LOW_THR:
+        if rssi < TARPParameters.RSSI_LOW_THR:
             return  # discard beacon if too low rssi
 
         header: TARPBroadcastHeader = payload.header
@@ -292,7 +250,7 @@ class TARProtocol(Layer, Entity):
             self._nbr_tbl_refresh(addr=tx_addr)
             tx_entry.adv_metric = header.metric_q124
         else:  # add a new neighbor
-            tx_entry = self.TARPRoute(
+            tx_entry = TARPRoute(
                 type=NodeType.NODE_NEIGHBOR,
                 age=current_time,
                 nexthop=tx_addr,
@@ -332,7 +290,7 @@ class TARProtocol(Layer, Entity):
             )  # random jitter for beacon forward
             beacon_forward_time = (
                 current_time
-                + TARProtocol.TREE_BEACON_FORWARD_DELAY
+                + TARPParameters.TREE_BEACON_FORWARD_DELAY
                 + beacon_forward_jitter
             )
             beacon_forward_event = NetBeaconSendEvent(
@@ -391,7 +349,7 @@ class TARProtocol(Layer, Entity):
 
         else:  # the buffer is not empty, handle fragmentation and sending.
             remaining_items = len(self.tpl_buf) - self.tpl_buf_offset
-            frag_size = min(remaining_items, TARProtocol.MAX_STAT_PER_FRAGMENT)
+            frag_size = min(remaining_items, TARPParameters.MAX_STAT_PER_FRAGMENT)
 
             # build payload for this fragment
             voice_addr = list(self.tpl_buf.keys())
@@ -461,7 +419,7 @@ class TARProtocol(Layer, Entity):
 
         old_parent_entry = self.nbr_tbl[old_parent_addr]
         old_parent_entry.type = NodeType.NODE_NEIGHBOR
-        old_parent_entry.age = TARProtocol.ALWAYS_INVALID_AGE
+        old_parent_entry.age = TARPParameters.ALWAYS_INVALID_AGE
 
         if new_parent_addr:  # if a new parent has been found
             self.parent = new_parent_addr
@@ -474,7 +432,7 @@ class TARProtocol(Layer, Entity):
 
         else:  # there are no neighbors available, disconnect from the network
             self.parent = None
-            self.hops = TARProtocol.MAX_PATH_LENGTH + 1  # NOTE: not present in rp.c
+            self.hops = TARPParameters.MAX_PATH_LENGTH + 1  # NOTE: not present in rp.c
 
         print(
             f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/CHANGE_PARENT] "
@@ -491,7 +449,9 @@ class TARProtocol(Layer, Entity):
             header.hops + 1
         )  # update hop counts in the header to reuse it in case of forward
 
-        if header.hops > TARProtocol.MAX_PATH_LENGTH:  # drop packets with too many hops
+        if (
+            header.hops > TARPParameters.MAX_PATH_LENGTH
+        ):  # drop packets with too many hops
             return
 
         self._nbr_tbl_refresh(tx_addr)
@@ -533,7 +493,7 @@ class TARProtocol(Layer, Entity):
             )
             self._nbr_tbl_refresh(rx_addr)  # refresh entry
         if not status_ok:
-            self.nbr_tbl[rx_addr].age = TARProtocol.ALWAYS_INVALID_AGE
+            self.nbr_tbl[rx_addr].age = TARPParameters.ALWAYS_INVALID_AGE
             self._do_cleanup()  # cleanup table
 
     def receive(self, payload: TARPPacket, tx_addr: bytes):
@@ -566,14 +526,12 @@ class TARProtocol(Layer, Entity):
         if addr in self.nbr_tbl.keys():
             self.nbr_tbl[addr].age = self.host.context.scheduler.now()
 
-    def _nbr_tbl_update(
-        self, tx_addr: bytes, buf: Dict[bytes, "TARProtocol.RouteStatus"]
-    ):
+    def _nbr_tbl_update(self, tx_addr: bytes, buf: Dict[bytes, "RouteStatus"]):
         tx_entry = self.nbr_tbl[tx_addr]
         if (
             tx_entry and tx_entry.type == NodeType.NODE_NEIGHBOR
         ):  # if it is a neighbor that chose this node as parent, book the change into the buffer
-            self.tpl_buf[tx_addr] = TARProtocol.RouteStatus.STATUS_ADD
+            self.tpl_buf[tx_addr] = RouteStatus.STATUS_ADD
             tx_entry.adv_metric = float("inf")  # set infinite metric to avoid looès
             tx_entry.type = NodeType.NODE_CHILD  # NOTE: not present in rp.c
         # else it is an already known child
@@ -584,13 +542,13 @@ class TARProtocol(Layer, Entity):
             self.tpl_buf[d_addr] = d_status
 
             if (
-                d_status == TARProtocol.RouteStatus.STATUS_ADD
+                d_status == RouteStatus.STATUS_ADD
             ):  # add descendant in the neighbor table
-                d_entry = TARProtocol.TARPRoute(
+                d_entry = TARPRoute(
                     type=NodeType.NODE_DESCENTANT,
                     adv_metric=float("inf"),
                     age=TARProtocol.ALWAYS_VALID_AGE,
-                    hops=TARProtocol.MAX_PATH_LENGTH + 1,
+                    hops=TARPParameters.MAX_PATH_LENGTH + 1,
                     nexthop=tx_addr,
                     etx=0.0,
                     num_tx=0,
@@ -598,7 +556,7 @@ class TARProtocol(Layer, Entity):
                 )
                 self.nbr_tbl[d_addr] = d_entry
 
-            elif d_status == TARProtocol.RouteStatus.STATUS_REMOVE:
+            elif d_status == RouteStatus.STATUS_REMOVE:
                 self.nbr_tbl.pop(d_addr)
 
     def _do_cleanup(self):
@@ -636,11 +594,11 @@ class TARProtocol(Layer, Entity):
             self.nbr_tbl.pop(addr)
 
         self.tpl_buf.update(
-            {c_addr: TARProtocol.RouteStatus.STATUS_REMOVE for c_addr in subtree_addr}
+            {c_addr: RouteStatus.STATUS_REMOVE for c_addr in subtree_addr}
         )  # update topology diff buffer
 
     def _subtree_report_base_delay_and_jitter(self) -> float:
         return (5 / self.hops) + (self.rng.uniform(low=0, high=0.4))
 
     def _subtree_report_node_interval(self) -> float:
-        return TARProtocol.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
+        return TARPParameters.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
