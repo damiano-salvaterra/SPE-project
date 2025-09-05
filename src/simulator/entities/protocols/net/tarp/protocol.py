@@ -9,7 +9,6 @@ from simulator.entities.protocols.common.packets import (
     TARPUnicastType,
 )
 
-# from simulator.entities.physical.devices.nodes import StaticNode
 from simulator.entities.protocols.net.common.net_events import (
     NetBeaconSendEvent,
     NetRoutingTableCleanupEvent,
@@ -17,11 +16,9 @@ from simulator.entities.protocols.net.common.net_events import (
 )
 from simulator.entities.protocols.net.tarp.route import TARPRoute, NodeType, RouteStatus
 from simulator.entities.protocols.net.tarp.parameters import TARPParameters
+from simulator.entities.common.NodeInterface import NetworkNode
 
-from typing import Dict, Any, Optional, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from typing import Dict, Any, Optional
 
 """
 This class implements TARP (Tree-based Any-to-any Routing Protocol).
@@ -79,7 +76,7 @@ class TARProtocol(Layer, Entity):
     This class implements TARP (Tree-based Any-to-any Routing Protocol).
     """
 
-    def __init__(self, host: "StaticNode", sink: bool = False):
+    def __init__(self, host: NetworkNode, sink: bool = False):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.sink = sink
