@@ -7,7 +7,7 @@ import functools
 
 
 # --- Python Path Setup ---
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
@@ -16,7 +16,11 @@ from simulator.engine.common.monitors import PacketMonitor
 from simulator.engine.Kernel import Kernel
 from simulator.environment.geometry import CartesianCoordinate
 from simulator.applications.Application import Application
-from simulator.entities.protocols.common.packets import NetPacket, TARPPacket, Frame_802154
+from simulator.entities.protocols.common.packets import (
+    NetPacket,
+    TARPPacket,
+    Frame_802154,
+)
 from simulator.engine.common.Event import Event
 
 if TYPE_CHECKING:
@@ -29,6 +33,7 @@ if TYPE_CHECKING:
 
 LOG_LEVEL = "DEBUG"
 
+
 def log(instance: object, message: str, level: str = "INFO"):
     """A standardized logging function for cleaner, time-stamped output."""
     if LOG_LEVEL == "DEBUG" or level == "INFO":
@@ -36,6 +41,7 @@ def log(instance: object, message: str, level: str = "INFO"):
         node_id = instance.host.id
         layer_name = instance.__class__.__name__
         print(f"[{time:.6f}s] [{node_id}] [{layer_name}] {message}")
+
 
 def log_event_execution(event: Event):
     """Callback function to log every event as it is executed by the scheduler."""
@@ -47,10 +53,10 @@ def log_event_execution(event: Event):
     event_type = type(event).__name__
 
     details = ""
-    if hasattr(event, 'transmission'):
+    if hasattr(event, "transmission"):
         packet_type = type(event.transmission.packet).__name__
         details = f" (Packet: {packet_type})"
-    elif hasattr(event, 'payload'):
+    elif hasattr(event, "payload"):
         packet_type = type(event.payload).__name__
         details = f" (Payload: {packet_type})"
 
@@ -63,6 +69,7 @@ def log_event_execution(event: Event):
 # TEST APPLICATION: PingPongApp (with retry logic)
 # ======================================================================================
 
+
 class PingPongApp(Application):
     """
     An extended application that continuously exchanges PING and PONG messages.
@@ -71,7 +78,14 @@ class PingPongApp(Application):
     - Upon receiving a PONG, the 'pinger' waits for a defined interval
       and then sends the next PING.
     """
-    def __init__(self, host: Optional["StaticNode"], is_pinger: bool = False, peer_addr: Optional[bytes] = None, ping_interval: float = 60.0):
+
+    def __init__(
+        self,
+        host: Optional["StaticNode"],
+        is_pinger: bool = False,
+        peer_addr: Optional[bytes] = None,
+        ping_interval: float = 60.0,
+    ):
         super().__init__()
         self.host = host
         self.is_pinger = is_pinger
@@ -85,7 +99,9 @@ class PingPongApp(Application):
         if self.is_pinger:
             initial_send_time = 30.0
             log(self, f"Scheduling first PING at t={initial_send_time:.2f}s.")
-            start_ping_event = Event(time=initial_send_time, blame=self, callback=self.generate_traffic)
+            start_ping_event = Event(
+                time=initial_send_time, blame=self, callback=self.generate_traffic
+            )
             self.host.context.scheduler.schedule(start_ping_event)
 
     def generate_traffic(self):
@@ -98,21 +114,27 @@ class PingPongApp(Application):
 
         self.ping_count += 1
         payload_str = f"PING #{self.ping_count} from {self.host.id}"
-        packet = NetPacket(APDU=payload_str.encode('utf-8'))
+        packet = NetPacket(APDU=payload_str.encode("utf-8"))
 
-        log(self, f">>> Attempting to send '{payload_str}' to {self.peer_addr.hex()}.", level="INFO")
-        
+        log(
+            self,
+            f">>> Attempting to send '{payload_str}' to {self.peer_addr.hex()}.",
+            level="INFO",
+        )
+
         sent_successfully = self.host.net.send(packet, destination=self.peer_addr)
 
         if not sent_successfully and self.is_pinger:
             retry_interval = 35.0
             retry_time = self.host.context.scheduler.now() + retry_interval
-            log(self, f"Send failed. Retrying PING at t={retry_time:.2f}s.", level="INFO")
-            
+            log(
+                self,
+                f"Send failed. Retrying PING at t={retry_time:.2f}s.",
+                level="INFO",
+            )
+
             retry_event = Event(
-                time=retry_time,
-                blame=self,
-                callback=self.generate_traffic
+                time=retry_time, blame=self, callback=self.generate_traffic
             )
             self.host.context.scheduler.schedule(retry_event)
 
@@ -120,29 +142,39 @@ class PingPongApp(Application):
         """
         Handles an incoming packet from the network layer.
         """
-        payload_str = packet.APDU.decode('utf-8', errors='ignore')
-        log(self, f"<<< Received '{payload_str}' from {sender_addr.hex()}.", level="INFO")
+        payload_str = packet.APDU.decode("utf-8", errors="ignore")
+        log(
+            self,
+            f"<<< Received '{payload_str}' from {sender_addr.hex()}.",
+            level="INFO",
+        )
 
         if "PING" in payload_str and not self.is_pinger:
             reply_payload_str = f"PONG in response to '{payload_str}'"
-            reply_packet = NetPacket(APDU=reply_payload_str.encode('utf-8'))
-            log(self, f">>> Replying with '{reply_payload_str}' to {sender_addr.hex()}.", level="INFO")
+            reply_packet = NetPacket(APDU=reply_payload_str.encode("utf-8"))
+            log(
+                self,
+                f">>> Replying with '{reply_payload_str}' to {sender_addr.hex()}.",
+                level="INFO",
+            )
             self.host.net.send(reply_packet, destination=sender_addr)
 
         if "PONG" in payload_str and self.is_pinger:
             next_ping_time = self.host.context.scheduler.now() + self.ping_interval
-            log(self, f"PONG received. Scheduling next PING at t={next_ping_time:.2f}s.")
+            log(
+                self, f"PONG received. Scheduling next PING at t={next_ping_time:.2f}s."
+            )
 
             next_ping_event = Event(
-                time=next_ping_time,
-                blame=self,
-                callback=self.generate_traffic
+                time=next_ping_time, blame=self, callback=self.generate_traffic
             )
             self.host.context.scheduler.schedule(next_ping_event)
+
 
 # ======================================================================================
 # MAIN SIMULATION SETUP
 # ======================================================================================
+
 
 def run_simulation():
     print("--- Starting Network Stack Test: Multi-Hop Ping-Pong (HARSH CHANNEL) ---")
@@ -151,35 +183,39 @@ def run_simulation():
     kernel.context.scheduler.event_execution_callback = log_event_execution
 
     kernel.bootstrap(
-        seed=12345, dspace_step=1, dspace_npt=200, freq=2.4e9, filter_bandwidth=2e6,
-        coh_d=50, 
-        shadow_dev=4.0, 
-        pl_exponent=2.5, 
-        d0=1.0, 
-        fading_shape=1.0
+        seed=12345,
+        dspace_step=1,
+        dspace_npt=200,
+        freq=2.4e9,
+        filter_bandwidth=2e6,
+        coh_d=50,
+        shadow_dev=4.0,
+        pl_exponent=2.5,
+        d0=1.0,
+        fading_shape=1.0,
     )
 
     print("\n--- Creating Network Nodes in a Line Topology ---")
-    
+
     num_nodes = 5
     node_distance = 30  # meters
     nodes = {}
     addrs = {}
 
     for i in range(num_nodes):
-        node_char = chr(ord('A') + i)
+        node_char = chr(ord("A") + i)
         node_id = f"Node-{node_char}"
-        addr = (i + 1).to_bytes(2, 'big')
-        
-        is_pinger = (i == 0)
-        is_sink = (i == 0) # Node A is the sink/root
-        is_ponger = (i == num_nodes - 1)
+        addr = (i + 1).to_bytes(2, "big")
+
+        is_pinger = i == 0
+        is_sink = i == 0  # Node A is the sink/root
+        is_ponger = i == num_nodes - 1
 
         peer_addr = None
         if is_pinger:
-            peer_addr = (num_nodes).to_bytes(2, 'big')
+            peer_addr = (num_nodes).to_bytes(2, "big")
         elif is_ponger:
-            peer_addr = (1).to_bytes(2, 'big')
+            peer_addr = (1).to_bytes(2, "big")
 
         app = PingPongApp(host=None, is_pinger=is_pinger, peer_addr=peer_addr)
 
@@ -188,7 +224,7 @@ def run_simulation():
             position=CartesianCoordinate(10 + i * node_distance, 10),
             app=app,
             linkaddr=addr,
-            is_sink=is_sink
+            is_sink=is_sink,
         )
         app.host = node
         nodes[node_id] = node
@@ -198,7 +234,7 @@ def run_simulation():
     packet_monitor = PacketMonitor()
     for node_id in nodes:
         kernel.attach_monitor(packet_monitor, f"{node_id}.phy")
-    
+
     # Start applications
     nodes["Node-A"].app.start()
     nodes[f"Node-{chr(ord('A') + num_nodes - 1)}"].app.start()
@@ -216,11 +252,15 @@ def run_simulation():
     if queue_len > 0:
         print("\n--- First 5 Events in Queue ---")
         for i, (time, event) in enumerate(sorted(scheduler.event_queue)[:5]):
-            print(f"{i+1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}")
+            print(
+                f"{i+1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}"
+            )
 
         print("\n--- Last 5 Events in Queue ---")
         for i, (time, event) in enumerate(sorted(scheduler.event_queue)[-5:]):
-            print(f"{queue_len - 5 + i + 1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}")
+            print(
+                f"{queue_len - 5 + i + 1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}"
+            )
 
 
 if __name__ == "__main__":
