@@ -4,7 +4,7 @@ from simulator.entities.protocols.radio_dc.NullRDC import NullRDC
 from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import (
     ContikiOS_MAC_802154_Unslotted,
 )
-from simulator.entities.protocols.net.TARP import TARP
+from simulator.entities.protocols.net.TARP import TARProtocol
 from simulator.entities.common.Entity import Entity
 from simulator.applications.Application import Application
 from simulator.engine.common.SimulationContext import SimulationContext
@@ -34,5 +34,5 @@ class StaticNode(Entity):
         self.phy = SimplePhyLayer(self)
         self.rdc = NullRDC(self)
         self.mac = ContikiOS_MAC_802154_Unslotted(self)
-        self.net = TARP(self, sink=is_sink)
+        self.net = TARProtocol(self, sink=is_sink)
         self.app = application
