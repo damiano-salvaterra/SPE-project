@@ -16,11 +16,11 @@ if TYPE_CHECKING:
     from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 class RadioState(Enum):
-    """ Defines the operational states of the transceiver. """
-    IDLE = auto()  # Channel is clear, radio is listening.
-    BUSY = auto()  # Receiving energy, but not synchronized to a packet.
-    SYNC = auto()  # Synchronized and actively decoding a specific packet.
-    TX = auto()    # Transmitting a packet.
+    """ Defines the operational states of the transceiver """
+    IDLE = auto()  # Channel is clear, radio is listening
+    BUSY = auto()  # Receiving energy, but not synchronized to a packet
+    SYNC = auto()  # Synchronized and actively decoding a specific packet
+    TX = auto()    # Transmitting a packet
 
 class SimplePhyLayer(Layer, Entity):
     """
@@ -51,8 +51,6 @@ class SimplePhyLayer(Layer, Entity):
         self.transmission_media = transmission_media
 
 
-
-    # --- State Machine Event Handlers ---
 
     def on_PhyRxStartEvent(self, transmission: Transmission):
         """ Handles the arrival of a new signal at the receiver """
@@ -100,7 +98,6 @@ class SimplePhyLayer(Layer, Entity):
         elif self.state != RadioState.TX:
             self.state = RadioState.BUSY
 
-    # --- Transmission Event Handlers ---
     
     def on_PhyTxStartEvent(self, transmission: Transmission):
         """ Handles the start of a transmission from this node's MAC. """
@@ -119,7 +116,6 @@ class SimplePhyLayer(Layer, Entity):
         else:
             self.state = RadioState.BUSY
 
-    # --- Internal Logic ---
 
     def _attempt_tx_synchronization(self, transmission: Transmission, power_W: float):
         """ locks the correlator onto the new transmission, if possible """
@@ -200,10 +196,13 @@ class SimplePhyLayer(Layer, Entity):
             self.min_sinr_db_session = float('inf')
             self.state = RadioState.BUSY
 
-    # --- Interface for Upper Layers ---
+
+
+
+    # ----- Interface for upper layers
+
 
     def send(self, payload: MACFrame):
-        # The 'send' method now triggers the transition to the TX state.
         signal = PacketSignal("PHY Packet Transmission", self.host.context.scheduler.now(), "PacketSent", payload)
         self._notify_monitors(signal)
 
@@ -212,10 +211,11 @@ class SimplePhyLayer(Layer, Entity):
 
         transmission = Transmission(self.host, payload, self.transmission_power)
         
-        start_time = self.host.context.scheduler.now() + 1e-12
+        start_time = self.host.context.scheduler.now() + 1e-12 #just to make the 2 events have different simulation times, it shouldnt be a problem
+                                                                #a problem anyways since the other event is already popped, but just for robustness we add a negligible delay
         end_time = start_time + payload.on_air_duration
         
-        # These events now trigger state transitions within this class.
+        #shcedule events
         tx_start_event = PhyTxStartEvent(start_time, self, self.on_PhyTxStartEvent, transmission=transmission)
         tx_end_event = PhyTxEndEvent(end_time, self, self.on_PhyTxEndEvent, transmission=transmission)
 
@@ -223,13 +223,12 @@ class SimplePhyLayer(Layer, Entity):
         self.host.context.scheduler.schedule(tx_end_event)
 
     def cca_802154_Mode1(self) -> bool:
-        """ CCA is now a simple, efficient check on the total received power. """
-        # No need for a loop. We use the tracked total power.
+        """ checks the power currently in the channel. If the power is over the threshold, returns True ( channel busy) """
         total_power_dBm = 10 * log10(self.total_received_power_W * 1000) if self.total_received_power_W > 0 else -float('inf')
         return total_power_dBm > self.cca_Threshold_dBm
 
     def is_radio_busy(self) -> bool:
-        """ The radio is busy if it's not in the IDLE state. """
+        """ The radio is busy if it's not in the IDLE state """
         return self.state != RadioState.IDLE
 
     def receive(self, payload: MACFrame):
@@ -238,4 +237,4 @@ class SimplePhyLayer(Layer, Entity):
         self.host.rdc.receive(payload=payload)
 
     def get_last_rssi(self) -> float:
-        return self._last_successful_rx_rssi_dBm
+        return self._last_successful_rx_rssi_dBm #NOTE:check if this variable may unexpectedly change due to some race condition or weird situation
