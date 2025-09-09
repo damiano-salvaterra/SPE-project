@@ -150,15 +150,22 @@ def run_simulation():
     kernel = Kernel(root_seed=12345)
     kernel.context.scheduler.event_execution_callback = log_event_execution
 
+    #kernel.bootstrap(
+    #    seed=12345, dspace_step=1, dspace_npt=200, freq=2.4e9, filter_bandwidth=2e6,
+    #    coh_d=50,
+    #    shadow_dev=0.1,
+    #    pl_exponent=2.1,
+    #    d0=1.0,
+    #    fading_shape=20.0
+    #)
     kernel.bootstrap(
         seed=12345, dspace_step=1, dspace_npt=200, freq=2.4e9, filter_bandwidth=2e6,
         coh_d=50,
-        shadow_dev=0.1,
-        pl_exponent=2.1,
+        shadow_dev=4.0,      # Increase shadowing for more spatial variation.
+        pl_exponent=3.0,   # Increase path loss to model a more obstructed environment.
         d0=1.0,
-        fading_shape=20.0
+        fading_shape=1.5     # CRITICAL: Lower this to introduce severe, rapid fading.
     )
-
     print("\n--- Creating Network Nodes in a Line Topology ---")
     
     num_nodes = 5

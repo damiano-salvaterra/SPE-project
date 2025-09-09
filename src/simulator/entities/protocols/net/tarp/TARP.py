@@ -125,6 +125,13 @@ class TARP(Layer, Entity):
 
     def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
         if not self.sink and self.parent is None:
+            # If we are not the sink and have no parent, we are disconnected.
+            if self.host.context.scheduler.now() > 2 * self.TREE_BEACON_INTERVAL:
+                 print(
+                    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
+                    f"No parent, cannot send. Dropping packet.",
+                    flush=True,
+                )
             return False
 
         nexthop = self._nbr_tbl_lookup(destination)
@@ -161,9 +168,9 @@ class TARP(Layer, Entity):
         return True
 
     def _beacon_timer_cb(self):
-        print(
-            f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}]: _beacon_timer_cb EXECUTED."
-        )
+        #print(
+        #    f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}]: _beacon_timer_cb EXECUTED."
+        #)
 
         if self.sink:
             new_seqn = self.seqn + 1
@@ -183,20 +190,17 @@ class TARP(Layer, Entity):
 
 
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
-        #rssi = self.host.mac.get_last_packet_rssi()
-        #rssi = self.host.phy.get_last_rssi()
-
         if rssi < self.RSSI_LOW_THR:
-            print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-              f"Beacon from {tx_addr.hex()} ignored, RSSI too low ({rssi:.2f} < {self.RSSI_LOW_THR}).")
+            #print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
+            #  f"Beacon from {tx_addr.hex()} ignored, RSSI too low ({rssi:.2f} < {self.RSSI_LOW_THR}).")
             return
 
         header: TARPBroadcastHeader = payload.header
         current_time = self.host.context.scheduler.now()
 
-        print(
-            f"DEBUG [{current_time:.6f}s] [{self.host.id}]: Received beacon from {tx_addr.hex()} with epoch {header.epoch}. My epoch is {self.seqn}."
-        )
+        #print(
+        #    f"DEBUG [{current_time:.6f}s] [{self.host.id}]: Received beacon from {tx_addr.hex()} with epoch {header.epoch}. My epoch is {self.seqn}."
+        #)
 
         tx_entry = self.nbr_tbl.get(tx_addr)
 
@@ -221,15 +225,13 @@ class TARP(Layer, Entity):
 
         new_metric = tarp_utils._metric(header.metric_q124, tx_entry.etx)
         is_preferred = tarp_utils._preferred(new_metric, self.metric, self.THR_H, self.DELTA_ETX_MIN)
-
-
-        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-          f"Parent Selection Logic: Beacon from {tx_addr.hex()}. "
-          f"My current metric: {self.metric:.4f}. "
-          f"Beacon metric: {header.metric_q124:.4f}. "
-          f"Link ETX: {tx_entry.etx:.4f}. "
-          f"New potential metric: {new_metric:.4f}. "
-          f"Is Preferred? -> {is_preferred}")
+        print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] PARENT_SELECTION_DEBUG:\n"
+              f"\t- Beacon from: {tx_addr.hex()}\n"
+              f"\t- My current parent: {self.parent.hex() if self.parent else 'None'}, My current metric: {self.metric:.4f}\n"
+              f"\t- Beacon's advertised metric: {header.metric_q124:.4f}\n"
+              f"\t- Link ETX to beacon sender: {tx_entry.etx:.4f}\n"
+              f"\t- Calculated new potential metric: {new_metric:.4f}\n"
+              f"\t- Is this new path preferred? -> {is_preferred}")
 
         if is_preferred:
             self.parent = tx_addr
@@ -237,8 +239,8 @@ class TARP(Layer, Entity):
             self.hops = header.hops + 1
             tx_entry.type = self.NodeType.NODE_PARENT
             print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/BC_RECV] "
-                f"SELECTING NEW PARENT {tx_addr.hex()}.",
+                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP] "
+                f"SELECTING NEW PARENT {tx_addr.hex()} | New Metric: {self.metric:.2f}",
                 flush=True,
             )
 
@@ -260,8 +262,9 @@ class TARP(Layer, Entity):
             self.host.context.scheduler.schedule(first_report_event)
         else:
             if header.parent == self.host.linkaddr:
-                tx_entry.type = self.NodeType.NODE_CHILD
-                self.tpl_buf[tx_addr] = self.RouteStatus.STATUS_ADD
+                if tx_entry.type != self.NodeType.NODE_CHILD:
+                    tx_entry.type = self.NodeType.NODE_CHILD
+                    self.tpl_buf[tx_addr] = self.RouteStatus.STATUS_ADD
             else:
                 if tx_entry.type == self.NodeType.NODE_CHILD:
                     tx_entry.type = self.NodeType.NODE_NEIGHBOR
@@ -269,7 +272,13 @@ class TARP(Layer, Entity):
                         self.tpl_buf.pop(tx_addr)
 
     def _subtree_report_cb(self):
+        self._buff_subtree() 
+
+        if self.parent is None:
+            return
+
         if not self.tpl_buf:
+            # Send an empty report as a keep-alive
             self._schedule_next_report()
             header = TARPUnicastHeader(
                 type=TARPUnicastType.UC_TYPE_REPORT,
@@ -278,9 +287,16 @@ class TARP(Layer, Entity):
                 hops=0,
             )
             packet = TARPPacket(header=header, APDU={})
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
+                  f"Sending empty report to {self.parent.hex()}.", flush=True)
             self.host.mac.send(packet, self.parent)
         else:
             remaining_items = len(self.tpl_buf) - self.tpl_buf_offset
+            if remaining_items <= 0:
+                self._flush_tpl_buf()
+                self._schedule_next_report()
+                return
+
             frag_size = min(remaining_items, self.MAX_STAT_PER_FRAGMENT)
             voice_addr = list(self.tpl_buf.keys())
             fragment_payload = {
@@ -294,19 +310,29 @@ class TARP(Layer, Entity):
                 hops=0,
             )
             packet = TARPPacket(header=header, APDU=fragment_payload)
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
+                f"Sending report to {self.parent.hex()}. "
+                f"Payload: {fragment_payload}", flush=True)
+
             self.host.mac.send(packet, self.parent)
+
             self.tpl_buf_offset += frag_size
             if self.tpl_buf_offset < len(self.tpl_buf):
-                next_frag_time = self.host.context.scheduler.now() + 0.02
+                # More fragments to send
+                next_frag_time = self.host.context.scheduler.now() + 0.02 # Small delay between fragments
                 next_report_event = NetTopologyReportSendEvent(
                     time=next_frag_time, blame=self, callback=self._subtree_report_cb
                 )
                 self.host.context.scheduler.schedule(next_report_event)
             else:
+                # Last fragment sent
                 self._flush_tpl_buf()
                 self._schedule_next_report()
 
     def _schedule_next_report(self):
+        if self.sink or self.parent is None:
+            return
+        
         interval = self._subtree_report_node_interval()
         next_report_time = self.host.context.scheduler.now() + interval
         self.host.context.scheduler.schedule(
@@ -334,16 +360,19 @@ class TARP(Layer, Entity):
                 if metric < best_metric:
                     best_metric = metric
                     new_parent_addr = addr
-
-        old_parent_entry = self.nbr_tbl[old_parent_addr]
-        old_parent_entry.type = self.NodeType.NODE_NEIGHBOR
-        old_parent_entry.age = self.ALWAYS_INVALID_AGE
+        
+        if old_parent_addr in self.nbr_tbl:
+            old_parent_entry = self.nbr_tbl[old_parent_addr]
+            old_parent_entry.type = self.NodeType.NODE_NEIGHBOR
+            old_parent_entry.age = self.ALWAYS_INVALID_AGE
 
         if new_parent_addr:
             self.parent = new_parent_addr
             self.metric = best_metric
             self.nbr_tbl[new_parent_addr].type = self.NodeType.NODE_PARENT
             self.hops = self.nbr_tbl[new_parent_addr].hops + 1
+            
+            # Announce the entire subtree to the new parent immediately
             self._buff_subtree()
             self._subtree_report_cb()
         else:
@@ -351,8 +380,8 @@ class TARP(Layer, Entity):
             self.hops = self.MAX_PATH_LENGTH + 1
 
         print(
-            f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/CHANGE_PARENT] "
-            f"SELECTING NEW PARENT {new_parent_addr.hex() if new_parent_addr else None}.",
+            f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP] "
+            f"REACTIVELY CHANGING PARENT. Old: {old_parent_addr.hex()}, New: {new_parent_addr.hex() if new_parent_addr else 'None'}.",
             flush=True,
         )
 
@@ -370,17 +399,21 @@ class TARP(Layer, Entity):
 
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
-                self.host.app.receive(payload.APDU, sender_addr=tx_addr)
+                self.host.app.receive(payload.APDU, sender_addr=header.s_addr)
             else:
                 self._forward_data(header, payload=payload.APDU)
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:
             net_buf = payload.APDU
-            self._nbr_tbl_update(tx_addr=tx_addr, buf=net_buf)
-            if not self.sink:
-                self._schedule_next_report()
-            else:
-                self._flush_tpl_buf()
+            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
+              f"Received report from {tx_addr.hex()}. "
+              f"Payload: {net_buf}", flush=True)
 
+            self._nbr_tbl_update(tx_addr=tx_addr, buf=net_buf)
+            
+            # Piggyback this info onto the next scheduled report
+            if not self.sink:
+                for addr, status in net_buf.items():
+                    self.tpl_buf[addr] = status
 
     def _uc_sent(self, rx_addr: bytes, status_ok: bool, num_tx: int, ack_rssi: float):
         if rx_addr is None or rx_addr not in self.nbr_tbl:
@@ -408,8 +441,6 @@ class TARP(Layer, Entity):
 
 
     def receive(self, payload: TARPPacket, sender_addr: bytes, rssi: float):
-        print(f">>> DEBUG-NET [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
-
         if isinstance(payload.header, TARPUnicastHeader):
             self._uc_recv(payload, sender_addr)
         elif isinstance(payload.header, TARPBroadcastHeader):
@@ -420,10 +451,17 @@ class TARP(Layer, Entity):
         b_addr = Frame_802154.broadcast_linkaddr
         self.host.mac.send(payload=broadcast_packet, destination=b_addr)
 
-    def _nbr_tbl_lookup(self, dst_addr: bytes) -> bytes:
+    def _nbr_tbl_lookup(self, dst_addr: bytes) -> Optional[bytes]:
+        if dst_addr == self.host.linkaddr:
+            return self.host.linkaddr # Should be handled by APP layer but good robustness
+        
+        # Default route is via parent for non-neighbors
         nexthop = self.parent
+        
         if dst_addr in self.nbr_tbl:
+            # If destination is in table, use its specific nexthop
             nexthop = self.nbr_tbl[dst_addr].nexthop
+        
         return nexthop
 
     def _nbr_tbl_refresh(self, addr: bytes):
@@ -431,44 +469,50 @@ class TARP(Layer, Entity):
             self.nbr_tbl[addr].age = self.host.context.scheduler.now()
 
     def _nbr_tbl_update(self, tx_addr: bytes, buf: Dict[bytes, "TARP.RouteStatus"]):
+        # The sender of the report is now confirmed as a child
         tx_entry = self.nbr_tbl.get(tx_addr)
         if tx_entry and tx_entry.type == self.NodeType.NODE_NEIGHBOR:
-            self.tpl_buf[tx_addr] = self.RouteStatus.STATUS_ADD
-            tx_entry.adv_metric = float("inf")
             tx_entry.type = self.NodeType.NODE_CHILD
 
         for d_addr, d_status in buf.items():
-            self.tpl_buf[d_addr] = d_status
             if d_status == self.RouteStatus.STATUS_ADD:
-                d_entry = self.TARPRoute(
-                    type=self.NodeType.NODE_DESCENTANT,
-                    adv_metric=float("inf"),
-                    age=self.ALWAYS_VALID_AGE,
-                    hops=self.MAX_PATH_LENGTH + 1,
-                    nexthop=tx_addr,
-                    etx=0.0,
-                    num_tx=0,
-                    num_ack=0,
-                )
-                self.nbr_tbl[d_addr] = d_entry
+                if d_addr not in self.nbr_tbl: # Add new entry if it doesn't exist
+                    d_entry = self.TARPRoute(
+                        type=self.NodeType.NODE_DESCENTANT,
+                        adv_metric=float("inf"),
+                        age=self.ALWAYS_VALID_AGE, # Descendants don't expire via timer
+                        hops=self.MAX_PATH_LENGTH + 1,
+                        nexthop=tx_addr,
+                        etx=0.0,
+                        num_tx=0,
+                        num_ack=0,
+                    )
+                    self.nbr_tbl[d_addr] = d_entry
+                else: # Refresh existing entry
+                    self.nbr_tbl[d_addr].nexthop = tx_addr
+                    self.nbr_tbl[d_addr].type = self.NodeType.NODE_DESCENTANT
+
             elif d_status == self.RouteStatus.STATUS_REMOVE:
                 if d_addr in self.nbr_tbl:
                     self.nbr_tbl.pop(d_addr)
 
     def _do_cleanup(self):
         current_time = self.host.context.scheduler.now()
+        
+        # Find entries that have expired due to age (e.g., failed ACKs)
         expired_addr = [
             addr
             for addr, route in self.nbr_tbl.items()
             if not tarp_utils._valid(current_time, route, self.ENTRY_EXPIRATION_TIME)
-            and route.type != self.NodeType.NODE_DESCENTANT
         ]
 
         parent_to_change = None
         for addr in expired_addr:
-            if self.nbr_tbl[addr].type == self.NodeType.NODE_CHILD:
+            route_type = self.nbr_tbl[addr].type
+
+            if route_type == self.NodeType.NODE_CHILD:
                 self._remove_subtree(addr)
-            elif self.nbr_tbl[addr].type == self.NodeType.NODE_PARENT:
+            elif route_type == self.NodeType.NODE_PARENT:
                 parent_to_change = self.parent
                 self.parent = None
             
@@ -483,6 +527,7 @@ class TARP(Layer, Entity):
         self._reschedule_cleanup()
 
     def _remove_subtree(self, child_addr: bytes):
+        # Find all descendants routed through the lost child
         subtree_addr = [
             addr for addr, route in self.nbr_tbl.items() if route.nexthop == child_addr
         ]
@@ -490,12 +535,17 @@ class TARP(Layer, Entity):
             if addr in self.nbr_tbl:
                 self.nbr_tbl.pop(addr)
         
+        # Announce the removal of the entire subtree
         self.tpl_buf.update(
             {c_addr: self.RouteStatus.STATUS_REMOVE for c_addr in subtree_addr}
         )
+        self.tpl_buf[child_addr] = self.RouteStatus.STATUS_REMOVE
+
 
     def _subtree_report_base_delay_and_jitter(self) -> float:
+        if self.hops <= 0: return 5.0 # Avoid division by zero for sink
         return (5 / self.hops) + (self.rng.uniform(low=0, high=0.4))
 
     def _subtree_report_node_interval(self) -> float:
+        if self.hops <= 0: return self.SUBTREE_REPORT_OFFEST # Avoid division by zero
         return self.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
