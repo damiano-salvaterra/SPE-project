@@ -8,7 +8,7 @@ from simulator.entities.protocols.phy.common.Transmission import Transmission
 from simulator.entities.protocols.common.packets import MACFrame, Frame_802154, Ack_802154
 from numpy import log10
 from math import isclose
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 from enum import Enum, auto
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class SimplePhyLayer(Layer, Entity):
 
         # --- State for MAC layer ---
         self._last_seqn = 0
-        self._last_successful_rx_rssi_dBm: float = -150.0
+        #self._last_successful_rx_rssi_dBm: float = -150.0
 
     def connect_transmission_media(self, transmission_media: "WirelessChannel"):
         self.transmission_media = transmission_media
@@ -54,10 +54,17 @@ class SimplePhyLayer(Layer, Entity):
 
     def on_PhyRxStartEvent(self, transmission: Transmission):
         """ Handles the arrival of a new signal at the receiver """
+        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
+          f"PhyRxStartEvent triggered by Tx from {transmission.transmitter.id}.")
+        
         received_power_W = self.transmission_media.get_linear_link_budget(
             node1=self.host, node2=transmission.transmitter, tx_power_dBm=transmission.transmission_power_dBm
         )
-        
+
+        power_dBm = 10 * log10(received_power_W * 1000) if received_power_W > 0 else -float('inf')
+        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
+          f"Received power: {power_dBm:.2f} dBm. Correlator threshold: {self.correlator_threshold} dBm.")
+
         # If the radio is transmitting, it ignores everything
         if self.state == RadioState.TX:
             return
@@ -90,7 +97,7 @@ class SimplePhyLayer(Layer, Entity):
         
         if self.state == RadioState.SYNC and self.synchronized_tx == transmission:
             # if the the packet we were decoding has just ended, check if is correctly received and clean up
-            self._finalize_rx()
+            self._finalize_rx(power_W=ended_power_W)
         
         # if the channel is now silent, become IDLE, otherwise, stay BUSY
         if isclose(self.total_received_power_W, 0.0):
@@ -133,15 +140,17 @@ class SimplePhyLayer(Layer, Entity):
             self.state = RadioState.BUSY
 
 
-    def _finalize_rx(self):
+    def _finalize_rx(self, power_W: float):
         """ Called when a synchronized packet ends and decides its fate """
         is_decoded = self.min_sinr_db_session >= self.capture_threshold_dB
         
         if is_decoded:
             received_packet = self.synchronized_tx.packet
-            power_W = self.reception_power_state.get(self.synchronized_tx, 0.0)
-            self._last_successful_rx_rssi_dBm = 10 * log10(power_W * 1000) if power_W > 0 else -150
-            self.receive(payload=received_packet)
+            rssi_dBm = 10 * log10(power_W * 1000) if power_W > 0 else -150
+
+            sender_addr = self.synchronized_tx.transmitter.linkaddr
+            #self._last_successful_rx_rssi_dBm = 10 * log10(power_W * 1000) if power_W > 0 else -150
+            self.receive(payload=received_packet, sender_addr=sender_addr, rssi=rssi_dBm)
         
         # The decoder is now free
         self.synchronized_tx = None
@@ -202,7 +211,7 @@ class SimplePhyLayer(Layer, Entity):
     # ----- Interface for upper layers
 
 
-    def send(self, payload: MACFrame):
+    def send(self, payload: MACFrame, destination: Optional[bytes] = None):
         signal = PacketSignal("PHY Packet Transmission", self.host.context.scheduler.now(), "PacketSent", payload)
         self._notify_monitors(signal)
 
@@ -216,8 +225,8 @@ class SimplePhyLayer(Layer, Entity):
         end_time = start_time + payload.on_air_duration
         
         #shcedule events
-        tx_start_event = PhyTxStartEvent(start_time, self, self.on_PhyTxStartEvent, transmission=transmission)
-        tx_end_event = PhyTxEndEvent(end_time, self, self.on_PhyTxEndEvent, transmission=transmission)
+        tx_start_event = PhyTxStartEvent(time = start_time, blame = self, callback = self.on_PhyTxStartEvent, transmission=transmission)
+        tx_end_event = PhyTxEndEvent(time = end_time, blame = self, callback = self.on_PhyTxEndEvent, transmission=transmission)
 
         self.host.context.scheduler.schedule(tx_start_event)
         self.host.context.scheduler.schedule(tx_end_event)
@@ -231,10 +240,11 @@ class SimplePhyLayer(Layer, Entity):
         """ The radio is busy if it's not in the IDLE state """
         return self.state != RadioState.IDLE
 
-    def receive(self, payload: MACFrame):
+    def receive(self, payload: MACFrame, sender_addr: bytes, rssi: float):
+        print(f">>> DEBUG-PHY [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
         signal = PacketSignal("PHY Packet Reception", self.host.context.scheduler.now(), "PacketReceived", payload)
         self._notify_monitors(signal)
-        self.host.rdc.receive(payload=payload)
+        self.host.rdc.receive(payload=payload, sender_addr=sender_addr, rssi=rssi)
 
-    def get_last_rssi(self) -> float:
-        return self._last_successful_rx_rssi_dBm #NOTE:check if this variable may unexpectedly change due to some race condition or weird situation
+    #def get_last_rssi(self) -> float:
+    #    return self._last_successful_rx_rssi_dBm #NOTE:check if this variable may unexpectedly change due to some race condition or weird situation

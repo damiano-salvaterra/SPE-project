@@ -1,5 +1,4 @@
-
-from typing import List, Dict
+from typing import List
 
 from simulator.environment.propagation.narrowband import NarrowbandChannelModel
 from simulator.entities.common.Entity import Entity
@@ -28,6 +27,12 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
         regardless of the destination, so we need a way to make the tranmission to a node susceptible to any other tranmisssion to any other node.
         This function orchestrate this.
         '''
+        transmitter_id = transmission.transmitter.id
+        print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
+              f"on_PhyTxStartEvent triggered by {transmitter_id}.")
+        print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
+              f"Iterating through {len(self.nodes)} nodes in the channel.")
+
         #self.active_transmissions[transmission.transmitter] = transmission
         transmission.unique_id = self.tx_counter # assign an ID to the transmission
         self.tx_counter += 1 # increment counter
@@ -37,10 +42,16 @@ class WirelessChannel(Entity): # TODO: make this class a singleton
                                 # we need this to compute the SINR later)
 
             if receiver is not transmission.transmitter:
+                print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
+                  f"Scheduling Rx for {receiver.id}...")
+
                 propagation_delay = self.propagation_model.propagation_delay(transmitter_position, receiver.position)
                 #schedule reception
                 start_rx_time = self.context.scheduler.now() + propagation_delay
                 end_rx_time = start_rx_time + transmission.packet.on_air_duration
+                print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
+                  f"  \\--> Prop Delay: {propagation_delay:.6f}s, Scheduled Rx Time: {start_rx_time:.6f}s")
+
                 rx_start_event = PhyRxStartEvent(time = start_rx_time, blame=self, callback = receiver.phy.on_PhyRxStartEvent, transmission=transmission)
                 rx_end_event = PhyRxEndEvent(time = end_rx_time, blame=self, callback = receiver.phy.on_PhyRxEndEvent, transmission=transmission)
                 self.context.scheduler.schedule(rx_start_event)

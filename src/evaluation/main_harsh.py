@@ -183,7 +183,7 @@ def run_simulation():
     app_B.start()
 
     print("\n--- Running Simulation ---")
-    kernel.run(until=600_000.0)
+    kernel.run(until=600.0)
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")

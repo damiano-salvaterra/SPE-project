@@ -1,22 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Any, TYPE_CHECKING
-#from simulator.entities.physical.devices.nodes import StaticNode
+
 if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode # solves the problem of the circular import of StaticNode
+    from simulator.entities.physical.devices.nodes import StaticNode
 
 class Layer(ABC):
-    """
+    '''
     Abstract base class for all layers in the simulator.
-    Each layer should implement at least the "send" and "receive" methods.
-    """
+    '''
     def __init__(self, host: "StaticNode"):
         super().__init__()
         self.host = host
         
     @abstractmethod
-    def send(payload: Any, destination: Optional[Any] = None):
+    def send(self, payload: Any, destination: Optional[Any] = None) -> None:
         pass
+
     @abstractmethod
-    def receive(payload: Any, sender: Optional[Any] = None):
+    def receive(self, payload: Any, sender_addr: bytes, rssi: float) -> None:
         pass
-        

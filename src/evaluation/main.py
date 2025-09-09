@@ -224,7 +224,7 @@ def run_simulation():
     )
     node_B = kernel.add_node(
         node_id="Node-B (Ponger)",
-        position=CartesianCoordinate(40, 10),
+        position=CartesianCoordinate(20, 10),
         app=None,
         linkaddr=addr_node_B,
         is_sink=False,
@@ -246,7 +246,7 @@ def run_simulation():
     app_B.start()
 
     print("\n--- Running Simulation ---")
-    kernel.run(until=600_000.0)
+    kernel.run(until=600.0)
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")

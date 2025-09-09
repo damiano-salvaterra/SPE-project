@@ -161,7 +161,7 @@ def run_simulation():
 
     print("\n--- Creating Network Nodes in a Line Topology ---")
     
-    num_nodes = 3
+    num_nodes = 5
     node_distance = 30  # meters
     nodes = {}
     addrs = {}
@@ -204,7 +204,7 @@ def run_simulation():
     nodes[f"Node-{chr(ord('A') + num_nodes - 1)}"].app.start()
 
     print("\n--- Running Simulation ---")
-    kernel.run(until=600_000.0)
+    kernel.run(until=600.0)
 
     print("\n\n--- Simulation Finished ---")
     print(f"Final simulation time: {kernel.context.scheduler.now():.6f}s")

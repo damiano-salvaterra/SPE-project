@@ -20,9 +20,8 @@ class NullRDC(Layer, Entity):
             self.host.phy.send(payload = payload)
 
 
-    def uc_tx_outcome(self, rx_addr: bytes, status_ok: bool, num_tx: int):
-        self.host.net._uc_sent(rx_addr=rx_addr, status_ok = status_ok, num_tx=num_tx)
-
+    def uc_tx_outcome(self, rx_addr: bytes, status_ok: bool, num_tx: int, ack_rssi: float):
+        self.host.net._uc_sent(rx_addr=rx_addr, status_ok=status_ok, num_tx=num_tx, ack_rssi=ack_rssi)
 
     def _sense_channel(self, frame: Frame_802154):
         '''
@@ -46,6 +45,6 @@ class NullRDC(Layer, Entity):
         self.host.mac.on_RDCSent(packet)
 
 
-    def receive(self, payload: MACFrame):
+    def receive(self, payload: MACFrame, sender_addr: bytes, rssi: float):
         '''just a pass-through: NullRDC does nothing'''
-        self.host.mac.receive(payload = payload)
+        self.host.mac.receive(payload=payload, sender_addr=sender_addr, rssi=rssi)
