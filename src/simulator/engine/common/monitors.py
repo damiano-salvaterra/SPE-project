@@ -5,51 +5,54 @@ import pandas as pd
 
 from simulator.engine.common.Monitor import Monitor
 from simulator.entities.common.Entity import Entity, EntitySignal
-from simulator.entities.protocols.common.packets import MACFrame
+from simulator.entities.protocols.common.packets import MACFrame, NetPacket
 
 class PacketMonitor(Monitor):
     """
-    Un monitor che stampa immediatamente le informazioni sui pacchetti
-    per il debugging in tempo reale.
+    A monitor that logs packet information for post-simulation analysis
+    and can also print information in real-time for debugging.
     """
-    def __init__(self):
-        # Non abbiamo più bisogno di memorizzare i record per la stampa finale
-        pass
+    def __init__(self, verbose=True):
+        self.log: List[dict] = []
+        self.verbose = verbose
 
     def update(self, entity: Entity, signal: EntitySignal):
-        """
-        Chiamato dall'entità. Filtra i segnali relativi ai pacchetti
-        e stampa immediatamente le informazioni.
-        """
-        # Filtra: agisci solo se il segnale contiene un pacchetto
-        #if "packet" not in signal.kwargs:
-        #    return
-        
-
         packet = signal.packet
         event_type = signal.event_type
 
         packet_type = type(packet).__name__
         seqn = getattr(packet, 'seqn', 'N/A')
 
-        # Safely get addresses
         tx_addr_bytes = getattr(packet, 'tx_addr', None)
         rx_addr_bytes = getattr(packet, 'rx_addr', None)
 
         tx_addr = tx_addr_bytes.hex() if isinstance(tx_addr_bytes, bytes) else 'N/A'
         rx_addr = rx_addr_bytes.hex() if isinstance(rx_addr_bytes, bytes) else 'N/A'
 
-        packet_info = f"Type={packet_type}, Seqn={seqn}, Tx={tx_addr}, Rx={rx_addr}"
+        # --- Data Logging ---
+        apdu = getattr(packet, 'APDU', None)
+        if isinstance(apdu, bytes):
+            apdu = apdu.decode('utf-8', errors='ignore')
 
-        print(f"MONITOR [{signal.timestamp:.6f}s] [{entity.host.id}]"
-              f" - Event: {event_type}, Packet: {packet_info}")
-        
-    def print_log(self):
-        # Questo metodo ora non è più necessario per il debug, ma lo lasciamo vuoto
-        # per non rompere la compatibilità se venisse chiamato.
-        pass
-        
+        npdu = getattr(packet, 'NPDU', None)
+
+        log_entry = {
+            "time": signal.timestamp,
+            "node_id": entity.host.id,
+            "event": event_type,
+            "packet_type": packet_type,
+            "seqn": seqn,
+            "tx_addr": tx_addr,
+            "rx_addr": rx_addr,
+            "payload": apdu if apdu is not None else npdu
+        }
+        self.log.append(log_entry)
+
+        # --- Real-time printing (optional) ---
+        if self.verbose:
+            packet_info = f"Type={packet_type}, Seqn={seqn}, Tx={tx_addr}, Rx={rx_addr}, Payload={log_entry['payload']}"
+            print(f"MONITOR [{signal.timestamp:.6f}s] [{entity.host.id}]"
+                  f" - Event: {event_type}, Packet: {packet_info}")
+
     def get_dataframe(self) -> pd.DataFrame:
-        # La raccolta per il DataFrame non è implementata in questa versione di debug
-        print("Attenzione: la raccolta dati per il DataFrame è disabilitata nel monitor di debug in tempo reale.")
-        return pd.DataFrame()
+        return pd.DataFrame(self.log)

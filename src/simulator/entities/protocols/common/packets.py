@@ -60,7 +60,7 @@ class MACFrame(ABC):
         self.NPDU = NPDU  # PDU from upper layer
 
 
-class Frame_802154(MACFrame):
+class Frame_802_15_4(MACFrame):
     on_air_duration = (
         4.83 * 1e-3
     )  # gross estimate of the longest packet duration (SHR + PHR + MAC Header + FCS + payload) for 802.15.4 @ 2.4Ghz, 250 kbps
@@ -86,7 +86,7 @@ class Frame_802154(MACFrame):
         self._requires_ack = requires_ack  # false if it is broadcast
 
 
-class Ack_802154(MACFrame):
+class Ack_802_15_4(MACFrame):
     on_air_duration = (
         352 * 1e-6
     )  # duration of the ack packet (SHR + PHR + MAC Header + FCS + payload)

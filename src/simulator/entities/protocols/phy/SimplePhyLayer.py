@@ -5,7 +5,7 @@ from simulator.entities.common.Entity import Entity
 from simulator.engine.common.signals import PacketSignal
 from simulator.entities.protocols.phy.common.phy_events import (PhyTxEndEvent, PhyTxStartEvent, PhyUnsyncEvent)
 from simulator.entities.protocols.phy.common.Transmission import Transmission
-from simulator.entities.protocols.common.packets import MACFrame, Frame_802154, Ack_802154
+from simulator.entities.protocols.common.packets import MACFrame, Frame_802_15_4, Ack_802_15_4
 from numpy import log10
 from math import isclose
 from typing import TYPE_CHECKING, Dict, Optional
@@ -54,16 +54,16 @@ class SimplePhyLayer(Layer, Entity):
 
     def on_PhyRxStartEvent(self, transmission: Transmission):
         """ Handles the arrival of a new signal at the receiver """
-        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-          f"PhyRxStartEvent triggered by Tx from {transmission.transmitter.id}.")
+       # print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
+       #   f"PhyRxStartEvent triggered by Tx from {transmission.transmitter.id}.")
         
         received_power_W = self.transmission_media.get_linear_link_budget(
             node1=self.host, node2=transmission.transmitter, tx_power_dBm=transmission.transmission_power_dBm
         )
 
         power_dBm = 10 * log10(received_power_W * 1000) if received_power_W > 0 else -float('inf')
-        print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-          f"Received power: {power_dBm:.2f} dBm. Correlator threshold: {self.correlator_threshold} dBm.")
+        #print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
+        #  f"Received power: {power_dBm:.2f} dBm. Correlator threshold: {self.correlator_threshold} dBm.")
 
         # If the radio is transmitting, it ignores everything
         if self.state == RadioState.TX:
@@ -182,15 +182,15 @@ class SimplePhyLayer(Layer, Entity):
         """helper to schedule the moment in which the decoder understands if the packet is of interest or not: if is
         not of interest, the decoder is desynchronized from the transmission and go in busy state, ready to receive something
         more interesting"""
-        if isinstance(transmission.packet, Ack_802154):
+        if isinstance(transmission.packet, Ack_802_15_4):
             is_for_me = (transmission.packet.seqn == self._last_seqn)
             detection_time = self.host.context.scheduler.now() + transmission.packet.ack_detection_time
             if not is_for_me:
                 unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
                 self.host.context.scheduler.schedule(unsync_event)
-        elif isinstance(transmission.packet, Frame_802154):
+        elif isinstance(transmission.packet, Frame_802_15_4):
             is_for_me = (transmission.packet.rx_addr == self.host.linkaddr or
-                         transmission.packet.rx_addr == Frame_802154.broadcast_linkaddr)
+                         transmission.packet.rx_addr == Frame_802_15_4.broadcast_linkaddr)
             detection_time = self.host.context.scheduler.now() + transmission.packet.daddr_detection_time
             if not is_for_me:
                 unsync_event = PhyUnsyncEvent(time=detection_time, blame=self, callback=self._unsynchronize)
@@ -215,7 +215,7 @@ class SimplePhyLayer(Layer, Entity):
         signal = PacketSignal("PHY Packet Transmission", self.host.context.scheduler.now(), "PacketSent", payload)
         self._notify_monitors(signal)
 
-        if isinstance(payload, Frame_802154):
+        if isinstance(payload, Frame_802_15_4):
             self._last_seqn = payload.seqn
 
         transmission = Transmission(self.host, payload, self.transmission_power)
@@ -241,7 +241,7 @@ class SimplePhyLayer(Layer, Entity):
         return self.state != RadioState.IDLE
 
     def receive(self, payload: MACFrame, sender_addr: bytes, rssi: float):
-        print(f">>> DEBUG-PHY [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
+        #print(f">>> DEBUG-PHY [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
         signal = PacketSignal("PHY Packet Reception", self.host.context.scheduler.now(), "PacketReceived", payload)
         self._notify_monitors(signal)
         self.host.rdc.receive(payload=payload, sender_addr=sender_addr, rssi=rssi)

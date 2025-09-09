@@ -1,7 +1,7 @@
 
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
-from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, NetPacket, MACFrame
+from simulator.entities.protocols.common.packets import Frame_802_15_4, Ack_802_15_4, NetPacket, MACFrame
 from simulator.entities.protocols.mac.common.mac_events import MacSendReqEvent, MacACKTimeoutEvent, MacACKSendEvent, MacTrySendNextEvent
 from collections import deque
 from enum import Enum, auto
@@ -45,7 +45,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.rng = self.host.context.random_manager.get_stream(rng_id)
 
         self.tx_queue = deque() #packet queue
-        self.current_output_frame: Frame_802154 = None
+        self.current_output_frame: Frame_802_15_4 = None
         self.retry_count = 0
         self.pending_ack_timeout_event = None # reference to the MacACKTimeoutEvent. Needs to be stored to abort the timeout in case of ack received
         self.pending_send_req_event = None # reference to the next MacSendReqEvent. Needs to be stored to abort the send in case of ack received (or max retru reached)
@@ -69,8 +69,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
     def send(self, payload: NetPacket, destination: Optional[bytes] = None):
         nexthop = destination  # for compatibility with the Layer interface
-        requires_ack = (nexthop != Frame_802154.broadcast_linkaddr)
-        mac_frame = Frame_802154(seqn=None, tx_addr=self.host.linkaddr, rx_addr=nexthop, requires_ack=requires_ack, NPDU=payload)
+        requires_ack = (nexthop != Frame_802_15_4.broadcast_linkaddr)
+        mac_frame = Frame_802_15_4(seqn=None, tx_addr=self.host.linkaddr, rx_addr=nexthop, requires_ack=requires_ack, NPDU=payload)
         
         self.tx_queue.append(mac_frame)
         # if mac is idle, than send next packet in queue
@@ -88,7 +88,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.seqn = (self.seqn + 1) % 256
         self.current_output_frame.seqn = self.seqn #assign MAC seq number to the frame (for ACK recognition)
         
-        if self.current_output_frame.rx_addr == Frame_802154.broadcast_linkaddr:
+        if self.current_output_frame.rx_addr == Frame_802_15_4.broadcast_linkaddr:
             self.current_output_frame._requires_ack = False
 
         self.retry_count = 0
@@ -127,7 +127,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     def on_RDCSent(self, packet: MACFrame):
         self.pending_send_req_event = None
 
-        if isinstance(packet, Ack_802154):
+        if isinstance(packet, Ack_802_15_4):
             # if it an ACK was sent, the transaction is finished (from this side of the link): get back to idle
             self.state = MACState.IDLE
             # you can try to send the next enqueued packet
@@ -157,13 +157,13 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self._backoff_and_send() # was already in backoff state
 
 
-    def receive(self, payload: Frame_802154 | Ack_802154, sender_addr: bytes, rssi: float):
-        print(f">>> DEBUG-MAC [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
-        if isinstance(payload, Frame_802154):
+    def receive(self, payload: Frame_802_15_4 | Ack_802_15_4, sender_addr: bytes, rssi: float):
+        #print(f">>> DEBUG-MAC [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
+        if isinstance(payload, Frame_802_15_4):
             if payload._requires_ack:
                 # if you received a frame you need to send the ack, so set the state and schedule the event
                 self.state = MACState.SENDING_ACK
-                auto_ack = Ack_802154(seqn=payload.seqn)
+                auto_ack = Ack_802_15_4(seqn=payload.seqn)
                 ack_time = self.host.context.scheduler.now() + self.aTurnaroundTime
                 send_ack_event = MacACKSendEvent(time=ack_time, blame=self, callback=self.host.rdc.send, payload=auto_ack)
                 self.host.context.scheduler.schedule(send_ack_event)
@@ -171,7 +171,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             #self._last_received_rssi = self.host.phy.get_last_rssi()
             self.host.net.receive(payload=payload.NPDU, sender_addr=sender_addr, rssi=rssi)
 
-        elif isinstance(payload, Ack_802154):
+        elif isinstance(payload, Ack_802_15_4):
             # if the sequence number corresponds to the current output frame and I was waiting for it, then this ack is mine
             if self.state == MACState.AWAITING_ACK and self.current_output_frame and payload.seqn == self.current_output_frame.seqn:
                 if self.pending_ack_timeout_event:
@@ -184,7 +184,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             self.host.context.scheduler.unschedule(self.pending_send_req_event) #unschedule the retry send event
             self.pending_send_req_event = None
             
-        if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr:
+        if self.current_output_frame.rx_addr != Frame_802_15_4.broadcast_linkaddr:
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=True, num_tx=self.retry_count, ack_rssi=ack_rssi)
         
         self._reset_mac_state()
@@ -197,7 +197,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             self.host.context.scheduler.unschedule(self.pending_send_req_event)
             self.pending_send_req_event = None
 
-        if self.current_output_frame.rx_addr != Frame_802154.broadcast_linkaddr:
+        if self.current_output_frame.rx_addr != Frame_802_15_4.broadcast_linkaddr:
             self.host.rdc.uc_tx_outcome(rx_addr=self.current_output_frame.rx_addr, status_ok=False, num_tx=self.retry_count, ack_rssi=None)        
         self._reset_mac_state()
         send_next_time = self.host.context.scheduler.now() + self.next_send_delay

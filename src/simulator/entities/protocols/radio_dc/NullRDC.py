@@ -1,6 +1,6 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common.Entity import Entity
-from simulator.entities.protocols.common.packets import Frame_802154, Ack_802154, MACFrame
+from simulator.entities.protocols.common.packets import Frame_802_15_4, Ack_802_15_4, MACFrame
 #from simulator.entities.physical.devices.nodes import StaticNode
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -11,10 +11,10 @@ class NullRDC(Layer, Entity):
         Layer.__init__(self, host = host)
         Entity.__init__(self)
 
-    def send(self, payload: Frame_802154 | Ack_802154):
+    def send(self, payload: Frame_802_15_4 | Ack_802_15_4):
         '''NullRDC does nothing in particular. just request the CCA to PHY.
         If it is an ack, the cca is not performed'''
-        if isinstance(payload, Frame_802154): # If data frame, do CCA
+        if isinstance(payload, Frame_802_15_4): # If data frame, do CCA
             self._sense_channel(frame = payload)
         else: # If ACK, just send
             self.host.phy.send(payload = payload)
@@ -23,7 +23,7 @@ class NullRDC(Layer, Entity):
     def uc_tx_outcome(self, rx_addr: bytes, status_ok: bool, num_tx: int, ack_rssi: float):
         self.host.net._uc_sent(rx_addr=rx_addr, status_ok=status_ok, num_tx=num_tx, ack_rssi=ack_rssi)
 
-    def _sense_channel(self, frame: Frame_802154):
+    def _sense_channel(self, frame: Frame_802_15_4):
         '''
         do CCA. If channel is free, send the packet, otherwise send an event back to MAC
         '''
