@@ -148,9 +148,18 @@ def run_simulation():
     # AGGIUNTA: Hook per il logging degli eventi
     kernel.context.scheduler.event_execution_callback = log_event_execution
 
+    #kernel.bootstrap(
+    #    seed=12345, dspace_step=1, dspace_npt=100, freq=2.4e9, filter_bandwidth=2e6,
+    #    coh_d=50, shadow_dev=4.0, pl_exponent=2.5, d0=1.0, fading_shape=1.0
+    #)
+
     kernel.bootstrap(
-        seed=12345, dspace_step=1, dspace_npt=100, freq=2.4e9, filter_bandwidth=2e6,
-        coh_d=50, shadow_dev=4.0, pl_exponent=2.5, d0=1.0, fading_shape=1.0
+    seed=12345, dspace_step=1, dspace_npt=200, freq=2.4e9, filter_bandwidth=2e6,
+    coh_d=50,
+    shadow_dev=4.0,      # More realistic shadowing
+    pl_exponent=2.5,   # Higher path loss
+    d0=1.0,
+    fading_shape=1.0     # Severe Rayleigh-like fading
     )
 
     print("\n--- Creating Network Nodes ---")
