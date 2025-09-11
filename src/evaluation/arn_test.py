@@ -76,7 +76,9 @@ if __name__ == "__main__":
     axes[0].legend(fontsize=fontsize)
 
     # Hexbin plot
-    hb = axes[1].hexbin(dummy_metric, dummy_metric_antithetic, gridsize=60, cmap="Blues")
+    hb = axes[1].hexbin(
+        dummy_metric, dummy_metric_antithetic, gridsize=60, cmap="Blues"
+    )
     fig.colorbar(hb, ax=axes[1], label="Counts")
     axes[1].plot(lims, lims, "r--", linewidth=1)
     axes[1].set_xlabel("Metric", fontsize=fontsize)

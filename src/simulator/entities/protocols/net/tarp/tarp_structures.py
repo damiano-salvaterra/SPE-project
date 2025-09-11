@@ -1,11 +1,13 @@
 from enum import Enum
 from dataclasses import dataclass
 
+
 class NodeType(Enum):
     NODE_PARENT = 0
     NODE_CHILD = 1
     NODE_DESCENTANT = 2
     NODE_NEIGHBOR = 3
+
 
 @dataclass
 class TARPRoute:  # routing table entry class
@@ -17,6 +19,7 @@ class TARPRoute:  # routing table entry class
     num_tx: int
     num_ack: int
     adv_metric: float
+
 
 class RouteStatus(Enum):
     STATUS_ADD = 1
