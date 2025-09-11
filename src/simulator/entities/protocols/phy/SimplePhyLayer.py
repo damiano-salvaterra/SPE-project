@@ -1,7 +1,7 @@
 # SPE-project/src/simulator/entities/protocols/phy/SimplePhyLayer.py
 
 from simulator.entities.protocols.common.Layer import Layer
-from simulator.entities.common.Entity import Entity
+from simulator.entities.common import Entity
 from simulator.engine.common.signals import PacketSignal
 from simulator.entities.protocols.phy.common.phy_events import (
     PhyTxEndEvent,

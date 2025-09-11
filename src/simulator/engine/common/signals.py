@@ -1,4 +1,4 @@
-from simulator.entities.common.Entity import EntitySignal
+from simulator.entities.common import EntitySignal
 from simulator.entities.protocols.common.packets import MACFrame
 
 

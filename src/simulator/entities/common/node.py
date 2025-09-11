@@ -1,12 +1,15 @@
-from typing import Protocol
+from simulator.entities.common.entity import Entity
 from simulator.engine.common.SimulationContext import SimulationContext
 
 
-class NetworkNode(Protocol):
+class NetworkNode(Entity):
     """
     Interface that defines what network protocols need from their host node.
     This eliminates circular dependencies between protocols and concrete node implementations.
     """
+
+    def __init__(self):
+        super().__init__()
 
     @property
     def id(self) -> str:

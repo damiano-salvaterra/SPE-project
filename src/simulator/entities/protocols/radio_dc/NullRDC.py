@@ -1,5 +1,5 @@
 from simulator.entities.protocols.common.Layer import Layer
-from simulator.entities.common.Entity import Entity
+from simulator.entities.common import Entity
 from simulator.entities.protocols.common.packets import (
     Frame_802_15_4,
     Ack_802_15_4,

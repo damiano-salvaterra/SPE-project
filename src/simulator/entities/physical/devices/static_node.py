@@ -5,7 +5,6 @@ from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import (
     ContikiOS_MAC_802154_Unslotted,
 )
 from simulator.entities.protocols.net.tarp import TARPProtocol
-from simulator.entities.common.Entity import Entity
 from simulator.entities.common import NetworkNode
 from simulator.applications.Application import Application
 from simulator.engine.common.SimulationContext import SimulationContext
@@ -27,7 +26,7 @@ class StaticNode(NetworkNode):
         context: SimulationContext,
         is_sink=False,
     ):
-        Entity.__init__(self)
+        super().__init__()
         self._id = node_id
         self._linkaddr = linkaddr
         self.position = position

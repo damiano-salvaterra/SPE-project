@@ -1,7 +1,7 @@
 from typing import List
 
 from simulator.environment.propagation.narrowband import NarrowbandChannelModel
-from simulator.entities.common.Entity import Entity
+from simulator.entities.common import Entity
 from simulator.entities.protocols.phy.common.phy_events import (
     PhyRxStartEvent,
     PhyRxEndEvent,

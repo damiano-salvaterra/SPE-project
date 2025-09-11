@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 
 from simulator.engine.common.Monitor import Monitor
-from simulator.entities.common.Entity import Entity, EntitySignal
+from simulator.entities.common import Entity, EntitySignal
 
 
 class PacketMonitor(Monitor):
