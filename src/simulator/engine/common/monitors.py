@@ -1,11 +1,9 @@
 # TODO: this module needs to be moved in evaluation somehow
-import dataclasses
 from typing import List
 import pandas as pd
 
 from simulator.engine.common.Monitor import Monitor
 from simulator.entities.common.Entity import Entity, EntitySignal
-from simulator.entities.protocols.common.packets import MACFrame, NetPacket
 
 
 class PacketMonitor(Monitor):

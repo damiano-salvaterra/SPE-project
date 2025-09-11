@@ -73,14 +73,6 @@ class SimplePhyLayer(Layer, Entity):
             tx_power_dBm=transmission.transmission_power_dBm,
         )
 
-        power_dBm = (
-            10 * log10(received_power_W * 1000)
-            if received_power_W > 0
-            else -float("inf")
-        )
-        # print(f"DEBUG [{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-        #  f"Received power: {power_dBm:.2f} dBm. Correlator threshold: {self.correlator_threshold} dBm.")
-
         # If the radio is transmitting, it ignores everything
         if self.state == RadioState.TX:
             return
