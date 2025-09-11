@@ -16,10 +16,7 @@ from collections import deque
 from enum import Enum, auto
 from typing import Optional
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 
 class MACState(Enum):
@@ -51,7 +48,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     aTurnaroundTime = 192 * 1e-6
     next_send_delay = 5e-6  # wait 5 microseconds before sending next packet (NOTE: this time was chosen just to be small enough, it may not be the best time to choose)
 
-    def __init__(self, host: "StaticNode"):
+    def __init__(self, host: NetworkNode):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         rng_id = f"NODE:{self.host.id}/MAC"

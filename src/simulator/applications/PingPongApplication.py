@@ -1,14 +1,10 @@
-import sys
-import os
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from simulator.applications.Application import Application
-from simulator.entities.physical.devices.nodes import StaticNode
 from simulator.entities.protocols.common.packets import NetPacket
 from simulator.engine.common.Event import Event
 
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 
 class PingPongApp(Application):
@@ -18,7 +14,7 @@ class PingPongApp(Application):
 
     def __init__(
         self,
-        host: Optional["StaticNode"],
+        host: Optional[NetworkNode],
         is_pinger: bool = False,
         peer_addr: Optional[bytes] = None,
         ping_interval: float = 15.0,

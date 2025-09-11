@@ -7,7 +7,7 @@ from simulator.entities.protocols.phy.common.phy_events import (
     PhyRxEndEvent,
 )
 from simulator.entities.protocols.phy.common.Transmission import Transmission
-from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 from simulator.engine.common.SimulationContext import SimulationContext
 
 """
@@ -18,14 +18,14 @@ class WirelessChannel(Entity):  # TODO: make this class a singleton
     def __init__(
         self,
         propagation_model: NarrowbandChannelModel,
-        nodes: List[StaticNode],
+        nodes: List[NetworkNode],
         context: SimulationContext,
     ):
         Entity.__init__(self)
         self.propagation_model = propagation_model
         self.nodes = nodes  # list of nodes in the environment
         self.context = context
-        # self.active_transmissions: Dict[StaticNode, Transmission] = {} # list of currently active transmissions, indexed by the source
+        # self.active_transmissions: Dict[NetworkNode, Transmission] = {} # list of currently active transmissions, indexed by the source
         self.tx_counter = 0  # transmission id
 
     def on_PhyTxStartEvent(self, transmission: Transmission):
@@ -97,7 +97,7 @@ class WirelessChannel(Entity):  # TODO: make this class a singleton
         )
 
     def get_linear_link_budget(
-        self, node1: StaticNode, node2: StaticNode, tx_power_dBm: float
+        self, node1: NetworkNode, node2: NetworkNode, tx_power_dBm: float
     ) -> float:
         """
         returns the link budget in linear scale (Watts)

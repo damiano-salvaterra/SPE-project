@@ -14,13 +14,15 @@ from simulator.entities.protocols.common.packets import (
     Frame_802_15_4,
     Ack_802_15_4,
 )
+from simulator.entities.common import NetworkNode
 from numpy import log10
 from math import isclose
 from typing import TYPE_CHECKING, Dict, Optional
 from enum import Enum, auto
 
+
+# TODO: circular import problem
 if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
     from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 
@@ -39,7 +41,7 @@ class SimplePhyLayer(Layer, Entity):
     machine model (IDLE, BUSY, SYNC, TX)
     """
 
-    def __init__(self, host: "StaticNode", transmission_power: float = 0):
+    def __init__(self, host: NetworkNode, transmission_power: float = 0):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.capture_threshold_dB = 5

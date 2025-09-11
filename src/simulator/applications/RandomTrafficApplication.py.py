@@ -5,10 +5,9 @@ from simulator.applications.common.app_events import (
 )
 
 # from simulator.entities.physical.devices.nodes import StaticNode
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any
 
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 
 class RandomTrafficApplication(Application):
@@ -18,7 +17,7 @@ class RandomTrafficApplication(Application):
     """
 
     def __init__(
-        self, host: "StaticNode", nodes: Dict[str, bytes], mean_interarrival_time: float
+        self, host: NetworkNode, nodes: Dict[str, bytes], mean_interarrival_time: float
     ):
         super().__init__()
         self.host = host

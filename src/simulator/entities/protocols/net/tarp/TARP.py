@@ -13,7 +13,7 @@ from simulator.entities.protocols.net.common.net_events import (
     NetRoutingTableCleanupEvent,
     NetTopologyReportSendEvent,
 )
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import Dict, Any, Optional
 
 # Local TARP-specific imports
 from simulator.entities.protocols.net.tarp.tarp_structures import (
@@ -24,8 +24,7 @@ from simulator.entities.protocols.net.tarp.tarp_structures import (
 from simulator.entities.protocols.net.tarp import tarp_utils
 from simulator.entities.protocols.net.tarp.parameters import TARPParameters
 
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 """
 This class implements TARP (Tree-based Any-to-any Routing Protocol).
@@ -45,7 +44,7 @@ class TARPProtocol(Layer, Entity):
     NodeType = NodeType
     RouteStatus = RouteStatus
 
-    def __init__(self, host: "StaticNode", sink: bool = False):
+    def __init__(self, host: NetworkNode, sink: bool = False):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.sink = sink

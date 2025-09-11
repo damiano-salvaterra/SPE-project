@@ -6,15 +6,11 @@ from simulator.entities.protocols.common.packets import (
     MACFrame,
 )
 
-# from simulator.entities.physical.devices.nodes import StaticNode
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 
 class NullRDC(Layer, Entity):
-    def __init__(self, host: "StaticNode"):
+    def __init__(self, host: NetworkNode):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
 

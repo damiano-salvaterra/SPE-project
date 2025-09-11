@@ -11,7 +11,7 @@ from simulator.environment.propagation.narrowband import NarrowbandChannelModel
 from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 # Simulation Entities
-from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.physical.devices import StaticNode
 from simulator.entities.common.Entity import Entity
 from simulator.engine.common.Monitor import Monitor
 

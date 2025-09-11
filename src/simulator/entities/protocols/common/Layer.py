@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Any, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from typing import Optional, Any
+from simulator.entities.common import NetworkNode
 
 
 class Layer(ABC):
@@ -10,7 +8,7 @@ class Layer(ABC):
     Abstract base class for all layers in the simulator.
     """
 
-    def __init__(self, host: "StaticNode"):
+    def __init__(self, host: NetworkNode):
         super().__init__()
         self.host = host
 

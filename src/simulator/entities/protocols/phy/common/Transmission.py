@@ -1,11 +1,6 @@
 from simulator.entities.protocols.common.packets import MACFrame
 
-# from simulator.entities.physical.devices.nodes import StaticNode
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 """
 This class encapulates the physical transmission with some metadata.
@@ -16,7 +11,7 @@ which only purpose is utility for the physical layer module. refer to packets.py
 class Transmission:
     def __init__(
         self,
-        transmitter: "StaticNode",
+        transmitter: NetworkNode,
         packet: MACFrame,
         transmission_power_dBm: float,
         unique_id: int = None,
