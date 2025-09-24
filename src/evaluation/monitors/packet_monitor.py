@@ -1,8 +1,7 @@
-# TODO: this module needs to be moved in evaluation somehow
 from typing import List
 import pandas as pd
 
-from simulator.engine.common.Monitor import Monitor
+from simulator.engine.common.monitor import Monitor
 from simulator.entities.common import Entity, EntitySignal
 
 

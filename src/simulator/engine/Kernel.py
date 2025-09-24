@@ -13,7 +13,7 @@ from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 # Simulation Entities
 from simulator.entities.physical.devices import StaticNode
 from simulator.entities.common import Entity
-from simulator.engine.common.Monitor import Monitor
+from simulator.engine.common.monitor import Monitor
 
 # Application Layer (for node creation)
 from simulator.applications.Application import Application

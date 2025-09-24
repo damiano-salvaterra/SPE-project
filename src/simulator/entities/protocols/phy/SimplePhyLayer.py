@@ -1,5 +1,3 @@
-# SPE-project/src/simulator/entities/protocols/phy/SimplePhyLayer.py
-
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common import Entity
 from simulator.engine.common.signals import PacketSignal
@@ -17,13 +15,11 @@ from simulator.entities.protocols.common.packets import (
 from simulator.entities.common import NetworkNode
 from numpy import log10
 from math import isclose
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import Dict, Optional
 from enum import Enum, auto
 
 
-# TODO: circular import problem
-if TYPE_CHECKING:
-    from simulator.entities.physical.media.WirelessChannel import WirelessChannel
+from simulator.entities.physical.media.WirelessChannel import WirelessChannel
 
 
 class RadioState(Enum):

@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 import pandas as pd
+from typing import TYPE_CHECKING
 
-from simulator.entities.common import EntitySignal, Entity
+from simulator.entities.common.signals import EntitySignal
+
+if TYPE_CHECKING:
+    from simulator.entities.common.entity import Entity
 
 
 class Monitor(ABC):
@@ -11,7 +15,7 @@ class Monitor(ABC):
         self.records: EntitySignal = []
 
     @abstractmethod
-    def update(self, entity: Entity, signal: EntitySignal):
+    def update(self, entity: "Entity", signal: EntitySignal):
         """called by the entity. Concrete monitors will implement the filter logic"""
         pass
 

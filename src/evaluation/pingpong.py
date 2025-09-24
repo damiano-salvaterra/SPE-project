@@ -5,10 +5,10 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from simulator.engine.common.monitors import PacketMonitor  # noqa: E402
 from simulator.engine.Kernel import Kernel  # noqa: E402
 from simulator.environment.geometry import CartesianCoordinate  # noqa: E402
 from simulator.applications.PingPongApplication import PingPongApp  # noqa: E402
+from evaluation.monitors.packet_monitor import PacketMonitor  # noqa: E402
 
 
 # ======================================================================================

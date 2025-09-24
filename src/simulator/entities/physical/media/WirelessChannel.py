@@ -10,11 +10,12 @@ from simulator.entities.protocols.phy.common.Transmission import Transmission
 from simulator.entities.common import NetworkNode
 from simulator.engine.common.SimulationContext import SimulationContext
 
-"""
-This class manages the transmissions on the wirelss channel"""
-
 
 class WirelessChannel(Entity):  # TODO: make this class a singleton
+    """
+    This class manages the transmissions on the wirelss channel
+    """
+
     def __init__(
         self,
         propagation_model: NarrowbandChannelModel,
@@ -37,7 +38,7 @@ class WirelessChannel(Entity):  # TODO: make this class a singleton
         regardless of the destination, so we need a way to make the tranmission to a node susceptible to any other tranmisssion to any other node.
         This function orchestrate this.
         """
-        transmitter_id = transmission.transmitter.id
+        # transmitter_id = transmission.transmitter.id
         # print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
         #      f"on_PhyTxStartEvent triggered by {transmitter_id}.")
         # print(f"DEBUG [{self.context.scheduler.now():.6f}s] [WirelessChannel] "
