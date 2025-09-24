@@ -6,15 +6,14 @@ import scipy.constants as const
 from simulator.environment.geometry import CartesianCoordinate, DSpace
 from simulator.engine.random import RandomManager, RandomGenerator
 
-"""
-This class implement the wireless channel model of attenuation. The model is the classical
-path loss + shadowing + fading. The type of fading is configurable, while the shadowing is generated
-by generating a random Gaussian field over a 2D discrete square space, and then correlated as the Gudmundson modle of shadowing using a 2D convolution
-(i.e using an LTI filter over a gaussian process to generate "colored" noise).
-"""
-
 
 class NarrowbandChannelModel:
+    """
+    This class implement the wireless channel model of attenuation. The model is the classical
+    path loss + shadowing + fading. The type of fading is configurable, while the shadowing is generated
+    by generating a random Gaussian field over a 2D discrete square space, and then correlated as the Gudmundson modle of shadowing using a 2D convolution
+    (i.e using an LTI filter over a gaussian process to generate "colored" noise).
+    """
 
     def __init__(
         self,
@@ -28,12 +27,15 @@ class NarrowbandChannelModel:
         d0: float,
         fading_shape: float,
     ) -> None:
+        self.random_manager = random_manager
         self._shadowing_rng = RandomGenerator(
             random_manager, "NBMODEL/SHADOWING"
         )  # Random number generator for the shadowing
-        self._fading_rng = RandomGenerator(
-            random_manager, "NBMODEL/FADING"
-        )  # random number generator for fading (to be totally precise we should create a fading rng for each link/node)
+
+        # NOTE: previously there was a single fading RNG shared across all links.
+        # Now we keep a dictionary of RNGs per link, initialized lazily at runtime.
+        self._fading_rngs: dict[tuple, RandomGenerator] = {}
+
         self.freq = freq  # Frequency of the signal in Hz
         self.filter_bandwitdh = filter_bandwidth  # radio passband filter bandwidth (nominal IEEE 802.15.4 BW: 5 Mhz, actual RF filter BW for DSSS O-QPSK: around 2MHZ) # TODO: check this
         self.coh_d = coh_d  # Coherence distance in meters
@@ -195,6 +197,23 @@ class NarrowbandChannelModel:
 
         return total_loss
 
+    def _get_fading_rng_for_link(
+        self, A: CartesianCoordinate, B: CartesianCoordinate
+    ) -> RandomGenerator:
+        """
+        Return the RNG dedicated to the link (A,B).
+        Each link gets its own RNG, initialized lazily.
+        """
+        # NOTE: This assumes that static nodes that do not move during the simulation.
+        link_id = tuple(sorted(((A.x, A.y), (B.x, B.y))))
+
+        if link_id not in self._fading_rngs:
+            self._fading_rngs[link_id] = RandomGenerator(
+                self.random_manager, f"NBMODEL/FADING/{link_id}"
+            )
+
+        return self._fading_rngs[link_id]
+
     def link_budget(
         self, A: CartesianCoordinate, B: CartesianCoordinate, Pt_dBm: float
     ) -> float:
@@ -206,7 +225,9 @@ class NarrowbandChannelModel:
 
         Pr_avg_dBm = Pt_dBm - total_loss_dB
         Pr_avg_linear = 10 ** (Pr_avg_dBm / 10)  # get linear Pr for fading parameter
-        fading_amplitude = self._fading_rng.nakagami(
+
+        fading_rng = self._get_fading_rng_for_link(A, B)
+        fading_amplitude = fading_rng.nakagami(
             self.fading_shape, scale=np.sqrt(Pr_avg_linear)
         )
 
