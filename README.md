@@ -1,2 +1,3 @@
 # SPE-project
-Project of The Simulation and Performance Evaluation course @ UNITN
+Draft project for a full stack communication network simulator. The aim of the project is to build a modular simulator that allows to conduct perormance evaluation on multiple PHY/MAC/NETWORK protocls and in different environment and channels (eg, static/mobile networks, wireless/wired/underwater networks).
+For the initial draft (this repo), a static wireless 802.15.4 network stack is chosen for: 1) perofrmance the custom routing protocol implemented in a companion project (https://github.com/DaMole98/LPWN-project2) and 2) being the exam project of the course Simulation & Performance Evaluation course @ UNITN
