@@ -2,9 +2,6 @@ from simulator.entities.common import EntitySignal
 from simulator.entities.protocols.common.packets import MACFrame
 
 
-# TODO: this file needs to be moved in evaluation somehow
-
-
 class PacketSignal(EntitySignal):
     """
     Un segnale specifico per notificare eventi legati a pacchetti (invio, ricezione).
