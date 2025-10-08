@@ -9,6 +9,8 @@ from simulator.engine.Kernel import Kernel  # noqa: E402
 from simulator.environment.geometry import CartesianCoordinate  # noqa: E402
 from simulator.applications.PingPongApplication import PingPongApp  # noqa: E402
 from evaluation.monitors.packet_monitor import PacketMonitor  # noqa: E402
+from evaluation.monitors.app_monitor import AppPingMonitor  # noqa: E402
+from evaluation.monitors.tarp_monitor import TARPForwardingMonitor  # noqa: E402
 
 
 # ======================================================================================
@@ -115,10 +117,19 @@ def main(
         nodes[node_id] = node
         addrs[node_id] = addr
 
-    print("\n--- Attaching Packet Monitor to all nodes ---")
-    packet_monitor = PacketMonitor()
+    print("\n--- Attaching Monitors to all nodes ---")
+    # Create monitors
+    packet_monitor = PacketMonitor(verbose=False)  # Keep for compatibility
+    app_monitor = AppPingMonitor(verbose=True)
+    tarp_monitor = TARPForwardingMonitor(verbose=True)
+
     for node_id in nodes:
+        # Attach packet monitor to PHY layer (original behavior)
         kernel.attach_monitor(packet_monitor, f"{node_id}.phy")
+
+        # Attach new monitors to application and TARP layers
+        nodes[node_id].app.attach_monitor(app_monitor)
+        nodes[node_id].net.attach_monitor(tarp_monitor)
 
     # Start applications
     nodes["Node-A"].app.start()
@@ -157,7 +168,7 @@ if __name__ == "__main__":
         "dspace_npt": 200,
         "freq": 2.4e9,
         "filter_bandwidth": 2e6,
-        "coh_d": 5,  # Reduced coherence distance for a less stable channel
+        "coh_d": 7,  # Reduced coherence distance for a less stable channel
         "shadow_dev": 6.0,  # Increased shadow deviation for more spatial variation
         "pl_exponent": 4.0,  # Higher path loss exponent to simulate more obstruction
         "d0": 1.0,

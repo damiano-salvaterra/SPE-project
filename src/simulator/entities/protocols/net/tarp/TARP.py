@@ -23,6 +23,10 @@ from simulator.entities.protocols.net.tarp.tarp_structures import (
 )
 from simulator.entities.protocols.net.tarp import tarp_utils
 from simulator.entities.protocols.net.tarp.parameters import TARPParameters
+from evaluation.signals.tarp_signals import (
+    TARPForwardingSignal,
+    TARPReceiveSignal,
+)
 
 from simulator.entities.common import NetworkNode
 
@@ -289,8 +293,32 @@ class TARPProtocol(Layer, Entity):
 
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
+                # Packet is for this node - emit receive signal
+                signal = TARPReceiveSignal(
+                    descriptor="TARPReceive",
+                    timestamp=self.host.context.scheduler.now(),
+                    received_from=tx_addr,
+                    original_source=header.s_addr,
+                    packet_type="DATA",
+                )
+                self._notify_monitors(signal)
+
                 self.host.app.receive(payload.APDU, sender_addr=header.s_addr)
             else:
+                # Need to forward the packet - emit forwarding signal
+                nexthop = self._nbr_tbl_lookup(header.d_addr)
+                if nexthop is not None:
+                    signal = TARPForwardingSignal(
+                        descriptor="TARPForward",
+                        timestamp=self.host.context.scheduler.now(),
+                        received_from=tx_addr,
+                        original_source=header.s_addr,
+                        destination=header.d_addr,
+                        forwarding_to=nexthop,
+                        packet_type="DATA",
+                    )
+                    self._notify_monitors(signal)
+
                 self._forward_data(header, payload=payload.APDU)
 
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from simulator.applications.Application import Application
+from evaluation.signals.app_signals import AppPingReceivedSignal
 from simulator.entities.protocols.common.packets import NetPacket
 from simulator.engine.common.Event import Event
 
@@ -81,6 +82,16 @@ class PingPongApp(Application):
         print(
             f"{self.__class__.__name__}: <<< Received '{payload_str}' from {sender_addr.hex()}."
         )
+
+        # Emit signal for PING received
+        if payload_str.startswith("PING") or payload_str.startswith("PONG"):
+            signal = AppPingReceivedSignal(
+                descriptor="PING/PONG received at application layer",
+                timestamp=self.host.context.scheduler.now(),
+                packet=packet,
+                source_addr=sender_addr,
+            )
+            self._notify_monitors(signal)
 
         if "PING" in payload_str and not self.is_pinger:
             # Extract the sequence number from the PING to include it in the PONG response
