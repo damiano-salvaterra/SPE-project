@@ -6,11 +6,15 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from simulator.engine.Kernel import Kernel  # noqa: E402
-from simulator.environment.geometry import CartesianCoordinate  # noqa: E402
 from simulator.applications.PingPongApplication import PingPongApp  # noqa: E402
 from evaluation.monitors.packet_monitor import PacketMonitor  # noqa: E402
 from evaluation.monitors.app_monitor import AppPingMonitor  # noqa: E402
 from evaluation.monitors.tarp_monitor import TARPForwardingMonitor  # noqa: E402
+from evaluation.util.plot_topology import plot_topology  # noqa: E402
+from evaluation.util.topology import (  # noqa: E402
+    get_linear_topology_positions,
+    get_ring_topology_positions,
+)
 
 
 # ======================================================================================
@@ -85,30 +89,40 @@ def main(
         kernel.bootstrap(**default_stable_params)
 
     print(
-        "\n--- Creating Network Nodes in linear topology and setting up PingPongApp---"
+        "\n--- Creating Network Nodes in linear topology and setting up PingPongApp ---"
     )
     nodes = {}
     addrs = {}
+
+    positions = get_ring_topology_positions(num_nodes, radius=150)
+
+    pinger_idx = 0
+    ponger_idx = (num_nodes) // 2  # Middle node is the ponger, the opposite in the ring
+
+    plot_topology(positions, title="Network Topology", save_path="topology.png")
+
     for i in range(num_nodes):
         node_char = chr(ord("A") + i)
         node_id = f"Node-{node_char}"
         addr = (i + 1).to_bytes(2, "big")
 
-        is_pinger = i == 0
+        is_pinger = i == pinger_idx
         is_sink = i == 0  # Node A is the sink/root
-        is_ponger = i == num_nodes - 1
+        is_ponger = i == ponger_idx
 
         peer_addr = None
         if is_pinger:
-            peer_addr = (num_nodes).to_bytes(2, "big")
+            peer_addr = (ponger_idx + 1).to_bytes(2, "big")
+            print(f"Node-{node_char} is PINGER")
         elif is_ponger:
-            peer_addr = (1).to_bytes(2, "big")
+            peer_addr = (pinger_idx + 1).to_bytes(2, "big")
+            print(f"Node-{node_char} is PONGER")
 
         app = PingPongApp(host=None, is_pinger=is_pinger, peer_addr=peer_addr)
 
         node = kernel.add_node(
             node_id=node_id,
-            position=CartesianCoordinate(10 + i * node_distance, 10),
+            position=positions[i],
             app=app,
             linkaddr=addr,
             is_sink=is_sink,
