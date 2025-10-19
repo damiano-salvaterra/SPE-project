@@ -194,7 +194,9 @@ class NarrowbandChannelModel:
         shadowing_loss = self._link_shadowing_loss_dB(A, B)
 
         total_loss = path_loss + shadowing_loss
-
+        # FIX: ensure total loss is non-negative to avoid amplification that breaks the conservation of energy and the simulator
+        if total_loss < 0:
+            total_loss = 0.0
         return total_loss
 
     def _get_fading_rng_for_link(
