@@ -17,6 +17,7 @@ from evaluation.util.topology import (  # noqa: E402
 )
 
 
+
 # ======================================================================================
 # MAIN SIMULATION SETUP
 # ======================================================================================
@@ -96,10 +97,11 @@ def main(
 
     positions = get_ring_topology_positions(num_nodes, radius=150)
 
-    pinger_idx = 0
-    ponger_idx = (num_nodes) // 2  # Middle node is the ponger, the opposite in the ring
+    pinger_idx = num_nodes // 4  # node at 1/4 of the ring
+    ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
 
-    plot_topology(positions, title="Network Topology", save_path="topology.png")
+    #plot_topology(positions, title="Network Topology", save_path="topology.png")
+    plot_info = {}
 
     for i in range(num_nodes):
         node_char = chr(ord("A") + i)
@@ -130,6 +132,9 @@ def main(
         app.host = node
         nodes[node_id] = node
         addrs[node_id] = addr
+        plot_info[node_id] = {"position": positions[i], "address": addr, "is_pinger": is_pinger, "is_ponger": is_ponger, "is_sink": is_sink}
+
+    plot_topology(plot_info, title="Network Topology", save_path="topology.png")
 
     print("\n--- Attaching Monitors to all nodes ---")
     # Create monitors
@@ -146,9 +151,14 @@ def main(
         nodes[node_id].net.attach_monitor(tarp_monitor)
 
     # Start applications
-    nodes["Node-A"].app.start()
-    nodes[f"Node-{chr(ord('A') + num_nodes - 1)}"].app.start()
+    # Start applications on Pinger and Ponger
+    pinger_node_char = chr(ord('A') + pinger_idx)
+    ponger_node_char = chr(ord('A') + ponger_idx)
+    
+    nodes[f"Node-{pinger_node_char}"].app.start() # Start the Pinger
+    nodes[f"Node-{ponger_node_char}"].app.start() # Start the Ponger
 
+    
     print("\n--- Running Simulation ---")
     kernel.run(until=simulation_time)
 
@@ -189,9 +199,9 @@ if __name__ == "__main__":
         "fading_shape": 0.5,  # Lower value to introduce severe, rapid fading
     }
 
-    num_nodes = 10
+    num_nodes = 15
     node_distance = 5  # I can reduce this to make the channel easier
-    simulation_time = 600.0
+    simulation_time = 1200.0
 
     # Bootstrap the kernel with given parameters
     kernel = Kernel(root_seed=kernel_seed)

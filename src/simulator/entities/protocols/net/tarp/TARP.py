@@ -145,6 +145,7 @@ class TARPProtocol(Layer, Entity):
         if self._report_timer and not self._report_timer._cancelled:
             self.host.context.scheduler.unschedule(self._report_timer)
 
+    '''
     def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
         """Sends an application data packet to a destination."""
         if not self.sink and self.parent is None:
@@ -178,6 +179,69 @@ class TARPProtocol(Layer, Entity):
         net_packet = TARPPacket(header=packet_header, APDU=payload)
         self.host.mac.send(payload=net_packet, destination=nexthop)
         return True
+    '''
+
+    #NOTE: check this function
+    def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
+        """Sends an application data packet to a destination."""
+        # DEBUG: Log entry into TARP send function
+        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARPProtocol.send() CALLED. Destination: {destination.hex() if destination else 'None'}.")
+
+        if not self.sink and self.parent is None:
+            # DEBUG: Log packet drop due to no parent
+            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: No parent, dropping packet.")
+            if (
+                self.host.context.scheduler.now()
+                > 2 * TARPParameters.TREE_BEACON_INTERVAL
+            ):
+                print(
+                    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
+                    f"No parent, cannot send. Dropping packet.",
+                    flush=True,
+                )
+            return False
+
+        # DEBUG: Log before neighbor table lookup
+        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Looking up nexthop for {destination.hex() if destination else 'None'}.")
+        nexthop = self._nbr_tbl_lookup(destination)
+         # DEBUG: Log result of neighbor table lookup
+        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Nexthop found: {nexthop.hex() if nexthop else 'None'}.")
+
+        if nexthop is None:
+            # DEBUG: Log packet drop due to no route
+            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: No route found, dropping packet.")
+            print(
+                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
+                f"No route to destination {destination.hex()}. Dropping packet.",
+                flush=True,
+            )
+            return False
+
+        packet_header = TARPUnicastHeader(
+            type=TARPUnicastType.UC_TYPE_DATA,
+            s_addr=self.host.linkaddr,
+            d_addr=destination,
+            hops=0,
+        )
+        net_packet = TARPPacket(header=packet_header, APDU=payload)
+
+        # DEBUG: Log before calling MAC send and wrap in try-except
+        mac_send_success = False
+        try:
+            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Calling self.host.mac.send() to nexthop {nexthop.hex()}.")
+            # Note: Assuming mac.send doesn't return a boolean, adjust if it does
+            self.host.mac.send(payload=net_packet, destination=nexthop)
+            mac_send_success = True # Assume success if no exception
+            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Call to mac.send() completed.")
+        except Exception as e:
+            mac_send_success = False
+            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: EXCEPTION during mac.send(): {e}")
+
+        # DEBUG: Log final return value based on whether MAC call was attempted
+        final_return_value = (nexthop is not None) # Simplistic: Return True if a nexthop was found, False otherwise
+        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARPProtocol.send() returning {final_return_value}.")
+        return final_return_value # Returning True if a route was found, even if MAC fails later
+
 
     def _forward_data(self, header: TARPUnicastHeader, payload: Any):
         """Forwards a data packet towards its destination."""
@@ -325,7 +389,7 @@ class TARPProtocol(Layer, Entity):
             net_buf = payload.APDU
             print(
                 f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
-                f"Received report from {tx_addr.hex()} with content: {net_buf}",
+                f"Received report from {''.join([f'{b:02x}' for b in tx_addr])} with content: {net_buf}",
                 flush=True,
             )
 
@@ -407,7 +471,7 @@ class TARPProtocol(Layer, Entity):
                 frag_size = min(remaining_items, TARPParameters.MAX_STAT_PER_FRAGMENT)
                 voice_addr = list(self.tpl_buf.keys())
                 fragment_payload = {
-                    addr: self.tpl_buf[addr]
+                    ''.join([f'{b:02x}' for b in addr]) : self.tpl_buf[addr]
                     for addr in voice_addr[
                         self.tpl_buf_offset : self.tpl_buf_offset + frag_size
                     ]
