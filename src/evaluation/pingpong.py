@@ -95,16 +95,17 @@ def main(
     nodes = {}
     addrs = {}
 
-    #positions = get_ring_topology_positions(num_nodes, radius=150)
-    #topology_image_path = "ring_topology.png"
-    positions = get_linear_topology_positions(
-        num_nodes, node_distance, start_x=50, start_y=100, increase_y=False
-    )
-    topology_image_path = "linear_topology.png"
+    positions = get_ring_topology_positions(num_nodes, radius=150)
+    topology_image_path = "ring_topology.png"
+    #positions = get_linear_topology_positions(
+    #    num_nodes, node_distance, start_x=50, start_y=100, increase_y=False
+    #)
+    #topology_image_path = "linear_topology.png"
 
-    pinger_idx = num_nodes // 4  # node at 1/4 of the ring
-    ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
-
+    #pinger_idx = num_nodes // 4  # node at 1/4 of the ring
+    #ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
+    pinger_idx = 1
+    ponger_idx = num_nodes - 1
     #plot_topology(positions, title="Network Topology", save_path="topology.png")
     plot_info = {}
 
@@ -191,21 +192,43 @@ def main(
 if __name__ == "__main__":
 
     kernel_seed = 12345
+
+
+    # --- Scenario A (easy): Stable Multi-Hop  ---
+    # 1-hop (35m) links are good; 2-hop (70m) links are dead.
+    # The TARP tree should form a stable linear chain.
+    #bootstrap_params = {
+    #    "seed": 12345,
+    #    "dspace_step": 1,
+    #    "dspace_npt": 200,
+    #    "freq": 2.4e9,
+    #    "filter_bandwidth": 2e6,
+    #    "coh_d": 50,          # Stable shadowing (high spatial correlation)
+    #    "shadow_dev": 2.0,    # Low shadowing variance
+    #    "pl_exponent": 3.5,   # Moderately high signal attenuation
+    #    "d0": 1.0,
+    #    "fading_shape": 3.0,  # Rician fading (stable links)
+    #}
+
+    # --- Scenario B (harsh): Dynamic and Unstable Multi-Hop ---
+    # 1-hop (35m) links are unreliable.
+    # The TARP tree will be unstable, testing ETX responsiveness and failover.
     bootstrap_params = {
         "seed": 12345,
         "dspace_step": 1,
         "dspace_npt": 200,
         "freq": 2.4e9,
         "filter_bandwidth": 2e6,
-        "coh_d": 7,  # Reduced coherence distance for a less stable channel
-        "shadow_dev": 6.0,  # Increased shadow deviation for more spatial variation
-        "pl_exponent": 4.0,  # Higher path loss exponent to simulate more obstruction
+        "coh_d": 10,          # Highly variable shadowing (low spatial correlation)
+        "shadow_dev": 6.0,    # High shadowing variance
+        "pl_exponent": 4.0,   # Severe signal attenuation
         "d0": 1.0,
-        "fading_shape": 0.5,  # Lower value to introduce severe, rapid fading
+        "fading_shape": 0.75, # Almost-Rayleigh fading (very unstable links)
     }
 
+
     num_nodes = 15
-    node_distance = 5  # I can reduce this to make the channel easier
+    node_distance = 35  # I can reduce this to make the channel easier
     simulation_time = 1200.0
 
     # Bootstrap the kernel with given parameters
