@@ -387,9 +387,14 @@ class TARPProtocol(Layer, Entity):
 
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:
             net_buf = payload.APDU
+            #just for logging
+            net_buf_str = {
+            ''.join([f'{b:02x}' for b in addr]) : status
+            for addr, status in net_buf.items()
+    }
             print(
                 f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
-                f"Received report from {''.join([f'{b:02x}' for b in tx_addr])} with content: {net_buf}",
+                f"Received report from {''.join([f'{b:02x}' for b in tx_addr])} with content: {net_buf_str}",
                 flush=True,
             )
 
@@ -471,14 +476,19 @@ class TARPProtocol(Layer, Entity):
                 frag_size = min(remaining_items, TARPParameters.MAX_STAT_PER_FRAGMENT)
                 voice_addr = list(self.tpl_buf.keys())
                 fragment_payload = {
-                    ''.join([f'{b:02x}' for b in addr]) : self.tpl_buf[addr]
+                    addr : self.tpl_buf[addr]
                     for addr in voice_addr[
                         self.tpl_buf_offset : self.tpl_buf_offset + frag_size
                     ]
                 }
+                #just for logging
+                fragment_payload_str = {
+                ''.join([f'{b:02x}' for b in addr]) : status
+                for addr, status in fragment_payload.items()
+        }
                 print(
                     f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
-                    f"Sending fragment to parent {self.parent.hex()} with payload: {fragment_payload}",
+                    f"Sending fragment to parent {self.parent.hex()} with payload: {fragment_payload_str}",
                     flush=True,
                 )
                 self._send_report_fragment(fragment_payload)

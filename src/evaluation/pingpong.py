@@ -95,7 +95,12 @@ def main(
     nodes = {}
     addrs = {}
 
-    positions = get_ring_topology_positions(num_nodes, radius=150)
+    #positions = get_ring_topology_positions(num_nodes, radius=150)
+    #topology_image_path = "ring_topology.png"
+    positions = get_linear_topology_positions(
+        num_nodes, node_distance, start_x=50, start_y=100, increase_y=False
+    )
+    topology_image_path = "linear_topology.png"
 
     pinger_idx = num_nodes // 4  # node at 1/4 of the ring
     ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
@@ -134,7 +139,7 @@ def main(
         addrs[node_id] = addr
         plot_info[node_id] = {"position": positions[i], "address": addr, "is_pinger": is_pinger, "is_ponger": is_ponger, "is_sink": is_sink}
 
-    plot_topology(plot_info, title="Network Topology", save_path="topology.png")
+    plot_topology(plot_info, title="Network Topology", save_path=topology_image_path)
 
     print("\n--- Attaching Monitors to all nodes ---")
     # Create monitors
