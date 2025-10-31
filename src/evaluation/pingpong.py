@@ -163,8 +163,12 @@ def main(
 
     # pinger_idx = num_nodes // 4  # node at 1/4 of the ring
     # ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
-    pinger_idx = 1
-    ponger_idx = num_nodes - 1
+    if args.topology == "linear":
+        pinger_idx = 1
+        ponger_idx = num_nodes - 1
+    else:  # ring topology
+        pinger_idx = num_nodes // 4  # node at 1/4 of the ring
+        ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring
     # plot_topology(positions, title="Network Topology", save_path="topology.png")
     plot_info = {}
 
@@ -355,7 +359,7 @@ if __name__ == "__main__":
         else:  # harsh
             bootstrap_params = harsh_params
 
-        num_nodes = 10
+        num_nodes = 20
         # MODIFICATION: Increased node_distance from 35 to 60 to ensure multi-hop
         node_distance = 10
         simulation_time = 1200.0

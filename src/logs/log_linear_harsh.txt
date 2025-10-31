@@ -6,7 +6,7 @@ Kernel bootstrapped successfully.
 
 --- Simulation Parameters ---
 Root seed: 12345
-Network configuration: num_nodes=10, node_distance=10
+Network configuration: num_nodes=20, node_distance=10
 Simulation time: 1200.0s
 
 --- Initializing Kernel and Scheduler ---
@@ -24,8 +24,18 @@ Node 'Node-6' added at position (100, 100).
 Node 'Node-7' added at position (110, 100).
 Node 'Node-8' added at position (120, 100).
 Node 'Node-9' added at position (130, 100).
-Node-9 is PONGER
 Node 'Node-10' added at position (140, 100).
+Node 'Node-11' added at position (150, 100).
+Node 'Node-12' added at position (160, 100).
+Node 'Node-13' added at position (170, 100).
+Node 'Node-14' added at position (180, 100).
+Node 'Node-15' added at position (190, 100).
+Node 'Node-16' added at position (200, 100).
+Node 'Node-17' added at position (210, 100).
+Node 'Node-18' added at position (220, 100).
+Node 'Node-19' added at position (230, 100).
+Node-19 is PONGER
+Node 'Node-20' added at position (240, 100).
 Physical topology plot saved to plots/linear_harsh_topology.png
 
 --- Attaching Monitors to all nodes ---
@@ -39,8 +49,18 @@ Monitor 'PacketMonitor' attached to 'Node-7.phy'.
 Monitor 'PacketMonitor' attached to 'Node-8.phy'.
 Monitor 'PacketMonitor' attached to 'Node-9.phy'.
 Monitor 'PacketMonitor' attached to 'Node-10.phy'.
+Monitor 'PacketMonitor' attached to 'Node-11.phy'.
+Monitor 'PacketMonitor' attached to 'Node-12.phy'.
+Monitor 'PacketMonitor' attached to 'Node-13.phy'.
+Monitor 'PacketMonitor' attached to 'Node-14.phy'.
+Monitor 'PacketMonitor' attached to 'Node-15.phy'.
+Monitor 'PacketMonitor' attached to 'Node-16.phy'.
+Monitor 'PacketMonitor' attached to 'Node-17.phy'.
+Monitor 'PacketMonitor' attached to 'Node-18.phy'.
+Monitor 'PacketMonitor' attached to 'Node-19.phy'.
+Monitor 'PacketMonitor' attached to 'Node-20.phy'.
 [APP_MONITOR] [0.000000s] [Node-1] Application started.
-[APP_MONITOR] [0.000000s] [Node-9] Application started.
+[APP_MONITOR] [0.000000s] [Node-19] Application started.
 
 --- Running Simulation ---
 Running simulation until time 1200.0 or event queue is empty...
@@ -919,7 +939,7 @@ Simulation stopped at time: 1201.0
 
 --- Simulation Finished ---
 Final simulation time: 1201.000000s
-Events remaining in queue: 19
+Events remaining in queue: 29
 
 --- First 10 Events in Queue ---
 1: t=1201.000001s, Event=MacTrySendNextEvent, Blame=ContikiOS_MAC_802154_Unslotted, Descriptor: None, Cancelled: False
@@ -934,13 +954,13 @@ Events remaining in queue: 19
 10: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
 
 --- Last 10 Events in Queue ---
-10: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-11: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-12: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-13: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-14: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-15: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-16: t=1222.265993s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-17: t=1225.294402s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-18: t=1238.288856s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
-19: t=1261.000000s, Event=NetBeaconSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+20: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+21: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+22: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+23: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+24: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+25: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+26: t=1222.265993s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+27: t=1225.294402s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+28: t=1238.288856s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+29: t=1261.000000s, Event=NetBeaconSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
