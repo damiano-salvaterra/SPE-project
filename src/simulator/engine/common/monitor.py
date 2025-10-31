@@ -1,27 +1,39 @@
-from abc import ABC, abstractmethod
 import pandas as pd
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING
+from abc import ABC, abstractmethod
 
-from simulator.entities.common.signals import EntitySignal
-
+# Avoid circular import issues at type-checking time
 if TYPE_CHECKING:
-    from simulator.entities.common.entity import Entity
+    from simulator.entities.common import Entity, EntitySignal
 
 
 class Monitor(ABC):
-    """Abstract base class for concrete Monitors"""
+    """
+    Base class for evaluation monitors.
+    """
 
-    def __init__(self):
-        self.records: EntitySignal = []
+    def __init__(self, verbose: bool = True):
+        self.log: List[dict] = []
+        self.verbose = verbose
 
     @abstractmethod
-    def update(self, entity: "Entity", signal: EntitySignal):
-        """called by the entity. Concrete monitors will implement the filter logic"""
+    def update(self, entity: "Entity", signal: "EntitySignal"):
+        """
+        Called by an entity when a signal is emitted.
+        Concrete monitors will implement the filter logic
+        and append structured data to self.log.
+        """
         pass
 
-    def reset(self):
-        """reset monitor state"""
-        self.records = []
-
     def get_dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame.from_records(self.records)
+        """
+        Converts the accumulated log into a pandas DataFrame.
+        """
+        if not self.log:
+            # Return an empty DataFrame if the log is empty
+            return pd.DataFrame()
+        return pd.DataFrame(self.log)
+
+    def reset(self):
+        """Resets the monitor's internal log."""
+        self.log = []

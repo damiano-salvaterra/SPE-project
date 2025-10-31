@@ -1,72 +1,91 @@
-"""
-Monitor for application-level events
-"""
-
-from typing import List
 import pandas as pd
+from typing import TYPE_CHECKING
 
 from simulator.engine.common.monitor import Monitor
-from simulator.entities.common import Entity, EntitySignal
-from evaluation.signals.app_signals import AppPingReceivedSignal
+from evaluation.signals.app_signals import (
+    AppStartSignal,
+    AppSendSignal,
+    AppReceiveSignal,
+    AppTimeoutSignal,
+    AppSendFailSignal
+)
+
+# Avoid circular import issues at type-checking time
+if TYPE_CHECKING:
+    from simulator.entities.common import Entity, EntitySignal
 
 
 class AppPingMonitor(Monitor):
     """
-    Monitor that tracks PING packets received by the application.
-    Shows only the original source of the PING, not intermediate forwarders.
+    Monitor that tracks PingPong application events (send, receive, timeout, fail).
+    Inherits from BaseMonitor to log structured data.
     """
 
     def __init__(self, verbose=True):
-        super().__init__()
-        self.log: List[dict] = []
-        self.verbose = verbose
-        # DEBUG: Add counter for update calls
-        self._update_count = 0
+        super().__init__(verbose=verbose)
 
-    def update(self, entity: Entity, signal: EntitySignal):
+    def update(self, entity: "Entity", signal: "EntitySignal"):
         """
-        Called by the entity when a signal is emitted.
-        Only processes AppPingReceivedSignal.
+        Called by the application entity when a signal is emitted.
+        Filters for specific App signals and logs them.
         """
-        # DEBUG: Log every time update is called
-        self._update_count += 1
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR AppPingMonitor on {entity.host.id}] update() called. Count: {self._update_count}. Signal type: {type(signal).__name__}")
-
-        if not isinstance(signal, AppPingReceivedSignal):
-            # DEBUG: Log ignored signal types
-            print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR AppPingMonitor on {entity.host.id}] Ignoring signal type {type(signal).__name__}.")
+        # App signals are emitted by the Application, which is hosted on a Node.
+        # We get the node_id from the entity's host attribute.
+        try:
+            current_time = signal.timestamp
+            node_id = entity.host.id
+            log_entry = {"time": current_time, "node_id": node_id}
+            print_msg = None
+        except AttributeError:
+            # Signal was emitted by an entity without a .host.id, ignore it.
             return
 
-        # DEBUG: Log processing of correct signal type
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR AppPingMonitor on {entity.host.id}] Processing AppPingReceivedSignal.")
+        if isinstance(signal, AppStartSignal):
+            log_entry.update({
+                "event": "APP_START",
+                "details": "Application started"
+            })
+            print_msg = "Application started."
 
-        # Extract payload
-        payload = signal.packet.APDU
-        if isinstance(payload, bytes):
-             # DEBUG: Log payload decoding
-            print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR AppPingMonitor on {entity.host.id}] Decoding payload from bytes.")
-            payload = payload.decode("utf-8", errors="ignore")
+        elif isinstance(signal, AppSendSignal):
+            log_entry.update({
+                "event": "SEND",
+                "type": signal.packet_type,
+                "seq_num": signal.seq_num,
+                "dest": signal.destination.hex()
+            })
+            print_msg = f"Sent {signal.packet_type} #{signal.seq_num} to {signal.destination.hex()}"
+        
+        elif isinstance(signal, AppReceiveSignal):
+            log_entry.update({
+                "event": "RECEIVE",
+                "type": signal.packet_type,
+                "seq_num": signal.seq_num,
+                "source": signal.source.hex()
+            })
+            print_msg = f"Received {signal.packet_type} #{signal.seq_num} from {signal.source.hex()}"
 
-        log_entry = {
-            "time": signal.timestamp,
-            "receiver_node": entity.host.id,
-            "source_node": signal.source_addr.hex(),
-            "payload": payload,
-        }
+        elif isinstance(signal, AppTimeoutSignal):
+            log_entry.update({
+                "event": "TIMEOUT",
+                "seq_num": signal.seq_num
+            })
+            print_msg = f"PING #{signal.seq_num} timed out."
+
+        elif isinstance(signal, AppSendFailSignal):
+            log_entry.update({
+                "event": "SEND_FAIL",
+                "type": signal.packet_type,
+                "seq_num": signal.seq_num,
+                "reason": signal.reason
+            })
+            print_msg = f"Failed to send {signal.packet_type} #{signal.seq_num} (Reason: {signal.reason})"
+        
+        else:
+            # Ignore other signals
+            return
+
         self.log.append(log_entry)
-         # DEBUG: Log added entry
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR AppPingMonitor on {entity.host.id}] Log entry added: {log_entry}")
 
-
-        if self.verbose:
-            print(
-                f"[APP_MONITOR] [{signal.timestamp:.6f}s] Node {entity.host.id}: "
-                + ("PING" if payload.startswith("PING") else "PONG")
-                + f" received from node {signal.source_addr.hex()} "
-                f"(payload: {payload})"
-            )
-
-    def get_dataframe(self) -> pd.DataFrame:
-        # DEBUG: Log dataframe generation
-        print(f"[DEBUG][MONITOR AppPingMonitor] get_dataframe() called. Log size: {len(self.log)}.")
-        return pd.DataFrame(self.log)
+        if self.verbose and print_msg:
+            print(f"[APP_MONITOR] [{current_time:.6f}s] [{node_id}] {print_msg}")

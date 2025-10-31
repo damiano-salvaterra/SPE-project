@@ -78,7 +78,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         self.retry_count = 0
         self._reset_contention_counters()
 
-    def send(self, payload: NetPacket, destination: Optional[bytes] = None):
+    def send(self, payload: NetPacket, destination: Optional[bytes] = None) -> bool:
         nexthop = destination  # for compatibility with the Layer interface
         requires_ack = nexthop != Frame_802_15_4.broadcast_linkaddr
         mac_frame = Frame_802_15_4(
@@ -100,6 +100,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             )
             self.host.context.scheduler.schedule(send_event)
 
+        return True#always return true, the function queues the packet always
+    
     def _try_send_next(self):
         # if there is nothing to send or the mac is not idle, do nothing
         if not self.tx_queue or self.state != MACState.IDLE:

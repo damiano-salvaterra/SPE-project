@@ -1,104 +1,140 @@
-"""
-Monitor for TARP protocol events
-"""
-
-from typing import List
 import pandas as pd
+from typing import TYPE_CHECKING
 
 from simulator.engine.common.monitor import Monitor
-from simulator.entities.common import Entity, EntitySignal
 from evaluation.signals.tarp_signals import (
+    TARPUnicastSendSignal,
     TARPForwardingSignal,
-    TARPReceiveSignal,
+    TARPUnicastReceiveSignal,
+    TARPDropSignal,
+    TARPBroadcastSendSignal,
+    TARPBroadcastReceiveSignal,
+    TARPParentChangeSignal
 )
 
+# Avoid circular import issues at type-checking time
+if TYPE_CHECKING:
+    from simulator.entities.common import Entity, EntitySignal
 
-class TARPForwardingMonitor(Monitor):
+
+class TARPMonitor(Monitor):
     """
-    Monitor that tracks packet forwarding in the TARP protocol.
-    Shows when packets are received and to where they are forwarded.
+    Monitor that tracks TARP protocol events (send, receive, forward, drop, etc.).
+    Inherits from BaseMonitor to log structured data.
     """
 
     def __init__(self, verbose=True):
-        super().__init__()
-        self.log: List[dict] = []
-        self.verbose = verbose
-        # DEBUG: Add counter for update calls
-        self._update_count = 0
+        super().__init__(verbose=verbose)
 
-    def update(self, entity: Entity, signal: EntitySignal):
+    def update(self, entity: "Entity", signal: "EntitySignal"):
         """
-        Called by the entity when a signal is emitted.
-        Processes both TARPForwardingSignal and TARPReceiveSignal.
+        Called by the TARP entity when a signal is emitted.
+        Filters for specific TARP signals and logs them.
         """
-        # DEBUG: Log every time update is called
-        self._update_count += 1
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] update() called. Count: {self._update_count}. Signal type: {type(signal).__name__}")
+        # TARP signals are emitted by TARPProtocol, which is on a host.
+        try:
+            current_time = signal.timestamp
+            node_id = entity.host.id
+            log_entry = {"time": current_time, "node_id": node_id}
+            print_msg = None
+        except AttributeError:
+            return
 
-        if isinstance(signal, TARPForwardingSignal):
-            # DEBUG: Log handling forwarding signal
-            print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] Processing TARPForwardingSignal.")
-            self._handle_forwarding(entity, signal)
-        elif isinstance(signal, TARPReceiveSignal):
-             # DEBUG: Log handling receive signal
-            print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] Processing TARPReceiveSignal.")
-            self._handle_receive(entity, signal)
+        if isinstance(signal, TARPUnicastSendSignal):
+            log_entry.update({
+                "event": "UC_SEND",
+                "type": signal.packet_type,
+                "dest": signal.destination.hex()
+            })
+            print_msg = f"Send {signal.packet_type} to {signal.destination.hex()}"
+
+        elif isinstance(signal, TARPForwardingSignal):
+            log_entry.update({
+                "event": "FORWARD",
+                "type": signal.packet_type,
+                "from": signal.received_from.hex(),
+                "to": signal.forwarding_to.hex(),
+                "orig_src": signal.original_source.hex(),
+                "final_dest": signal.destination.hex()
+            })
+            print_msg = f"Forward {signal.packet_type} from {signal.received_from.hex()} to {signal.forwarding_to.hex()} (dest: {signal.destination.hex()})"
+
+        elif isinstance(signal, TARPUnicastReceiveSignal):
+            log_entry.update({
+                "event": "UC_RECV",
+                "type": signal.packet_type,
+                "from": signal.received_from.hex(),
+                "orig_src": signal.original_source.hex()
+            })
+            # Add special parsing for REPORT content
+            if signal.packet_type == "UC_TYPE_REPORT":
+                try:
+                    # The descriptor contains the report content
+                    report_content = signal.descriptor.split("content:")[1].strip()
+                    log_entry["report_content"] = report_content
+                    print_msg = f"Recv REPORT from {signal.received_from.hex()} (content: {report_content})"
+                except (IndexError, AttributeError):
+                    print_msg = f"Recv {signal.packet_type} from {signal.received_from.hex()} (orig: {signal.original_source.hex()})"
+            else:
+                 print_msg = f"Recv {signal.packet_type} from {signal.received_from.hex()} (orig: {signal.original_source.hex()})"
+
+
+        elif isinstance(signal, TARPDropSignal):
+            # The descriptor in TARP.py contains the reason, e.g., "... dropping packet (dest: ...)."
+            # This is not ideal, but we can parse it.
+            reason = "Unknown"
+            try:
+                reason = signal.descriptor.split(":")[-1].strip().split("(")[0].strip()
+            except Exception:
+                pass # Keep "Unknown"
+            
+            log_entry.update({
+                "event": "DROP",
+                "type": signal.packet_type,
+                "dest": signal.destination.hex(),
+                "reason": reason
+            })
+            print_msg = f"Drop {signal.packet_type} for {signal.destination.hex()}. Reason: {reason}"
+
+        elif isinstance(signal, TARPBroadcastSendSignal):
+            # The descriptor has critical info not in the signal object.
+            # This is a flaw in TARP.py's signal creation, but we can work with it.
+            details = "BEACON"
+            try:
+                details = signal.descriptor.split("beacon:")[1].strip()
+            except Exception:
+                pass
+
+            log_entry.update({
+                "event": "BC_SEND",
+                "type": "BEACON",
+                "details": details
+            })
+            print_msg = f"Sent BEACON ({details})"
+
+        elif isinstance(signal, TARPBroadcastReceiveSignal):
+            log_entry.update({
+                "event": "BC_RECV",
+                "type": "BEACON",
+                "source": signal.source.hex()
+            })
+            print_msg = f"Recv BEACON from {signal.source.hex()}"
+
+        elif isinstance(signal, TARPParentChangeSignal):
+            old_parent_hex = signal.old_parent.hex() or "None"
+            new_parent_hex = signal.new_parent.hex() or "None"
+            log_entry.update({
+                "event": "PARENT_CHANGE",
+                "old_parent": old_parent_hex,
+                "new_parent": new_parent_hex
+            })
+            print_msg = f"Parent change: {old_parent_hex} -> {new_parent_hex}"
+
         else:
-             # DEBUG: Log ignored signal types
-            print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] Ignoring signal type {type(signal).__name__}.")
+            # Ignore other signals
+            return
 
-
-    def _handle_forwarding(self, entity: Entity, signal: TARPForwardingSignal):
-        """Handle forwarding event"""
-        log_entry = {
-            "time": signal.timestamp,
-            "node_id": entity.host.id,
-            "event": "FORWARD",
-            "received_from": signal.received_from.hex(),
-            "original_source": signal.original_source.hex(),
-            "destination": signal.destination.hex(),
-            "forwarding_to": signal.forwarding_to.hex(),
-            "packet_type": signal.packet_type,
-        }
         self.log.append(log_entry)
-         # DEBUG: Log added entry
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] Forwarding Log entry added: {log_entry}")
 
-
-        if self.verbose:
-            print(
-                f"[TARP_MONITOR] [{signal.timestamp:.6f}s] Node {entity.host.id}: "
-                f"Packet received from {signal.received_from.hex()}, "
-                f"originated from {signal.original_source.hex()}, "
-                f"with destination {signal.destination.hex()}, "
-                f"forwarding to {signal.forwarding_to.hex()}"
-            )
-
-    def _handle_receive(self, entity: Entity, signal: TARPReceiveSignal):
-        """Handle receive event (packet destined for this node)"""
-        log_entry = {
-            "time": signal.timestamp,
-            "node_id": entity.host.id,
-            "event": "RECEIVE",
-            "received_from": signal.received_from.hex(),
-            "original_source": signal.original_source.hex(),
-            "destination": entity.host.linkaddr.hex(), # Corrected destination
-            "forwarding_to": "N/A",
-            "packet_type": signal.packet_type,
-        }
-        self.log.append(log_entry)
-         # DEBUG: Log added entry
-        print(f"[DEBUG][{signal.timestamp:.6f}s][MONITOR TARPForwardingMonitor on {entity.host.id}] Receive Log entry added: {log_entry}")
-
-        if self.verbose:
-            print(
-                f"[TARP_MONITOR] [{signal.timestamp:.6f}s] Node {entity.host.id}: "
-                f"Packet received from {signal.received_from.hex()}, "
-                f"originated from {signal.original_source.hex()}, "
-                f"destined to this node (delivered to application)"
-            )
-
-    def get_dataframe(self) -> pd.DataFrame:
-        # DEBUG: Log dataframe generation
-        print(f"[DEBUG][MONITOR TARPForwardingMonitor] get_dataframe() called. Log size: {len(self.log)}.")
-        return pd.DataFrame(self.log)
+        if self.verbose and print_msg:
+            print(f"[TARP_MONITOR] [{current_time:.6f}s] [{node_id}] {print_msg}")

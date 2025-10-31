@@ -25,7 +25,12 @@ from simulator.entities.protocols.net.tarp import tarp_utils
 from simulator.entities.protocols.net.tarp.parameters import TARPParameters
 from evaluation.signals.tarp_signals import (
     TARPForwardingSignal,
-    TARPReceiveSignal,
+    TARPUnicastReceiveSignal,
+    TARPDropSignal,
+    TARPBroadcastSendSignal,
+    TARPBroadcastReceiveSignal,
+    TARPUnicastSendSignal,
+    TARPParentChangeSignal,
 )
 
 from simulator.entities.common import NetworkNode
@@ -184,37 +189,23 @@ class TARPProtocol(Layer, Entity):
     #NOTE: check this function
     def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
         """Sends an application data packet to a destination."""
-        # DEBUG: Log entry into TARP send function
-        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARPProtocol.send() CALLED. Destination: {destination.hex() if destination else 'None'}.")
-
         if not self.sink and self.parent is None:
-            # DEBUG: Log packet drop due to no parent
-            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: No parent, dropping packet.")
-            if (
-                self.host.context.scheduler.now()
-                > 2 * TARPParameters.TREE_BEACON_INTERVAL
-            ):
-                print(
-                    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
-                    f"No parent, cannot send. Dropping packet.",
-                    flush=True,
-                )
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP send: No parent, dropping packet (dest: {destination.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=destination if destination else b'',
+                                    packet_type=TARPUnicastType.UC_TYPE_DATA.name
+                                    )
+            self._notify_monitors(signal)
             return False
 
-        # DEBUG: Log before neighbor table lookup
-        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Looking up nexthop for {destination.hex() if destination else 'None'}.")
         nexthop = self._nbr_tbl_lookup(destination)
-         # DEBUG: Log result of neighbor table lookup
-        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Nexthop found: {nexthop.hex() if nexthop else 'None'}.")
-
         if nexthop is None:
-            # DEBUG: Log packet drop due to no route
-            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: No route found, dropping packet.")
-            print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
-                f"No route to destination {destination.hex()}. Dropping packet.",
-                flush=True,
-            )
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP send: No route for destination, dropping packet (dest: {destination.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=destination if destination else b'',
+                                    packet_type=TARPUnicastType.UC_TYPE_DATA.name
+                                    )
+            self._notify_monitors(signal)
             return False
 
         packet_header = TARPUnicastHeader(
@@ -225,36 +216,40 @@ class TARPProtocol(Layer, Entity):
         )
         net_packet = TARPPacket(header=packet_header, APDU=payload)
 
-        # DEBUG: Log before calling MAC send and wrap in try-except
-        mac_send_success = False
-        try:
-            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Calling self.host.mac.send() to nexthop {nexthop.hex()}.")
-            # Note: Assuming mac.send doesn't return a boolean, adjust if it does
-            self.host.mac.send(payload=net_packet, destination=nexthop)
-            mac_send_success = True # Assume success if no exception
-            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: Call to mac.send() completed.")
-        except Exception as e:
-            mac_send_success = False
-            print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARP send: EXCEPTION during mac.send(): {e}")
+        return_value = (nexthop is not None) # Simplistic: Return True if a nexthop was found, False otherwise
+        signal = TARPUnicastSendSignal(descriptor=f"[{self.host.id}] TARP send: Sending packet to nexthop {nexthop.hex()} (dest: {destination.hex()}).",
+                                timestamp=self.host.context.scheduler.now(),
+                                destination=destination if destination else b'',
+                                packet_type= TARPUnicastType.UC_TYPE_DATA.name
+                                )
+        self._notify_monitors(signal)
 
-        # DEBUG: Log final return value based on whether MAC call was attempted
-        final_return_value = (nexthop is not None) # Simplistic: Return True if a nexthop was found, False otherwise
-        print(f"[DEBUG][{self.host.context.scheduler.now():.6f}s][{self.host.id}] TARPProtocol.send() returning {final_return_value}.")
-        return final_return_value # Returning True if a route was found, even if MAC fails later
+        self.host.mac.send(payload=net_packet, destination=nexthop)
+        return return_value # Returning True if a route was found, even if MAC fails later
 
 
     def _forward_data(self, header: TARPUnicastHeader, payload: Any):
         """Forwards a data packet towards its destination."""
         nexthop = self._nbr_tbl_lookup(header.d_addr)
         if nexthop is None:
-            print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/FORWARD] "
-                f"No route to destination {header.d_addr.hex()}. Dropping packet.",
-                flush=True,
-            )
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP forward: No route for destination, dropping packet (dest: {header.d_addr.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=header.d_addr,
+                                    packet_type= header.type.name
+                                    )
+            self._notify_monitors(signal)
             return
 
         net_packet = TARPPacket(header=header, APDU=payload)
+        signal = TARPForwardingSignal(descriptor=f"[{self.host.id}] TARP forward: Forwarding packet to nexthop {nexthop.hex()} (source: {header.s_addr.hex()}, dest: {header.d_addr.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    received_from=header.s_addr,
+                                    original_source=header.s_addr,
+                                    destination=header.d_addr,
+                                    forwarding_to=nexthop,
+                                    packet_type= header.type.name
+                                    )
+        self._notify_monitors(signal)
         self.host.mac.send(payload=net_packet, destination=nexthop)
 
     def receive(self, payload: TARPPacket, sender_addr: bytes, rssi: float):
@@ -263,11 +258,20 @@ class TARPProtocol(Layer, Entity):
             self._uc_recv(payload, sender_addr)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, sender_addr, rssi=rssi)
+        
+       
 
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
         """Handles a received broadcast (beacon) packet."""
         if rssi < TARPParameters.RSSI_LOW_THR:
             return
+
+        signal = TARPBroadcastReceiveSignal(
+            descriptor=f"[{self.host.id}] TARP beacon receive: broadcast received from {tx_addr.hex()}",
+            timestamp=self.host.context.scheduler.now(),
+            source=tx_addr,
+        )
+        self._notify_monitors(signal)
 
         header: TARPBroadcastHeader = payload.header
         current_time = self.host.context.scheduler.now()
@@ -302,18 +306,21 @@ class TARPProtocol(Layer, Entity):
 
         if is_preferred:
             # Unset old parent if it exists
+            old_parent = None
             if self.parent and self.parent in self.nbr_tbl:
                 self.nbr_tbl[self.parent].type = self.NodeType.NODE_NEIGHBOR
+                old_parent = self.parent
 
             self.parent = tx_addr
             self.metric = new_metric
             self.hops = header.hops + 1
             tx_entry.type = self.NodeType.NODE_PARENT
-            print(
-                f"[{current_time:.6f}s] [{self.host.id}] [TARP] "
-                f"SELECTING NEW PARENT {tx_addr.hex()} | New Metric: {self.metric:.2f}",
-                flush=True,
-            )
+            
+            signal = TARPParentChangeSignal(descriptor=f"[{self.host.id}] TARP parent change: changing parent from {(old_parent if old_parent else b'').hex()} to {self.parent.hex()}.",
+                                           timestamp=current_time,
+                                           old_parent=old_parent if old_parent else b'',
+                                           new_parent=self.parent)
+            self._notify_monitors(signal)
 
             # Schedule beacon forwarding with jitter
             if self._beacon_timer and not self._beacon_timer._cancelled:
@@ -345,7 +352,22 @@ class TARPProtocol(Layer, Entity):
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
         """Handles a received unicast (data or report) packet."""
         if tx_addr not in self.nbr_tbl:
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP unicast receive: no route for sender {tx_addr.hex()} (unknown node), dropping packet.",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=tx_addr,
+                                    packet_type=payload.header.type.name
+                                    )
+            self._notify_monitors(signal)
             return
+
+        signal = TARPUnicastReceiveSignal(
+            descriptor=f"[{self.host.id}] TARP unicast receive: unicast received from {tx_addr.hex()} with destination {payload.header.d_addr.hex()}.",
+            timestamp=self.host.context.scheduler.now(),
+            received_from=tx_addr,
+            original_source=payload.header.s_addr,
+            packet_type=payload.header.type.name,
+        ) 
+        self._notify_monitors(signal)
 
         header: TARPUnicastHeader = payload.header
         header.hops += 1
@@ -357,52 +379,31 @@ class TARPProtocol(Layer, Entity):
 
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
-                # Packet is for this node - emit receive signal
-                signal = TARPReceiveSignal(
-                    descriptor="TARPReceive",
-                    timestamp=self.host.context.scheduler.now(),
-                    received_from=tx_addr,
-                    original_source=header.s_addr,
-                    packet_type="DATA",
-                )
-                self._notify_monitors(signal)
-
+                
                 self.host.app.receive(payload.APDU, sender_addr=header.s_addr)
             else:
-                # Need to forward the packet - emit forwarding signal
-                nexthop = self._nbr_tbl_lookup(header.d_addr)
-                if nexthop is not None:
-                    signal = TARPForwardingSignal(
-                        descriptor="TARPForward",
-                        timestamp=self.host.context.scheduler.now(),
-                        received_from=tx_addr,
-                        original_source=header.s_addr,
-                        destination=header.d_addr,
-                        forwarding_to=nexthop,
-                        packet_type="DATA",
-                    )
-                    self._notify_monitors(signal)
-
                 self._forward_data(header, payload=payload.APDU)
 
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:
             net_buf = payload.APDU
-            #just for logging
-            net_buf_str = {
+
+            net_buf_str = {  #just for logging
             ''.join([f'{b:02x}' for b in addr]) : status
             for addr, status in net_buf.items()
-    }
-            print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
-                f"Received report from {''.join([f'{b:02x}' for b in tx_addr])} with content: {net_buf_str}",
-                flush=True,
-            )
+                }
+            signal = TARPUnicastReceiveSignal(descriptor=f"[{self.host.id}] TARP report receive: report received from {tx_addr.hex()} with content: {net_buf_str}.",
+                                            timestamp=self.host.context.scheduler.now(),
+                                            received_from=tx_addr,
+                                            original_source=tx_addr,
+                                            packet_type=header.type.name
+                                            )
+            self._notify_monitors(signal)
 
             self._nbr_tbl_update(tx_addr=tx_addr, buf=net_buf)
 
-            # if not self.sink:
-            #    # Aggregate received info into our own report buffer
-            #    self.tpl_buf.update(net_buf)
+            if not self.sink:
+                # Aggregate received info into our own report buffer
+                self.tpl_buf.update(net_buf)
             #    print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
             #    f"Updated tpl_buf: {self.tpl_buf}", flush=True)
 
@@ -464,11 +465,11 @@ class TARPProtocol(Layer, Entity):
 
         if not self.tpl_buf:
             # Send an empty report as a keep-alive
-            print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
-                f"Sending empty report to parent {self.parent.hex()}",
-                flush=True,
-            )
+            #print(
+            #    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
+            #    f"Sending empty report to parent {self.parent.hex()}",
+            #    flush=True,
+            #)
             self._send_report_fragment({})
         else:
             remaining_items = len(self.tpl_buf) - self.tpl_buf_offset
@@ -481,16 +482,7 @@ class TARPProtocol(Layer, Entity):
                         self.tpl_buf_offset : self.tpl_buf_offset + frag_size
                     ]
                 }
-                #just for logging
-                fragment_payload_str = {
-                ''.join([f'{b:02x}' for b in addr]) : status
-                for addr, status in fragment_payload.items()
-        }
-                print(
-                    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
-                    f"Sending fragment to parent {self.parent.hex()} with payload: {fragment_payload_str}",
-                    flush=True,
-                )
+            
                 self._send_report_fragment(fragment_payload)
                 self.tpl_buf_offset += frag_size
 
@@ -527,6 +519,12 @@ class TARPProtocol(Layer, Entity):
             hops=0,
         )
         packet = TARPPacket(header=header, APDU=payload)
+        signal = TARPUnicastSendSignal(descriptor=f"[{self.host.id}] TARP report send: Sending packet to parent {self.parent.hex()}.",
+                                timestamp=self.host.context.scheduler.now(),
+                                destination=self.parent,
+                                packet_type= TARPUnicastType.UC_TYPE_REPORT.name
+                                )
+        self._notify_monitors(signal)
         self.host.mac.send(packet, self.parent)
 
     def _schedule_next_report(self):
@@ -591,16 +589,23 @@ class TARPProtocol(Layer, Entity):
             self.metric = float("inf")
             self.hops = TARPParameters.MAX_PATH_LENGTH + 1
 
-        print(
-            f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP] "
-            f"REACTIVELY CHANGING PARENT. Old: {old_parent_addr.hex()}, New: {new_parent_addr.hex() if new_parent_addr else 'None'}.",
-            flush=True,
+        signal = TARPParentChangeSignal(
+            descriptor=f"[{self.host.id}] TARP reactive parent change: changing parent from {old_parent_addr.hex()} to {new_parent_addr.hex() if new_parent_addr else 'None'}.",
+            timestamp=self.host.context.scheduler.now(),
+            old_parent=old_parent_addr,
+            new_parent=new_parent_addr if new_parent_addr else b'',
         )
+        self._notify_monitors(signal)
 
     def _broadcast_send(self, header: TARPBroadcastHeader):
         """Sends a broadcast packet."""
         broadcast_packet = TARPPacket(header=header, APDU=None)
         b_addr = Frame_802_15_4.broadcast_linkaddr
+        signal = TARPBroadcastSendSignal(
+            descriptor=f"[{self.host.id}] TARP beacon send: broadcasting beacon: epoch->{header.epoch}, metric->{header.metric_q124}, hops->{header.hops}, parent->{header.parent.hex()  if header.parent else '' }.",
+            timestamp=self.host.context.scheduler.now(),
+        )
+        self._notify_monitors(signal)
         self.host.mac.send(payload=broadcast_packet, destination=b_addr)
 
     def _nbr_tbl_lookup(self, dst_addr: bytes) -> Optional[bytes]:
@@ -683,7 +688,7 @@ class TARPProtocol(Layer, Entity):
             elif route_type == self.NodeType.NODE_PARENT:
                 parent_lost = True
 
-            self.nbr_tbl.pop(addr)
+            self.nbr_tbl.pop(addr, None)
 
         if parent_lost:
             self._change_parent(old_parent_addr=self.parent)
@@ -699,7 +704,6 @@ class TARPProtocol(Layer, Entity):
         self._cleanup_timer = NetRoutingTableCleanupEvent(
             time=cleanup_time,
             blame=self,
-            descriptor=f"Node:{self.host.id}",
             callback=self._nbr_tbl_cleanup_cb,
         )
         self.host.context.scheduler.schedule(self._cleanup_timer)
