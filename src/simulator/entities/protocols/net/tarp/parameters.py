@@ -1,0 +1,27 @@
+from dataclasses import dataclass
+
+
+@dataclass
+class TARPParameters:
+    MAX_STAT_PER_FRAGMENT = 37  # Max bytes allowed per packet (PHY) in 802.15.4 is 127.
+    # Approximately, taking out all the overhead due to header (TARP included), we are left with around 112 bytes
+    # now, each status voice in the report is 3 bytes, plus une byte for the number of voices. so we can send maximum 37
+    # voices in the topology report. However, Contiki often keep the packetbuf smaller than 127 bytes. So we may want to set an arbitrary value
+    MAX_PATH_LENGTH = 40  # maximum number of hops before dropping the packet
+    CLEANUP_INTERVAL = (
+        15  # cleanup the routing table from expired entries every 15 seconds
+    )
+    ALWAYS_VALID_AGE = float("inf")
+    ALWAYS_INVALID_AGE = -1  # time 0. Route having this age are always invalid.
+    # In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
+    ENTRY_EXPIRATION_TIME = 600  # 90
+    TREE_BEACON_INTERVAL = 60
+    SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
+    RSSI_LOW_THR = -85
+    RSSI_HIGH_REF = -35
+    DELTA_ETX_MIN = 0.3
+    THR_H = 100
+
+    # NullRDC mode constants  and delays
+    ALPHA = 0.9
+    TREE_BEACON_FORWARD_DELAY = 1 / 10

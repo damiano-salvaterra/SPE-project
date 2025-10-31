@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Plot files
+*topology.png
+
 # Distribution / packaging
 .Python
 build/

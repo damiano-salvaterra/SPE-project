@@ -1,7 +1,5 @@
-# SPE-project/src/simulator/entities/protocols/net/tarp/TARP.py
-
 from simulator.entities.protocols.common.Layer import Layer
-from simulator.entities.common.Entity import Entity
+from simulator.entities.common import Entity
 from simulator.engine.random import RandomGenerator
 from simulator.entities.protocols.common.packets import (
     Frame_802_15_4,
@@ -15,14 +13,27 @@ from simulator.entities.protocols.net.common.net_events import (
     NetRoutingTableCleanupEvent,
     NetTopologyReportSendEvent,
 )
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import Dict, Any, Optional
 
 # Local TARP-specific imports
-from simulator.entities.protocols.net.tarp.tarp_structures import TARPRoute, NodeType, RouteStatus
+from simulator.entities.protocols.net.tarp.tarp_structures import (
+    TARPRoute,
+    NodeType,
+    RouteStatus,
+)
 from simulator.entities.protocols.net.tarp import tarp_utils
+from simulator.entities.protocols.net.tarp.parameters import TARPParameters
+from evaluation.signals.tarp_signals import (
+    TARPForwardingSignal,
+    TARPUnicastReceiveSignal,
+    TARPDropSignal,
+    TARPBroadcastSendSignal,
+    TARPBroadcastReceiveSignal,
+    TARPUnicastSendSignal,
+    TARPParentChangeSignal,
+)
 
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
+from simulator.entities.common import NetworkNode
 
 """
 This class implements TARP (Tree-based Any-to-any Routing Protocol).
@@ -31,46 +42,30 @@ the core logic for timers, route management, and topology discovery.
 Reference C source: https://github.com/DaMole98/LPWN-project2/tree/main
 """
 
-class TARP(Layer, Entity):
+
+class TARPProtocol(Layer, Entity):
     """
     This class implements TARP (Tree-based Any-to-any Routing Protocol).
     """
-
-    # --- Protocol constants, aligned with the C implementation's project-conf.h ---
-    MAX_STAT_PER_FRAGMENT = 37
-    MAX_PATH_LENGTH = 40
-    CLEANUP_INTERVAL = 15
-    ALWAYS_VALID_AGE = float("inf")
-    ALWAYS_INVALID_AGE = -1
-    ENTRY_EXPIRATION_TIME = 600
-    TREE_BEACON_INTERVAL = 60
-    SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3 # Used as the base for report interval
-    RSSI_LOW_THR = -85
-    RSSI_HIGH_REF = -35
-    DELTA_ETX_MIN = 0.3
-    THR_H = 100
-    ALPHA = 0.9
-    TREE_BEACON_FORWARD_DELAY = 1 / 10 # Corresponds to CLOCK_SECOND / 10 in C
 
     # Redefine for easy access within the class scope
     TARPRoute = TARPRoute
     NodeType = NodeType
     RouteStatus = RouteStatus
 
-
-    def __init__(self, host: "StaticNode", sink: bool = False):
+    def __init__(self, host: NetworkNode, sink: bool = False):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.sink = sink
         self.parent: Optional[bytes] = None
-        self.nbr_tbl: Dict[bytes, TARP.TARPRoute] = {}
+        self.nbr_tbl: Dict[bytes, TARPProtocol.TARPRoute] = {}
 
         self.metric = 0.0 if self.sink else float("inf")
         self.seqn = 0
-        self.hops = 0 if self.sink else TARP.MAX_PATH_LENGTH + 1
-        
+        self.hops = 0 if self.sink else TARPParameters.MAX_PATH_LENGTH + 1
+
         # Buffer for outgoing topology reports
-        self.tpl_buf: Dict[bytes, TARP.RouteStatus] = {}
+        self.tpl_buf: Dict[bytes, TARPProtocol.RouteStatus] = {}
         self.tpl_buf_offset = 0
 
         self._cleanup_timer: Optional[NetRoutingTableCleanupEvent] = None
@@ -105,7 +100,7 @@ class TARP(Layer, Entity):
         Calculates the delay for forwarding a beacon with jitter,
         replicating: TREE_BEACON_FORWARD_DELAY + (random_rand() % TREE_BEACON_FORWARD_DELAY)
         """
-        base_delay = self.TREE_BEACON_FORWARD_DELAY
+        base_delay = TARPParameters.TREE_BEACON_FORWARD_DELAY
         jitter = self.rng.uniform(low=0, high=base_delay)
         return base_delay + jitter
 
@@ -115,14 +110,14 @@ class TARP(Layer, Entity):
         replicating: SUBTREE_REPORT_INTERVAL * (1 + 1/hops) + random_jitter
         """
         if self.hops <= 0:  # Should only happen for the sink, which doesn't report
-            return self.SUBTREE_REPORT_OFFEST
+            return TARPParameters.SUBTREE_REPORT_OFFEST
 
-        base_interval = self.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
-        
+        base_interval = TARPParameters.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
+
         # Random jitter up to half of the base report interval
-        max_jitter = self.SUBTREE_REPORT_OFFEST / 2
+        max_jitter = TARPParameters.SUBTREE_REPORT_OFFEST / 2
         jitter = self.rng.uniform(low=0, high=max_jitter)
-        
+
         return base_interval + jitter
 
     # --- Core Protocol Logic ---
@@ -136,15 +131,16 @@ class TARP(Layer, Entity):
         """Resets the node's routing state upon detecting a new epoch."""
         for entry in self.nbr_tbl.values():
             if entry.type == self.NodeType.NODE_DESCENTANT:
-                entry.age = self.ALWAYS_INVALID_AGE
+                entry.age = TARPParameters.ALWAYS_INVALID_AGE
             elif (
-                entry.type == self.NodeType.NODE_CHILD or entry.type == self.NodeType.NODE_PARENT
+                entry.type == self.NodeType.NODE_CHILD
+                or entry.type == self.NodeType.NODE_PARENT
             ):
                 entry.type = self.NodeType.NODE_NEIGHBOR
 
         self.parent = None
         self.metric = 0 if self.sink else float("inf")
-        self.hops = 0 if self.sink else self.MAX_PATH_LENGTH + 1
+        self.hops = 0 if self.sink else TARPParameters.MAX_PATH_LENGTH + 1
         self.seqn = seqn
         self._flush_tpl_buf()
 
@@ -153,13 +149,17 @@ class TARP(Layer, Entity):
             self.host.context.scheduler.unschedule(self._beacon_timer)
         if self._report_timer and not self._report_timer._cancelled:
             self.host.context.scheduler.unschedule(self._report_timer)
-    
+
+    '''
     def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
         """Sends an application data packet to a destination."""
         if not self.sink and self.parent is None:
             # Drop packet if we are disconnected from the tree
-            if self.host.context.scheduler.now() > 2 * self.TREE_BEACON_INTERVAL:
-                 print(
+            if (
+                self.host.context.scheduler.now()
+                > 2 * TARPParameters.TREE_BEACON_INTERVAL
+            ):
+                print(
                     f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/SEND] "
                     f"No parent, cannot send. Dropping packet.",
                     flush=True,
@@ -184,19 +184,72 @@ class TARP(Layer, Entity):
         net_packet = TARPPacket(header=packet_header, APDU=payload)
         self.host.mac.send(payload=net_packet, destination=nexthop)
         return True
+    '''
+
+    #NOTE: check this function
+    def send(self, payload: Any, destination: Optional[bytes] = None) -> bool:
+        """Sends an application data packet to a destination."""
+        if not self.sink and self.parent is None:
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP send: No parent, dropping packet (dest: {destination.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=destination if destination else b'',
+                                    packet_type=TARPUnicastType.UC_TYPE_DATA.name
+                                    )
+            self._notify_monitors(signal)
+            return False
+
+        nexthop = self._nbr_tbl_lookup(destination)
+        if nexthop is None:
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP send: No route for destination, dropping packet (dest: {destination.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=destination if destination else b'',
+                                    packet_type=TARPUnicastType.UC_TYPE_DATA.name
+                                    )
+            self._notify_monitors(signal)
+            return False
+
+        packet_header = TARPUnicastHeader(
+            type=TARPUnicastType.UC_TYPE_DATA,
+            s_addr=self.host.linkaddr,
+            d_addr=destination,
+            hops=0,
+        )
+        net_packet = TARPPacket(header=packet_header, APDU=payload)
+
+        return_value = (nexthop is not None) # Simplistic: Return True if a nexthop was found, False otherwise
+        signal = TARPUnicastSendSignal(descriptor=f"[{self.host.id}] TARP send: Sending packet to nexthop {nexthop.hex()} (dest: {destination.hex()}).",
+                                timestamp=self.host.context.scheduler.now(),
+                                destination=destination if destination else b'',
+                                packet_type= TARPUnicastType.UC_TYPE_DATA.name
+                                )
+        self._notify_monitors(signal)
+
+        self.host.mac.send(payload=net_packet, destination=nexthop)
+        return return_value # Returning True if a route was found, even if MAC fails later
+
 
     def _forward_data(self, header: TARPUnicastHeader, payload: Any):
         """Forwards a data packet towards its destination."""
         nexthop = self._nbr_tbl_lookup(header.d_addr)
         if nexthop is None:
-            print(
-                f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/FORWARD] "
-                f"No route to destination {header.d_addr.hex()}. Dropping packet.",
-                flush=True,
-            )
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP forward: No route for destination, dropping packet (dest: {header.d_addr.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=header.d_addr,
+                                    packet_type= header.type.name
+                                    )
+            self._notify_monitors(signal)
             return
 
         net_packet = TARPPacket(header=header, APDU=payload)
+        signal = TARPForwardingSignal(descriptor=f"[{self.host.id}] TARP forward: Forwarding packet to nexthop {nexthop.hex()} (source: {header.s_addr.hex()}, dest: {header.d_addr.hex()}).",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    received_from=header.s_addr,
+                                    original_source=header.s_addr,
+                                    destination=header.d_addr,
+                                    forwarding_to=nexthop,
+                                    packet_type= header.type.name
+                                    )
+        self._notify_monitors(signal)
         self.host.mac.send(payload=net_packet, destination=nexthop)
 
     def receive(self, payload: TARPPacket, sender_addr: bytes, rssi: float):
@@ -205,11 +258,21 @@ class TARP(Layer, Entity):
             self._uc_recv(payload, sender_addr)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, sender_addr, rssi=rssi)
+        
+       
 
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
         """Handles a received broadcast (beacon) packet."""
-        if rssi < self.RSSI_LOW_THR:
+        if rssi < TARPParameters.RSSI_LOW_THR:
             return
+
+        signal = TARPBroadcastReceiveSignal(
+            descriptor=f"[{self.host.id}] TARP beacon receive: broadcast received from {tx_addr.hex()}",
+            timestamp=self.host.context.scheduler.now(),
+            source=tx_addr,
+            rssi = rssi
+        )
+        self._notify_monitors(signal)
 
         header: TARPBroadcastHeader = payload.header
         current_time = self.host.context.scheduler.now()
@@ -225,7 +288,9 @@ class TARP(Layer, Entity):
                 age=current_time,
                 nexthop=tx_addr,
                 hops=header.hops,
-                etx=tarp_utils._etx_est_rssi(rssi, self.RSSI_HIGH_REF, self.RSSI_LOW_THR),
+                etx=tarp_utils._etx_est_rssi(
+                    rssi, TARPParameters.RSSI_HIGH_REF, TARPParameters.RSSI_LOW_THR
+                ),
                 num_tx=0,
                 num_ack=0,
                 adv_metric=header.metric_q124,
@@ -236,22 +301,27 @@ class TARP(Layer, Entity):
             self._reset_connection_status(header.epoch)
 
         new_metric = tarp_utils._metric(header.metric_q124, tx_entry.etx)
-        is_preferred = tarp_utils._preferred(new_metric, self.metric, self.THR_H, self.DELTA_ETX_MIN)
-        
+        is_preferred = tarp_utils._preferred(
+            new_metric, self.metric, TARPParameters.THR_H, TARPParameters.DELTA_ETX_MIN
+        )
+
         if is_preferred:
             # Unset old parent if it exists
+            old_parent = None
             if self.parent and self.parent in self.nbr_tbl:
                 self.nbr_tbl[self.parent].type = self.NodeType.NODE_NEIGHBOR
+                old_parent = self.parent
 
             self.parent = tx_addr
             self.metric = new_metric
             self.hops = header.hops + 1
             tx_entry.type = self.NodeType.NODE_PARENT
-            print(
-                f"[{current_time:.6f}s] [{self.host.id}] [TARP] "
-                f"SELECTING NEW PARENT {tx_addr.hex()} | New Metric: {self.metric:.2f}",
-                flush=True,
-            )
+            
+            signal = TARPParentChangeSignal(descriptor=f"[{self.host.id}] TARP parent change: changing parent from {(old_parent if old_parent else b'').hex()} to {self.parent.hex()}.",
+                                           timestamp=current_time,
+                                           old_parent=old_parent if old_parent else b'',
+                                           new_parent=self.parent)
+            self._notify_monitors(signal)
 
             # Schedule beacon forwarding with jitter
             if self._beacon_timer and not self._beacon_timer._cancelled:
@@ -283,35 +353,60 @@ class TARP(Layer, Entity):
     def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
         """Handles a received unicast (data or report) packet."""
         if tx_addr not in self.nbr_tbl:
+            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP unicast receive: no route for sender {tx_addr.hex()} (unknown node), dropping packet.",
+                                    timestamp=self.host.context.scheduler.now(),
+                                    destination=tx_addr,
+                                    packet_type=payload.header.type.name
+                                    )
+            self._notify_monitors(signal)
             return
+
+        signal = TARPUnicastReceiveSignal(
+            descriptor=f"[{self.host.id}] TARP unicast receive: unicast received from {tx_addr.hex()} with destination {payload.header.d_addr.hex()}.",
+            timestamp=self.host.context.scheduler.now(),
+            received_from=tx_addr,
+            original_source=payload.header.s_addr,
+            packet_type=payload.header.type.name,
+        ) 
+        self._notify_monitors(signal)
 
         header: TARPUnicastHeader = payload.header
         header.hops += 1
 
-        if header.hops > self.MAX_PATH_LENGTH:
+        if header.hops > TARPParameters.MAX_PATH_LENGTH:
             return
 
         self._nbr_tbl_refresh(tx_addr)
 
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
+                
                 self.host.app.receive(payload.APDU, sender_addr=header.s_addr)
             else:
                 self._forward_data(header, payload=payload.APDU)
-        
+
         elif header.type == TARPUnicastType.UC_TYPE_REPORT:
             net_buf = payload.APDU
-            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
-            f"Received report from {tx_addr.hex()} with content: {net_buf}", flush=True)
-          
+
+            net_buf_str = {  #just for logging
+            ''.join([f'{b:02x}' for b in addr]) : status
+            for addr, status in net_buf.items()
+                }
+            signal = TARPUnicastReceiveSignal(descriptor=f"[{self.host.id}] TARP report receive: report received from {tx_addr.hex()} with content: {net_buf_str}.",
+                                            timestamp=self.host.context.scheduler.now(),
+                                            received_from=tx_addr,
+                                            original_source=tx_addr,
+                                            packet_type=header.type.name
+                                            )
+            self._notify_monitors(signal)
+
             self._nbr_tbl_update(tx_addr=tx_addr, buf=net_buf)
-            
-            #if not self.sink:
-            #    # Aggregate received info into our own report buffer
-            #    self.tpl_buf.update(net_buf)
+
+            if not self.sink:
+                # Aggregate received info into our own report buffer
+                self.tpl_buf.update(net_buf)
             #    print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_RECV] "
             #    f"Updated tpl_buf: {self.tpl_buf}", flush=True)
-
 
     def _uc_sent(self, rx_addr: bytes, status_ok: bool, num_tx: int, ack_rssi: float):
         """Callback from MAC layer indicating unicast transmission outcome."""
@@ -328,24 +423,26 @@ class TARP(Layer, Entity):
                 num_ack=route.num_ack,
                 o_etx=route.etx,
                 rssi=ack_rssi,
-                alpha=self.ALPHA,
-                rssi_high_ref=self.RSSI_HIGH_REF,
-                rssi_low_thr=self.RSSI_LOW_THR,
+                alpha=TARPParameters.ALPHA,
+                rssi_high_ref=TARPParameters.RSSI_HIGH_REF,
+                rssi_low_thr=TARPParameters.RSSI_LOW_THR,
             )
             self._nbr_tbl_refresh(rx_addr)
         else:
-            route.age = self.ALWAYS_INVALID_AGE
+            route.age = TARPParameters.ALWAYS_INVALID_AGE
             self._do_cleanup()
-            
+
     # --- Timer Callbacks ---
-    
+
     def _beacon_timer_cb(self):
         """Callback to send a beacon."""
         if self.sink:
             new_seqn = self.seqn + 1
             self._reset_connection_status(new_seqn)
             # Schedule next periodic beacon
-            next_beacon_time = self.host.context.scheduler.now() + self.TREE_BEACON_INTERVAL
+            next_beacon_time = (
+                self.host.context.scheduler.now() + TARPParameters.TREE_BEACON_INTERVAL
+            )
             self._beacon_timer = NetBeaconSendEvent(
                 time=next_beacon_time, blame=self, callback=self._beacon_timer_cb
             )
@@ -369,36 +466,42 @@ class TARP(Layer, Entity):
 
         if not self.tpl_buf:
             # Send an empty report as a keep-alive
-            print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
-          f"Sending empty report to parent {self.parent.hex()}", flush=True)
+            #print(
+            #    f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
+            #    f"Sending empty report to parent {self.parent.hex()}",
+            #    flush=True,
+            #)
             self._send_report_fragment({})
         else:
             remaining_items = len(self.tpl_buf) - self.tpl_buf_offset
             if remaining_items > 0:
-                frag_size = min(remaining_items, self.MAX_STAT_PER_FRAGMENT)
+                frag_size = min(remaining_items, TARPParameters.MAX_STAT_PER_FRAGMENT)
                 voice_addr = list(self.tpl_buf.keys())
                 fragment_payload = {
-                    addr: self.tpl_buf[addr]
-                    for addr in voice_addr[self.tpl_buf_offset : self.tpl_buf_offset + frag_size]
+                    addr : self.tpl_buf[addr]
+                    for addr in voice_addr[
+                        self.tpl_buf_offset : self.tpl_buf_offset + frag_size
+                    ]
                 }
-                print(f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP/REPORT_SEND] "
-                f"Sending fragment to parent {self.parent.hex()} with payload: {fragment_payload}", flush=True)
+            
                 self._send_report_fragment(fragment_payload)
                 self.tpl_buf_offset += frag_size
 
                 # If more fragments remain, schedule next part immediately
                 if self.tpl_buf_offset < len(self.tpl_buf):
-                    next_frag_time = self.host.context.scheduler.now() + 0.02 
+                    next_frag_time = self.host.context.scheduler.now() + 0.02
                     self._report_timer = NetTopologyReportSendEvent(
-                        time=next_frag_time, blame=self, callback=self._subtree_report_cb
+                        time=next_frag_time,
+                        blame=self,
+                        callback=self._subtree_report_cb,
                     )
                     self.host.context.scheduler.schedule(self._report_timer)
-                    return # Exit to avoid scheduling the next periodic report yet
-        
+                    return  # Exit to avoid scheduling the next periodic report yet
+
         # All fragments sent (or buffer was empty), schedule next periodic report
         self._flush_tpl_buf()
         self._schedule_next_report()
-        
+
     def _nbr_tbl_cleanup_cb(self):
         """Callback to periodically clean up expired neighbor entries."""
         self._do_cleanup()
@@ -417,21 +520,27 @@ class TARP(Layer, Entity):
             hops=0,
         )
         packet = TARPPacket(header=header, APDU=payload)
+        signal = TARPUnicastSendSignal(descriptor=f"[{self.host.id}] TARP report send: Sending packet to parent {self.parent.hex()}.",
+                                timestamp=self.host.context.scheduler.now(),
+                                destination=self.parent,
+                                packet_type= TARPUnicastType.UC_TYPE_REPORT.name
+                                )
+        self._notify_monitors(signal)
         self.host.mac.send(packet, self.parent)
 
     def _schedule_next_report(self):
         """Schedules the next periodic topology report."""
         if self.sink or self.parent is None:
             return
-        
+
         if self._report_timer and not self._report_timer._cancelled:
-             self.host.context.scheduler.unschedule(self._report_timer)
-             
+            self.host.context.scheduler.unschedule(self._report_timer)
+
         interval = self._get_next_report_interval()
         next_report_time = self.host.context.scheduler.now() + interval
         self._report_timer = NetTopologyReportSendEvent(
-                time=next_report_time, blame=self, callback=self._subtree_report_cb
-            )
+            time=next_report_time, blame=self, callback=self._subtree_report_cb
+        )
         self.host.context.scheduler.schedule(self._report_timer)
 
     def _buff_subtree(self):
@@ -451,53 +560,71 @@ class TARP(Layer, Entity):
 
         # Find the best alternative parent among current neighbors
         for addr, entry in self.nbr_tbl.items():
-            if tarp_utils._valid(self.host.context.scheduler.now(), entry, self.ENTRY_EXPIRATION_TIME) and entry.type == self.NodeType.NODE_NEIGHBOR:
+            if (
+                tarp_utils._valid(
+                    self.host.context.scheduler.now(),
+                    entry,
+                    TARPParameters.ENTRY_EXPIRATION_TIME,
+                )
+                and entry.type == self.NodeType.NODE_NEIGHBOR
+            ):
                 metric = tarp_utils._metric(entry.adv_metric, entry.etx)
                 if metric < best_metric:
                     best_metric = metric
                     new_parent_addr = addr
-        
+
         # Invalidate the old parent entry
         if old_parent_addr in self.nbr_tbl:
-            self.nbr_tbl[old_parent_addr].age = self.ALWAYS_INVALID_AGE
+            self.nbr_tbl[old_parent_addr].age = TARPParameters.ALWAYS_INVALID_AGE
 
         if new_parent_addr:
             self.parent = new_parent_addr
             self.metric = best_metric
             self.nbr_tbl[new_parent_addr].type = self.NodeType.NODE_PARENT
             self.hops = self.nbr_tbl[new_parent_addr].hops + 1
-            
+
             # Immediately send a report to the new parent
             self._subtree_report_cb()
         else:
             self.parent = None
             self.metric = float("inf")
-            self.hops = self.MAX_PATH_LENGTH + 1
+            self.hops = TARPParameters.MAX_PATH_LENGTH + 1
 
-        print(
-            f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] [TARP] "
-            f"REACTIVELY CHANGING PARENT. Old: {old_parent_addr.hex()}, New: {new_parent_addr.hex() if new_parent_addr else 'None'}.",
-            flush=True,
+        signal = TARPParentChangeSignal(
+            descriptor=f"[{self.host.id}] TARP reactive parent change: changing parent from {old_parent_addr.hex()} to {new_parent_addr.hex() if new_parent_addr else 'None'}.",
+            timestamp=self.host.context.scheduler.now(),
+            old_parent=old_parent_addr,
+            new_parent=new_parent_addr if new_parent_addr else b'',
         )
+        self._notify_monitors(signal)
 
     def _broadcast_send(self, header: TARPBroadcastHeader):
         """Sends a broadcast packet."""
         broadcast_packet = TARPPacket(header=header, APDU=None)
         b_addr = Frame_802_15_4.broadcast_linkaddr
+        signal = TARPBroadcastSendSignal(
+            descriptor=f"[{self.host.id}] TARP beacon send: broadcasting beacon: epoch->{header.epoch}, metric->{header.metric_q124}, hops->{header.hops}, parent->{header.parent.hex()  if header.parent else '' }.",
+            timestamp=self.host.context.scheduler.now(),
+        )
+        self._notify_monitors(signal)
         self.host.mac.send(payload=broadcast_packet, destination=b_addr)
 
     def _nbr_tbl_lookup(self, dst_addr: bytes) -> Optional[bytes]:
         """Looks up the next hop for a given destination address."""
         if dst_addr == self.host.linkaddr:
             return self.host.linkaddr
-        
+
         # If destination is in the table, use its specific nexthop
         if dst_addr in self.nbr_tbl:
             route = self.nbr_tbl[dst_addr]
             # Ensure the route is valid before using it
-            if tarp_utils._valid(self.host.context.scheduler.now(), route, self.ENTRY_EXPIRATION_TIME):
-                 return route.nexthop
-        
+            if tarp_utils._valid(
+                self.host.context.scheduler.now(),
+                route,
+                TARPParameters.ENTRY_EXPIRATION_TIME,
+            ):
+                return route.nexthop
+
         # Default route is via parent for any unknown/descendant address
         return self.parent
 
@@ -506,7 +633,9 @@ class TARP(Layer, Entity):
         if addr in self.nbr_tbl:
             self.nbr_tbl[addr].age = self.host.context.scheduler.now()
 
-    def _nbr_tbl_update(self, tx_addr: bytes, buf: Dict[bytes, "TARP.RouteStatus"]):
+    def _nbr_tbl_update(
+        self, tx_addr: bytes, buf: Dict[bytes, "TARPProtocol.RouteStatus"]
+    ):
         """Updates the neighbor table based on a received report."""
         # The sender of the report is confirmed as a child
         tx_entry = self.nbr_tbl.get(tx_addr)
@@ -515,20 +644,22 @@ class TARP(Layer, Entity):
 
         for d_addr, d_status in buf.items():
             if d_status == self.RouteStatus.STATUS_ADD:
-                if d_addr not in self.nbr_tbl: # Add new entry
+                if d_addr not in self.nbr_tbl:  # Add new entry
                     d_entry = self.TARPRoute(
                         type=self.NodeType.NODE_DESCENTANT,
                         adv_metric=float("inf"),
-                        age=self.ALWAYS_VALID_AGE, # Descendants don't expire
-                        hops=self.MAX_PATH_LENGTH + 1,
+                        age=TARPParameters.ALWAYS_VALID_AGE,  # Descendants don't expire
+                        hops=TARPParameters.MAX_PATH_LENGTH + 1,
                         nexthop=tx_addr,
-                        etx=0.0, num_tx=0, num_ack=0,
+                        etx=0.0,
+                        num_tx=0,
+                        num_ack=0,
                     )
                     self.nbr_tbl[d_addr] = d_entry
-                else: # Refresh existing entry
+                else:  # Refresh existing entry
                     self.nbr_tbl[d_addr].nexthop = tx_addr
                     self.nbr_tbl[d_addr].type = self.NodeType.NODE_DESCENTANT
-                    self.nbr_tbl[d_addr].age = self.ALWAYS_VALID_AGE
+                    self.nbr_tbl[d_addr].age = TARPParameters.ALWAYS_VALID_AGE
 
             elif d_status == self.RouteStatus.STATUS_REMOVE:
                 if d_addr in self.nbr_tbl:
@@ -537,25 +668,28 @@ class TARP(Layer, Entity):
     def _do_cleanup(self):
         """Performs cleanup of expired neighbor table entries."""
         current_time = self.host.context.scheduler.now()
-        
+
         expired_addr = [
             addr
             for addr, route in self.nbr_tbl.items()
-            if not tarp_utils._valid(current_time, route, self.ENTRY_EXPIRATION_TIME)
+            if not tarp_utils._valid(
+                current_time, route, TARPParameters.ENTRY_EXPIRATION_TIME
+            )
         ]
 
         parent_lost = False
         for addr in expired_addr:
-            if addr not in self.nbr_tbl: continue
-            
+            if addr not in self.nbr_tbl:
+                continue
+
             route_type = self.nbr_tbl[addr].type
 
             if route_type == self.NodeType.NODE_CHILD:
                 self._remove_subtree(addr)
             elif route_type == self.NodeType.NODE_PARENT:
                 parent_lost = True
-            
-            self.nbr_tbl.pop(addr)
+
+            self.nbr_tbl.pop(addr, None)
 
         if parent_lost:
             self._change_parent(old_parent_addr=self.parent)
@@ -565,11 +699,12 @@ class TARP(Layer, Entity):
         if self._cleanup_timer and not self._cleanup_timer._cancelled:
             self.host.context.scheduler.unschedule(self._cleanup_timer)
 
-        cleanup_time = self.host.context.scheduler.now() + self.CLEANUP_INTERVAL
+        cleanup_time = (
+            self.host.context.scheduler.now() + TARPParameters.CLEANUP_INTERVAL
+        )
         self._cleanup_timer = NetRoutingTableCleanupEvent(
             time=cleanup_time,
             blame=self,
-            descriptor=f"Node:{self.host.id}",
             callback=self._nbr_tbl_cleanup_cb,
         )
         self.host.context.scheduler.schedule(self._cleanup_timer)
@@ -582,7 +717,7 @@ class TARP(Layer, Entity):
         for addr in subtree_addr:
             if addr in self.nbr_tbl:
                 self.nbr_tbl.pop(addr)
-        
+
         # Announce the removal of the entire subtree in the next report
         self.tpl_buf.update(
             {c_addr: self.RouteStatus.STATUS_REMOVE for c_addr in subtree_addr}

@@ -1,5 +1,6 @@
 from simulator.engine.common.Event import Event
 
+
 class MacSendReqEvent(Event):
     pass
 
@@ -7,8 +8,10 @@ class MacSendReqEvent(Event):
 class MacACKTimeoutEvent(Event):
     pass
 
+
 class MacACKSendEvent(Event):
     pass
+
 
 class MacTrySendNextEvent(Event):
     pass

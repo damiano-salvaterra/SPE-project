@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Any, TYPE_CHECKING
+from typing import Optional, Any
+from simulator.entities.common import NetworkNode
 
-if TYPE_CHECKING:
-    from simulator.entities.physical.devices.nodes import StaticNode
 
 class Layer(ABC):
-    '''
+    """
     Abstract base class for all layers in the simulator.
-    '''
-    def __init__(self, host: "StaticNode"):
+    """
+
+    def __init__(self, host: NetworkNode):
         super().__init__()
         self.host = host
-        
+
     @abstractmethod
     def send(self, payload: Any, destination: Optional[Any] = None) -> None:
         pass

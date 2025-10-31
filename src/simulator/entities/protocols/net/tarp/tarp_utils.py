@@ -1,5 +1,6 @@
 from simulator.entities.protocols.net.tarp.tarp_structures import TARPRoute
 
+
 def _etx_est_rssi(rssi: float, rssi_high_ref: float, rssi_low_thr: float) -> float:
     """heuristic for the etx based on rssi"""
     if rssi > rssi_high_ref:
@@ -32,7 +33,15 @@ def _preferred(new_m: float, cur_m: float, thr_h: float, delta_etx_min: float) -
     return (new_m + thr) < cur_m
 
 
-def _etx_update(num_tx: int, num_ack: int, o_etx: float, rssi: float, alpha: float, rssi_high_ref: float, rssi_low_thr: float) -> float:
+def _etx_update(
+    num_tx: int,
+    num_ack: int,
+    o_etx: float,
+    rssi: float,
+    alpha: float,
+    rssi_high_ref: float,
+    rssi_low_thr: float,
+) -> float:
     n_etx = 0.0
     if num_ack == 0 or alpha == 1:
         n_etx = _etx_est_rssi(rssi, rssi_high_ref, rssi_low_thr)
