@@ -102,9 +102,11 @@ class TARPBroadcastReceiveSignal(EntitySignal):
         descriptor: str,
         timestamp: float,
         source: bytes,
+        rssi: float
     ):
         super().__init__(descriptor=descriptor, timestamp=timestamp)
         self.source = source
+        self.rssi = rssi
 
 class TARPParentChangeSignal(EntitySignal):
     """

@@ -116,9 +116,10 @@ class TARPMonitor(Monitor):
             log_entry.update({
                 "event": "BC_RECV",
                 "type": "BEACON",
-                "source": signal.source.hex()
+                "source": signal.source.hex(),
+                "rssi": signal.rssi
             })
-            print_msg = f"Recv BEACON from {signal.source.hex()}"
+            print_msg = f"Recv BEACON from {signal.source.hex()}, rssi: {signal.rssi}"
 
         elif isinstance(signal, TARPParentChangeSignal):
             old_parent_hex = signal.old_parent.hex() or "None"

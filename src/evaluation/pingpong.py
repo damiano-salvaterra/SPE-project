@@ -313,7 +313,7 @@ if __name__ == "__main__":
             "filter_bandwidth": 2e6,
             "coh_d": 50,      # Stable shadowing (high spatial correlation)
             "shadow_dev": 2.0,  # Low shadowing variance
-            "pl_exponent": 4.5,   # MODIFIED: Increased from 3.5. Forces multi-hop.
+            "pl_exponent": 2,   
             "d0": 1.0,
             "fading_shape": 3.0,  # Rician fading (stable links)
         }
@@ -327,7 +327,7 @@ if __name__ == "__main__":
             "filter_bandwidth": 2e6,
             "coh_d": 30,          # Medium spatial correlation
             "shadow_dev": 4.0,    # Medium shadowing variance
-            "pl_exponent": 4.2,   # High attenuation (between stable and harsh)
+            "pl_exponent": 3.5,   # High attenuation (between stable and harsh)
             "d0": 1.0,
             "fading_shape": 1.5,  # Nakagami fading (m=1.5)
         }
@@ -355,9 +355,9 @@ if __name__ == "__main__":
         else:  # harsh
             bootstrap_params = harsh_params
 
-        num_nodes = 40
+        num_nodes = 10
         # MODIFICATION: Increased node_distance from 35 to 60 to ensure multi-hop
-        node_distance = 60
+        node_distance = 10
         simulation_time = 1200.0
 
         plots_dir = "plots" # Define plots directory

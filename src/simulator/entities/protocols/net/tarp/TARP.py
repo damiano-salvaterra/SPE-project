@@ -270,6 +270,7 @@ class TARPProtocol(Layer, Entity):
             descriptor=f"[{self.host.id}] TARP beacon receive: broadcast received from {tx_addr.hex()}",
             timestamp=self.host.context.scheduler.now(),
             source=tx_addr,
+            rssi = rssi
         )
         self._notify_monitors(signal)
 
