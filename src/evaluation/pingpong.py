@@ -1,8 +1,11 @@
 import sys
 import os
 import argparse
-import atexit # Added import for cleanup
+import numpy as np
+import traceback
 
+# --- Python Path Setup ---
+# Add the project root to the sys.path to allow importing simulator modules
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
@@ -12,20 +15,29 @@ from simulator.applications.PingPongApplication import PingPongApp  # noqa: E402
 from evaluation.monitors.packet_monitor import PacketMonitor  # noqa: E402
 from evaluation.monitors.app_monitor import AppPingMonitor  # noqa: E402
 from evaluation.monitors.tarp_monitor import TARPMonitor  # noqa: E402
-from evaluation.util.plot_topology import plot_topology  # noqa: E402
+# from evaluation.util.plot_topology import plot_topology # noqa: E402 - Handled by plot_scenario
 from evaluation.util.topology import (  # noqa: E402
     get_linear_topology_positions,
     get_ring_topology_positions,
 )
+# Import the advanced plotting function
+from evaluation.plot_scenario import plot_scenario_with_shadowing # noqa: E402
+
 
 # ======================================================================================
-# Global variables to hold original stdout/stderr and the log file handle
+# Global Logging State
+# ======================================================================================
+
+# Store original stdout/stderr to restore them on exit
 original_stdout = sys.stdout
 original_stderr = sys.stderr
 log_file = None
 
 def setup_logging(log_filename="simulation.log"):
-    """Redirects stdout and stderr to a specified log file."""
+    """
+    Redirects stdout (but not stderr) to a specified log file.
+    Exceptions will still print to the original console.
+    """
     global log_file
     try:
         # Create log directory if it doesn't exist
@@ -36,13 +48,8 @@ def setup_logging(log_filename="simulation.log"):
         # Open the log file
         log_file = open(log_filename, 'w')
         
-        # MODIFICATION: Redirect only stdout to the log file.
-        # stderr (for exceptions) will remain on the original console.
+        # Redirect stdout to the log file
         sys.stdout = log_file
-        # sys.stderr = log_file # This line is commented out to keep exceptions on the console.
-        
-        # Register the cleanup function to run at script exit
-        atexit.register(cleanup_logging)
         
     except Exception as e:
         # If logging setup fails, print error to original stderr and exit
@@ -50,12 +57,14 @@ def setup_logging(log_filename="simulation.log"):
         sys.exit(1)
 
 def cleanup_logging():
-    """Restores original stdout/stderr and closes the log file."""
+    """
+    Restores original stdout/stderr and closes the log file.
+    This function is safe to call multiple times.
+    """
     global log_file
     
-    # MODIFICATION: Check if log_file was successfully opened before closing
-    if log_file:
-        # Flush and close the log file
+    # Check if log_file is valid and open
+    if log_file and not log_file.closed:
         try:
             log_file.flush()
             log_file.close()
@@ -63,137 +72,157 @@ def cleanup_logging():
             # If closing fails, report to original stderr
             original_stderr.write(f"Failed to close log file: {e}\n")
     
+    log_file = None # Prevent subsequent close attempts
+    
     # Restore original stdout and stderr
     sys.stdout = original_stdout
     sys.stderr = original_stderr
-# ======================================================================================
-
 
 # ======================================================================================
-# MAIN SIMULATION SETUP
+# Helper Functions
 # ======================================================================================
 
+def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0):
+    """
+    Calculates the bounding box of the topology and determines the DSpace
+    parameters (npt) needed to contain it with 0-centering.
+    The dspace_step (point density) is now a parameter.
+    """
+    if not node_positions:
+        return 200 # Default fallback
+
+    min_x = min(p.x for p in node_positions)
+    max_x = max(p.x for p in node_positions)
+    min_y = min(p.y for p in node_positions)
+    max_y = max(p.y for p in node_positions)
+
+    # Apply padding
+    min_x_pad = min_x - padding
+    max_x_pad = max_x + padding
+    min_y_pad = min_y - padding
+    max_y_pad = max_y + padding
+
+    # Find the largest absolute coordinate required from the center (0,0)
+    max_abs_coord = max(abs(min_x_pad), abs(max_x_pad), abs(min_y_pad), abs(max_y_pad))
+
+    # Calculate npt needed for this half-width, based on the step (density)
+    half_n = int(np.ceil(max_abs_coord / dspace_step)) + 2 # Add a small safety margin
+    dspace_npt = half_n * 2
+
+    print(f"Topology bounds (unpadded): X=[{min_x:.1f}, {max_x:.1f}], Y=[{min_y:.1f}, {max_y:.1f}]")
+    print(f"Max absolute coordinate (padded): {max_abs_coord:.1f}")
+    print(f"Calculated DSpace params: step={dspace_step}, npt={dspace_npt} (Grid will span approx. [{-half_n*dspace_step:.1f}, {half_n*dspace_step-dspace_step:.1f}])")
+
+    return dspace_npt
+
+def get_channel_params(channel_name: str) -> dict:
+    """Returns a dictionary of channel parameters for a given name."""
+    
+    # Base parameters (stable)
+    stable_params = {
+        "freq": 2.4e9, "filter_bandwidth": 2e6, "coh_d": 50,
+        "shadow_dev": 2.0, "pl_exponent": 2, "d0": 1.0, "fading_shape": 3.0,
+    }
+
+    # Realistic, unstable multi-hop
+    medium_params = {
+        "freq": 2.4e9, "filter_bandwidth": 2e6, "coh_d": 30,
+        "shadow_dev": 4.0, "pl_exponent": 3.5, "d0": 1.0, "fading_shape": 1.5,
+    }
+
+    # Bridge the gap between 'medium' and 'harsh'
+    medium_lossy_params = {
+        "freq": 2.4e9, "filter_bandwidth": 2e6, "coh_d": 20,
+        "shadow_dev": 5.0, "pl_exponent": 3.8, "d0": 1.0, "fading_shape": 1.5,
+    }
+
+    # A bit less broken than 'harsh', focusing on instability
+    harsh_unstable_params = {
+        "freq": 2.4e9, "filter_bandwidth": 2e6, "coh_d": 15,
+        "shadow_dev": 5.0, "pl_exponent": 4.0, "d0": 1.0, "fading_shape": 1.0,
+    }
+
+    # Very unstable multi-hop
+    harsh_params = {
+        "freq": 2.4e9, "filter_bandwidth": 2e6, "coh_d": 10,
+        "shadow_dev": 6.0, "pl_exponent": 4.0, "d0": 1.0, "fading_shape": 0.75,
+    }
+
+    params_map = {
+        "stable": stable_params,
+        "medium": medium_params,
+        "medium_lossy": medium_lossy_params,
+        "harsh_unstable": harsh_unstable_params,
+        "harsh": harsh_params,
+    }
+    
+    return params_map.get(channel_name, harsh_params).copy()
+
+# ======================================================================================
+# MAIN SIMULATION FUNCTION
+# ======================================================================================
 
 def main(
-    num_nodes: int = 2,
-    node_distance: int = 30,
-    simulation_time: float = 600.0,
-    root_seed: int = 12345,
-    bootstrap_params: dict = None,
-    bootstrapped_kernel: Kernel = None,
-    node_positions: list = None,
-    topology_plot_path: str = "topology.png",
+    num_nodes: int,
+    simulation_time: float,
+    root_seed: int,
+    bootstrap_params: dict,
+    bootstrapped_kernel: Kernel,
+    node_positions: list,
+    pinger_idx: int,
+    ponger_idx: int,
 ):
     """
-    Main simulation function.
-
-    Args:
-        num_nodes (int): The total number of nodes in the linear topology.
-        node_distance (int): The distance between adjacent nodes.
-        simulation_time (float): The total simulation time in seconds.
-        root_seed (int): The root seed for the random number generator.
-        bootstrap_params (dict): A dictionary of parameters for bootstrapping a new kernel.
-        bootstrapped_kernel (Kernel): An optional pre-bootstrapped kernel instance.
-        node_positions (list): A list of CartesianCoordinate objects for node positions.
-        topology_plot_path (str): The file path to save the topology plot.
+    Main simulation function. This function is called by the __main__ block
+    and contains the core simulation setup and execution logic.
     """
     print("\n--- Simulation Parameters ---")
     print(f"Root seed: {root_seed}")
-    print(
-        f"Network configuration: num_nodes={num_nodes}, node_distance={node_distance}"
-    )
+    print(f"Network configuration: num_nodes={num_nodes}")
     print(f"Simulation time: {simulation_time}s")
 
     print("\n--- Initializing Kernel and Scheduler ---")
-    kernel = None
-    if bootstrapped_kernel:
-        kernel = bootstrapped_kernel
-        print("Using provided bootstrapped kernel with parameters:")
-        if bootstrap_params:
-            # Log the actual parameters that were passed in
-            params_str = ", ".join(
-                [f"{k}={v}" for k, v in bootstrap_params.items() if k != "seed"]
-            )
-            print(f"Kernel configuration: {params_str}")
-        else:
-            # Fallback message if for some reason the params weren't passed
-            print("Kernel configuration: Parameters not provided for logging.")
-
-    else:
-        print(
-            "No bootstrapped kernel provided. Creating one with default stable channel parameters."
-        )
-        # Define and log the default parameters used when main() is called directly
-        # NOTE: This default is now corrected to be more attenuating
-        default_stable_params = {
-            "seed": 12345,
-            "dspace_step": 1,
-            "dspace_npt": 200,
-            "freq": 2.4e9,
-            "filter_bandwidth": 2e6,
-            "coh_d": 50,
-            "shadow_dev": 2.0,
-            "pl_exponent": 4.5, # Corrected: Was 3.5, now 4.5
-            "d0": 1.0,
-            "fading_shape": 3.0,
-        }
-        params_str = ", ".join(
-            [f"{k}={v}" for k, v in default_stable_params.items() if k != "seed"]
-        )
-        print(f"Kernel configuration: {params_str}")
-
-        kernel = Kernel(root_seed=root_seed)
-        kernel.bootstrap(**default_stable_params)
-
-    print(
-        "\n--- Creating Network Nodes and setting up PingPongApp ---"
+    kernel = bootstrapped_kernel
+    print("Using provided bootstrapped kernel with parameters:")
+    params_str = ", ".join(
+        [f"{k}={v}" for k, v in bootstrap_params.items()]
     )
+    print(f"Kernel configuration: {params_str}")
+
+
+    print("\n--- Creating Network Nodes and setting up PingPongApp ---")
     nodes = {}
     addrs = {}
-
-    # Use the positions and path passed as arguments
-    if node_positions is None:
-        # Fallback in case no positions are passed
-        print("Warning: No node positions provided, defaulting to 15-node ring.")
-        positions = get_ring_topology_positions(15, radius=150)
-    else:
-        positions = node_positions
     
-    topology_image_path = topology_plot_path
+    # Store addresses to resolve peer_addr later
+    node_addrs_by_index = {}
+    for i in range(num_nodes):
+        node_addrs_by_index[i] = (i + 1).to_bytes(2, "big")
 
-    # pinger_idx = num_nodes // 4  # node at 1/4 of the ring
-    # ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring (opposite side)
-    if args.topology == "linear":
-        pinger_idx = 1
-        ponger_idx = num_nodes - 1
-    else:  # ring topology
-        pinger_idx = num_nodes // 4  # node at 1/4 of the ring
-        ponger_idx = (3 * num_nodes) // 4  # node at 3/4 of the ring
-    # plot_topology(positions, title="Network Topology", save_path="topology.png")
-    plot_info = {}
 
     for i in range(num_nodes):
-        #node_char = chr(ord("A") + i)
         node_id = f"Node-{i+1}"
-        addr = (i + 1).to_bytes(2, "big")
+        addr = node_addrs_by_index[i]
 
-        is_pinger = i == pinger_idx
-        is_sink = i == 0  # Node A is the sink/root
-        is_ponger = i == ponger_idx
+        is_pinger = (i == pinger_idx)
+        is_sink = (i == 0)  # Node-1 (index 0) is always the sink/root
+        is_ponger = (i == ponger_idx)
 
         peer_addr = None
         if is_pinger:
-            peer_addr = (ponger_idx + 1).to_bytes(2, "big")
-            print(f"Node-{i} is PINGER")
+            peer_addr = node_addrs_by_index.get(ponger_idx)
+            print(f"{node_id} (Addr: {addr.hex()}) is PINGER, peer is Node-{ponger_idx+1} (Addr: {peer_addr.hex()})")
         elif is_ponger:
-            peer_addr = (pinger_idx + 1).to_bytes(2, "big")
-            print(f"Node-{i} is PONGER")
+            peer_addr = node_addrs_by_index.get(pinger_idx)
+            print(f"{node_id} (Addr: {addr.hex()}) is PONGER, peer is Node-{pinger_idx+1} (Addr: {peer_addr.hex()})")
 
         app = PingPongApp(host=None, is_pinger=is_pinger, peer_addr=peer_addr)
 
+        # This call will raise a ValueError if a node is outside
+        # the DSpace bounds defined by dspace_npt and dspace_step
         node = kernel.add_node(
             node_id=node_id,
-            position=positions[i],
+            position=node_positions[i],
             app=app,
             linkaddr=addr,
             is_sink=is_sink,
@@ -201,37 +230,23 @@ def main(
         app.host = node
         nodes[node_id] = node
         addrs[node_id] = addr
-        plot_info[node_id] = {
-            "position": positions[i],
-            "address": addr,
-            "is_pinger": is_pinger,
-            "is_ponger": is_ponger,
-            "is_sink": is_sink,
-        }
-
-    plot_topology(plot_info, title="Network Topology", save_path=topology_image_path)
 
     print("\n--- Attaching Monitors to all nodes ---")
-    # Create monitors
-    packet_monitor = PacketMonitor(verbose=False)  # Keep for compatibility
+    packet_monitor = PacketMonitor(verbose=False)
     app_monitor = AppPingMonitor(verbose=True)
     tarp_monitor = TARPMonitor(verbose=True)
 
     for node_id in nodes:
-        # Attach packet monitor to PHY layer (original behavior)
         kernel.attach_monitor(packet_monitor, f"{node_id}.phy")
-
-        # Attach new monitors to application and TARP layers
         nodes[node_id].app.attach_monitor(app_monitor)
         nodes[node_id].net.attach_monitor(tarp_monitor)
 
-    # Start applications
     # Start applications on Pinger and Ponger
-    #pinger_node_char = chr(ord("A") + pinger_idx)
-    #ponger_node_char = chr(ord("A") + ponger_idx)
-    
-    nodes[f"Node-{pinger_idx}"].app.start()  # Start the Pinger
-    nodes[f"Node-{ponger_idx}"].app.start()  # Start the Ponger
+    pinger_node_id = f"Node-{pinger_idx + 1}"
+    ponger_node_id = f"Node-{ponger_idx + 1}"
+
+    nodes[pinger_node_id].app.start()
+    nodes[ponger_node_id].app.start()
 
     print("\n--- Running Simulation ---")
     kernel.run(until=simulation_time)
@@ -244,179 +259,206 @@ def main(
     print(f"Events remaining in queue: {queue_len}")
 
     if queue_len > 0:
-        print("\n--- First 10 Events in Queue ---")
-        for i, (time, event) in enumerate(sorted(scheduler.event_queue)[:10]):
+        print("\n--- First 5 Events in Queue ---")
+        for i, (time, event) in enumerate(sorted(scheduler.event_queue)[:5]):
             print(
-                f"{i+1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}"
+                f"{i+1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, "
+                f"Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}"
             )
 
-        print("\n--- Last 10 Events in Queue ---")
-        for i, (time, event) in enumerate(sorted(scheduler.event_queue)[-10:]):
-            print(
-                f"{queue_len - 10 + i + 1}: t={time * scheduler._time_scale:.6f}s, Event={type(event).__name__}, Blame={type(event.blame).__name__}, Descriptor: {event.descriptor}, Cancelled: {event._cancelled}"
-            )
+# ======================================================================================
+# SCRIPT EXECUTION (__main__)
+# ======================================================================================
+
+def setup_argparse() -> argparse.Namespace:
+    """Configures and parses command-line arguments."""
+    parser = argparse.ArgumentParser(description="Run PingPong simulation scenario.")
+    parser.add_argument(
+        "--topology",
+        type=str,
+        choices=["linear", "ring"],
+        default="ring",
+        help="Network topology type (default: ring)",
+    )
+    parser.add_argument(
+        "--channel",
+        type=str,
+        choices=["stable", "medium", "medium_lossy", "harsh_unstable", "harsh"], 
+        default="harsh",
+        help="Channel model type (default: harsh)",
+    )
+    parser.add_argument(
+        "--num_nodes",
+        type=int,
+        default=20,
+        help="Number of nodes in the topology (default: 20)",
+    )
+    # --- MODIFIED: dspace_npt is GONE, dspace_step is the density control ---
+    parser.add_argument(
+        "--dspace_step",
+        type=float, 
+        default=1.0, # Default to 1 point per meter
+        help="Distance (meters) between DSpace grid points (acts as density control). (default: 1.0)",
+    )
+    return parser.parse_args()
+
+def create_topology_assets(topology_name: str, num_nodes: int, channel_name: str) -> tuple:
+    """
+    Generates node positions and Pinger/Ponger indices based on topology.
+    """
+    print(f"\n--- Generating '{topology_name}' topology positions... ---")
+    
+    plots_dir = "plots"
+    node_distance = 10  # Used for linear topology
+    node_positions = []
+    pinger_idx = 0
+    ponger_idx = 1 # Default for 2-node ring
+
+    if topology_name == "linear":
+        total_length = (num_nodes - 1) * node_distance
+        start_x = -(total_length / 2)
+        node_positions = get_linear_topology_positions(
+            num_nodes, node_distance, start_x=start_x, start_y=0, increase_y=False
+        )
+        
+        # --- Pinger/Ponger Logic for Linear ---
+        if num_nodes == 2:
+            pinger_idx = 1  # Node-2 (index 1)
+            ponger_idx = 0  # Node-1 (index 0, the Sink)
+        else:
+            pinger_idx = 1  # Node-2 (index 1)
+            ponger_idx = num_nodes - 1 # Last node
+            
+    else:  # ring
+        # Use a larger radius for multi-hop, 500m for 2-node test
+        radius = 250 if num_nodes > 2 else 500
+        node_positions = get_ring_topology_positions(num_nodes, radius=radius, center_x=0, center_y=0)
+
+        # --- Pinger/Ponger Logic for Ring ---
+        # Node 0 is always Sink.
+        if num_nodes == 2:
+            pinger_idx = 0  # Node-1 (index 0, Sink)
+            ponger_idx = 1  # Node-2 (index 1)
+        else:
+            pinger_idx = num_nodes // 4
+            ponger_idx = (3 * num_nodes) // 4
+            # Ensure pinger/ponger are not the sink (index 0)
+            if pinger_idx == 0:
+                pinger_idx = 1 
+            if ponger_idx == 0:
+                ponger_idx = num_nodes - 1
+    
+    # Create plots directory if it doesn't exist
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+        print(f"Created directory: {plots_dir}")
+        
+    plot_path = os.path.join(plots_dir, f"{topology_name}_{channel_name}_{num_nodes}nodes_scenario.png")
+    
+    return node_positions, pinger_idx, ponger_idx, plot_path
 
 
 if __name__ == "__main__":
     
-    # MODIFICATION: Encapsulate the main run in a try/except/finally block.
-    # This ensures that exceptions are printed to the original stderr (console)
-    # and logging is always cleaned up, even on a crash.
-    log_filename = "simulation.log" # Default
-    plot_path = "topology.png"     # Default
-
+    # Define placeholder paths
+    log_filename = "simulation.log"
+    plot_path = "topology.png"
+    
     try:
-        # --- Setup Argparse ---
-        parser = argparse.ArgumentParser(description="Run PingPong simulation scenario.")
-        parser.add_argument(
-            "--topology",
-            type=str,
-            choices=["linear", "ring"],
-            default="ring",
-            help="Network topology type (default: ring)",
-        )
-        parser.add_argument(
-            "--channel",
-            type=str,
-            # MODIFICATION: Added "medium" channel choice
-            choices=["stable", "medium", "harsh"], 
-            default="harsh",
-            help="Channel model type (default: harsh)",
-        )
-        args = parser.parse_args()
+        # 1. Parse Arguments
+        args = setup_argparse()
+        num_nodes = args.num_nodes
+        KERNEL_SEED = 12345 # The single source of truth for all seeds
+        simulation_time = 1200.0
 
-        # --- Setup logging ---
-        # Define log directory and filename based on args
+        # 2. Setup Logging
         log_dir = "logs"
-        log_filename = os.path.join(log_dir, f"log_{args.topology}_{args.channel}.txt")
+        log_filename = os.path.join(log_dir, f"log_{args.topology}_{args.channel}_{num_nodes}nodes.txt")
         
-        # Print initial message to original console
+        # Print initial status to the console
         original_stdout.write(f"--- Simulation starting... --- \n")
-        original_stdout.write(f"Topology: {args.topology}, Channel: {args.channel}\n")
+        original_stdout.write(f"Topology: {args.topology}, Channel: {args.channel}, Nodes: {num_nodes}\n")
         original_stdout.write(f"Redirecting all stdout to: {log_filename}\n")
-        # MODIFICATION: Notify user that exceptions will go to console
         original_stdout.write(f"All exceptions will be printed to this console.\n")
-
         
-        # Redirect stdout (stderr remains on console)
+        # Start logging
         setup_logging(log_filename)
 
         print(f"\n--- Selected Configuration (from log) ---")
         print(f"Topology: {args.topology}")
         print(f"Channel: {args.channel}")
+        print(f"Num Nodes: {num_nodes}")
+        print(f"Seed: {KERNEL_SEED}")
+        print(f"DSpace Grid Step (Density): {args.dspace_step}m") # Log the density
 
-        kernel_seed = 12345
 
-        # --- Scenario A (Stable): Multi-Hop with high-quality links ---
-        # MODIFICATION: Increased pl_exponent from 3.5 to 4.5 to force multi-hop
-        stable_params = {
-            "seed": 12345,
-            "dspace_step": 1,
-            "dspace_npt": 200,
-            "freq": 2.4e9,
-            "filter_bandwidth": 2e6,
-            "coh_d": 50,      # Stable shadowing (high spatial correlation)
-            "shadow_dev": 2.0,  # Low shadowing variance
-            "pl_exponent": 2,   
-            "d0": 1.0,
-            "fading_shape": 3.0,  # Rician fading (stable links)
-        }
+        # 3. Get Topology Assets (Positions, Pinger/Ponger IDs)
+        node_positions, pinger_idx, ponger_idx, plot_path = create_topology_assets(
+            args.topology, num_nodes, args.channel
+        )
 
-        # --- NEW: Scenario C (Medium): Realistic, unstable multi-hop ---
-        medium_params = {
-            "seed": 12345,
-            "dspace_step": 1,
-            "dspace_npt": 200,
-            "freq": 2.4e9,
-            "filter_bandwidth": 2e6,
-            "coh_d": 30,          # Medium spatial correlation
-            "shadow_dev": 4.0,    # Medium shadowing variance
-            "pl_exponent": 3.5,   # High attenuation (between stable and harsh)
-            "d0": 1.0,
-            "fading_shape": 1.5,  # Nakagami fading (m=1.5)
-        }
+        # 4. Calculate DSpace NPT (Number of Points) from Topology
+        print("\n--- Calculating DSpace NPT from Topology and Step ---")
+        padding_meters = 10 # Add 10m padding around the topology bounds
+        dspace_npt = calculate_bounds_and_params(
+            node_positions, padding=padding_meters, dspace_step=args.dspace_step
+        )
 
-        # --- Scenario B (Harsh): Dynamic and very unstable multi-hop ---
-        harsh_params = {
-            "seed": 12345,
-            "dspace_step": 1,
-            "dspace_npt": 200,
-            "freq": 2.4e9,
-            "filter_bandwidth": 2e6,
-            "coh_d": 10,      # Highly variable shadowing (low spatial correlation)
-            "shadow_dev": 6.0,  # High shadowing variance
-            "pl_exponent": 4.0,   # Severe signal attenuation
-            "d0": 1.0,
-            "fading_shape": 0.75, # Almost-Rayleigh fading (very unstable links)
-        }
-
-        # Select channel parameters based on args
-        if args.channel == "stable":
-            bootstrap_params = stable_params
-        # MODIFICATION: Added logic for "medium" channel
-        elif args.channel == "medium": 
-            bootstrap_params = medium_params
-        else:  # harsh
-            bootstrap_params = harsh_params
-
-        num_nodes = 20
-        # MODIFICATION: Increased node_distance from 35 to 60 to ensure multi-hop
-        node_distance = 10
-        simulation_time = 1200.0
-
-        plots_dir = "plots" # Define plots directory
+        # 5. Get Channel Parameters & Set DSpace
+        bootstrap_params = get_channel_params(args.channel)
         
-        # Create plots directory if it doesn't exist
-        if not os.path.exists(plots_dir):
-            os.makedirs(plots_dir)
-            print(f"Created directory: {plots_dir}")
-
-        # Select node positions based on args
-        if args.topology == "linear":
-            node_positions = get_linear_topology_positions(
-                num_nodes, node_distance, start_x=50, start_y=100, increase_y=False
-            )
-            # MODIFICATION: Added channel to plot filename for uniqueness
-            plot_path = os.path.join(plots_dir, f"{args.topology}_{args.channel}_topology.png")
-        else:  # ring
-            # MODIFICATION: Increased radius from 150 to 250 and adjusted center
-            node_positions = get_ring_topology_positions(num_nodes, radius=250, center_x=250, center_y=250)
-            # MODIFICATION: Added channel to plot filename for uniqueness
-            plot_path = os.path.join(plots_dir, f"{args.topology}_{args.channel}_topology.png")
-
-
-        # Bootstrap the kernel with given parameters
-        kernel = Kernel(root_seed=kernel_seed)
-        kernel.bootstrap(**bootstrap_params)
-
-        # Pass the bootstrapped kernel and its parameters to the main function
-        main(
-            num_nodes=num_nodes,
-            node_distance=node_distance,
-            simulation_time=simulation_time,
-            root_seed=kernel_seed,
-            bootstrap_params=bootstrap_params,  # Pass the params for logging
-            bootstrapped_kernel=kernel,
-            node_positions=node_positions,  # Pass positions
-            topology_plot_path=plot_path,  # Pass plot path
+        # --- DSpace is now dynamically calculated again ---
+        bootstrap_params['dspace_npt'] = dspace_npt
+        bootstrap_params['dspace_step'] = args.dspace_step
+        bootstrap_params['seed'] = KERNEL_SEED 
+        
+        # 6. Bootstrap the Kernel
+        print("\n--- Bootstrapping Kernel with Dynamic DSpace ---")
+        kernel = Kernel(root_seed=KERNEL_SEED) # Use the seed for the RandomManager
+        kernel.bootstrap(**bootstrap_params)  # Use the same seed for the environment
+        
+        
+        # 7. Generate Topology + Shadowing Plot
+        print(f"\n--- Generating topology plot with shadowing map ---")
+        plot_title = (
+            f"Scenario: {args.topology.capitalize()} Topology, "
+            f"{args.channel.capitalize()} Channel ({num_nodes} Nodes)"
+        )
+        plot_scenario_with_shadowing(
+            kernel=kernel,
+            node_positions=node_positions,
+            pinger_idx=pinger_idx,
+            ponger_idx=ponger_idx,
+            title=plot_title,
+            save_path=plot_path
         )
         
-        # If successful, print success message to original console
+        # 8. Run the Simulation
+        main(
+            num_nodes=num_nodes,
+            simulation_time=simulation_time,
+            root_seed=KERNEL_SEED, # Pass the seed to main for logging
+            bootstrap_params=bootstrap_params,
+            bootstrapped_kernel=kernel,
+            node_positions=node_positions,
+            pinger_idx=pinger_idx,
+            ponger_idx=ponger_idx,
+        )
+        
+        # Print success message to console
         original_stdout.write(f"--- Simulation finished successfully. ---\n")
         original_stdout.write(f"--- Log saved to {log_filename} ---\n")
         original_stdout.write(f"--- Plot saved to {plot_path} ---\n")
 
     except Exception as e:
-        # MODIFICATION: If any exception occurs, print it to the original stderr
+        # If any exception occurs, print it to the original stderr
         original_stderr.write("\n\n" + "="*60 + "\n")
         original_stderr.write("--- SIMULATION CRASHED WITH AN EXCEPTION ---\n")
         original_stderr.write("="*60 + "\n")
-        import traceback
         traceback.print_exc(file=original_stderr)
         original_stderr.write("="*60 + "\n")
         original_stderr.write(f"--- STDOUT log file is incomplete: {log_filename} ---\n")
         
     finally:
-        # MODIFICATION: Explicitly call cleanup_logging here.
-        # atexit can be unreliable in some exception cases.
+        # Robustly clean up logging. This is the *only* place it's called.
         cleanup_logging()

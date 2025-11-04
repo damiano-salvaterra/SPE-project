@@ -56,6 +56,22 @@ class DSpace:
         of the discrete space grid
         """
         return self.x_1d, self.y_1d
+    
+    def contains(self, position: CartesianCoordinate) -> bool:
+        """
+        Checks if a given CartesianCoordinate is within the DSpace bounds.
+        """
+        x_min, x_max = self.x_1d.min(), self.x_1d.max()
+        y_min, y_max = self.y_1d.min(), self.y_1d.max()
+        
+        return (x_min <= position.x <= x_max) and (y_min <= position.y <= y_max)
+    
+    def distance(self, P1: CartesianCoordinate, P2: CartesianCoordinate) -> float:
+        """
+        Calculates the Euclidean distance between two Cartesian coordinates P1 and P2
+        """
+        return np.sqrt((P2.x - P1.x) ** 2 + (P2.y - P1.y) ** 2)
+
 
     # def find_nearest_grid_index(self, P: CartesianCoordinate) -> Tuple[int, int]:
     #    '''
@@ -87,8 +103,4 @@ class DSpace:
 
     #    return CartesianCoordinate(x,y)
 
-    def distance(self, P1: CartesianCoordinate, P2: CartesianCoordinate) -> float:
-        """
-        Calculates the Euclidean distance between two Cartesian coordinates P1 and P2
-        """
-        return np.sqrt((P2.x - P1.x) ** 2 + (P2.y - P1.y) ** 2)
+    

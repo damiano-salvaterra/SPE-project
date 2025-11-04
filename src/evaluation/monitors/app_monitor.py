@@ -61,9 +61,10 @@ class AppPingMonitor(Monitor):
                 "event": "RECEIVE",
                 "type": signal.packet_type,
                 "seq_num": signal.seq_num,
-                "source": signal.source.hex()
+                "source": signal.source.hex(),
+                "hops": signal.hops 
             })
-            print_msg = f"Received {signal.packet_type} #{signal.seq_num} from {signal.source.hex()}"
+            print_msg = f"Received {signal.packet_type} #{signal.seq_num} from {signal.source.hex()}, Hops={signal.hops}"
 
         elif isinstance(signal, AppTimeoutSignal):
             log_entry.update({

@@ -381,7 +381,7 @@ class TARPProtocol(Layer, Entity):
         if header.type == TARPUnicastType.UC_TYPE_DATA:
             if header.d_addr == self.host.linkaddr:
                 
-                self.host.app.receive(payload.APDU, sender_addr=header.s_addr)
+                self.host.app.receive(payload.APDU, sender_addr=header.s_addr, hops=header.hops)
             else:
                 self._forward_data(header, payload=payload.APDU)
 
