@@ -85,12 +85,13 @@ class NarrowbandChannelModel:
         Hk = np.sqrt(PSD_k)  # obtain the frequency response
 
         # normalize filter to conserve the enrgy of the colored process
-        Ek = np.vdot(Hk, Hk)  # get filter energy (Hermitian dot product)
-        Hk_norm = Hk * (
-            kernel_npt / np.sqrt(Ek)
-        )  # parselval's Theorem (normalization in frequency domain)
+        #Ek = np.vdot(Hk, Hk)  # get filter energy (Hermitian dot product)
+        #Hk_norm = Hk * (
+        #    kernel_npt / np.sqrt(Ek)
+        #)
 
-        return Hk_norm
+        #return Hk_norm
+        return Hk
 
     def generate_shadowing_map(self, kernel_npt: int = None) -> None:
         """
@@ -99,9 +100,11 @@ class NarrowbandChannelModel:
         if kernel_npt is not None:
             assert kernel_npt % 2 == 0, "number of kernel points must be multiple of 2"
         # Generate the Gaussian random field
-        gaussian_field = self._shadowing_rng.normal(
-            0, self.shadow_dev, (self.dspace.npt, self.dspace.npt)
-        )
+        #gaussian_field = self._shadowing_rng.normal(
+        #    0, self.shadow_dev, (self.dspace.npt, self.dspace.npt)
+        #)
+        gaussian_field = self._shadowing_rng.normal(0, 1.0, (self.dspace.npt, self.dspace.npt))
+
         gaussian_field_k = np.fft.fft2(
             gaussian_field
         )  # Fourier transform of the gaussian field
@@ -170,22 +173,22 @@ class NarrowbandChannelModel:
         Returns the shadowing loss along the link A<->B. A and B are real-world cartesian coordinates
         Reference to S. Lu, J. May, R.J. Haines, "Efficient Modeling of Correlated Shadow Fading in Dense Wireless Multi-Hop Networks", IEEE WCNC 2014
         """
+        # FIX: simplified shadowing model. For some reason the previous model produced shadowing losses that makes the channel too good at high distances
+        #sh_B = self._shadowing_power_on_point(B)
+        #return sh_B
+        
         sh_A = self._shadowing_power_on_point(A)
         sh_B = self._shadowing_power_on_point(B)
-
         d_AB = self.dspace.distance(A, B)
-
         # compute link shadowing loss formula
         shad_ext = sh_A + sh_B  # Sum of shadowing values on the link extremes
-
+    
         exp_term = np.exp(-(d_AB / self.coh_d))
         num = 1 - exp_term
         den = np.sqrt(2 * (1 + exp_term))
-
         shad_AB = (num / den) * shad_ext
-
         return shad_AB
-
+        
     def total_loss_dB(self, A: CartesianCoordinate, B: CartesianCoordinate) -> float:
         """
         Compute total (positive) loss (for the average power, ie path loss + shadowing) in dB between two points A and B.

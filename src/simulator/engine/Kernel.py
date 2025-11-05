@@ -140,6 +140,15 @@ class Kernel:
         if node_id in self.nodes:
             print(f"Error: Node with ID '{node_id}' already exists.")
             return None
+        
+        # Ensure the node is being placed within the defined physical space (DSpace)
+        if not self.dspace.contains(position):
+            raise ValueError(
+                f"Node '{node_id}' at position ({position.x}, {position.y}) "
+                f"is outside the DSpace bounds. "
+                f"X-Bounds: [{self.dspace.x_1d.min()}, {self.dspace.x_1d.max()}], "
+                f"Y-Bounds: [{self.dspace.y_1d.min()}, {self.dspace.y_1d.max()}]"
+            )
 
         node = StaticNode(
             node_id=node_id,

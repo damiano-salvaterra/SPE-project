@@ -136,7 +136,7 @@ class PingPongApp(Application):
         )
         self.host.context.scheduler.schedule(next_ping_event)
 
-    def receive(self, packet: NetPacket, sender_addr: bytes):
+    def receive(self, packet: NetPacket, sender_addr: bytes, hops: int = -1):
         """
         Handles an incoming packet from the network layer
         """
@@ -173,6 +173,7 @@ class PingPongApp(Application):
             packet_type=pkt_type,
             seq_num=seq_num,
             source=sender_addr,
+            hops=hops
         )
         self._notify_monitors(signal)
 

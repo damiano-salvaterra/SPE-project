@@ -47,11 +47,13 @@ class AppReceiveSignal(EntitySignal):
         packet_type: str, # "PING" or "PONG"
         seq_num: int,
         source: bytes,
+        hops: int,
     ):
         super().__init__(descriptor=descriptor, timestamp=timestamp)
         self.packet_type = packet_type
         self.seq_num = seq_num
         self.source = source
+        self.hops = hops
 
 
 class AppTimeoutSignal(EntitySignal):
