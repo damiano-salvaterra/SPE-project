@@ -3,25 +3,35 @@ import os
 import argparse
 import numpy as np
 import traceback
+from typing import List, Dict, Any # Added typing
 
-# --- Python Path Setup ---
-# Add the project root to the sys.path to allow importing simulator modules
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# --- Python Path Setup (MODIFIED) ---
+# This script is at: <PROJECT_ROOT>/src/evaluation/pingpong.py
 
+# 1. Define PROJECT_ROOT as the directory TWO levels up from this file
+# (up from 'evaluation', up from 'src')
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# 2. Define SRC_ROOT
+SRC_ROOT = os.path.join(PROJECT_ROOT, "src")
+
+# 3. Add SRC_ROOT to sys.path to allow imports like 'from simulator...'
+if SRC_ROOT not in sys.path:
+    sys.path.insert(0, SRC_ROOT)
+
+# --- Simulator Imports ---
 from simulator.engine.Kernel import Kernel  # noqa: E402
 from simulator.applications.PingPongApplication import PingPongApp  # noqa: E402
+from simulator.environment.geometry import CartesianCoordinate # Added
+from simulator.engine.random import RandomManager, RandomGenerator # Added for topology RNG
+
+# --- Refactored Evaluation Utils Imports ---
 from evaluation.monitors.packet_monitor import PacketMonitor  # noqa: E402
 from evaluation.monitors.app_monitor import AppPingMonitor  # noqa: E402
 from evaluation.monitors.tarp_monitor import TARPMonitor  # noqa: E402
-# from evaluation.util.plot_topology import plot_topology # noqa: E402 - Handled by plot_scenario
-from evaluation.util.topology import (  # noqa: E402
-    get_linear_topology_positions,
-    get_ring_topology_positions,
-)
-# Import the advanced plotting function
-from evaluation.plot_scenario import plot_scenario_with_shadowing # noqa: E402
+# The old topology.py and plot_scenario.py are now replaced
+from evaluation.utils.topology_factory import TopologyFactory # noqa: E402 (NEW)
+from evaluation.utils.plotting import plot_scenario # noqa: E402 (NEW)
 
 
 # ======================================================================================
@@ -42,6 +52,7 @@ def setup_logging(log_filename="simulation.log"):
     try:
         # Create log directory if it doesn't exist
         log_dir = os.path.dirname(log_filename)
+        # Use exist_ok=True to avoid error if dir already exists
         if log_dir and not os.path.exists(log_dir):
             os.makedirs(log_dir)
             
@@ -276,7 +287,8 @@ def setup_argparse() -> argparse.Namespace:
     parser.add_argument(
         "--topology",
         type=str,
-        choices=["linear", "ring"],
+        # Updated choices to match the new factory
+        choices=["linear", "ring", "grid", "random", "star", "cluster-tree"],
         default="ring",
         help="Network topology type (default: ring)",
     )
@@ -293,7 +305,6 @@ def setup_argparse() -> argparse.Namespace:
         default=20,
         help="Number of nodes in the topology (default: 20)",
     )
-    # --- MODIFIED: dspace_npt is GONE, dspace_step is the density control ---
     parser.add_argument(
         "--dspace_step",
         type=float, 
@@ -302,60 +313,120 @@ def setup_argparse() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-def create_topology_assets(topology_name: str, num_nodes: int, channel_name: str) -> tuple:
+
+# --- THIS FUNCTION IS REFACTORED TO USE THE FACTORY AND CORRECT PATHS ---
+def create_topology_assets(
+    topology_name: str, 
+    num_nodes: int, 
+    channel_name: str,
+    topo_rng: np.random.Generator # Pass the RNG for random topologies
+) -> tuple:
     """
-    Generates node positions and Pinger/Ponger indices based on topology.
+    Generates node positions and Pinger/Ponger indices based on topology
+    using the TopologyFactory.
+    
+    Returns:
+        (node_positions, pinger_idx, ponger_idx, plot_path, num_nodes)
+        Note: num_nodes is returned in case the topology (e.g., grid)
+        modified the requested count.
     """
     print(f"\n--- Generating '{topology_name}' topology positions... ---")
     
-    plots_dir = "plots"
-    node_distance = 10  # Used for linear topology
-    node_positions = []
-    pinger_idx = 0
-    ponger_idx = 1 # Default for 2-node ring
-
-    if topology_name == "linear":
-        total_length = (num_nodes - 1) * node_distance
-        start_x = -(total_length / 2)
-        node_positions = get_linear_topology_positions(
-            num_nodes, node_distance, start_x=start_x, start_y=0, increase_y=False
-        )
-        
-        # --- Pinger/Ponger Logic for Linear ---
-        if num_nodes == 2:
-            pinger_idx = 1  # Node-2 (index 1)
-            ponger_idx = 0  # Node-1 (index 0, the Sink)
-        else:
-            pinger_idx = 1  # Node-2 (index 1)
-            ponger_idx = num_nodes - 1 # Last node
-            
-    else:  # ring
-        # Use a larger radius for multi-hop, 500m for 2-node test
-        radius = 250 if num_nodes > 2 else 500
-        node_positions = get_ring_topology_positions(num_nodes, radius=radius, center_x=0, center_y=0)
-
-        # --- Pinger/Ponger Logic for Ring ---
-        # Node 0 is always Sink.
-        if num_nodes == 2:
-            pinger_idx = 0  # Node-1 (index 0, Sink)
-            ponger_idx = 1  # Node-2 (index 1)
-        else:
-            pinger_idx = num_nodes // 4
-            ponger_idx = (3 * num_nodes) // 4
-            # Ensure pinger/ponger are not the sink (index 0)
-            if pinger_idx == 0:
-                pinger_idx = 1 
-            if ponger_idx == 0:
-                ponger_idx = num_nodes - 1
+    # --- MODIFIED: Use PROJECT_ROOT and "topology" subfolder ---
+    plots_dir = os.path.join(PROJECT_ROOT, "plots", "topology")
     
-    # Create plots directory if it doesn't exist
+    factory = TopologyFactory()
+    
+    # Parameters to pass to the strategy
+    topo_params = {"num_nodes": num_nodes, "rng": topo_rng}
+    pinger_idx = -1
+    ponger_idx = -1
+    
+    # --- Define parameters and pinger/ponger logic for each topology ---
+    if topology_name == "linear":
+        topo_params["node_distance"] = 10
+        total_length = (num_nodes - 1) * topo_params["node_distance"]
+        topo_params["start_x"] = -(total_length / 2) # Center it
+        
+        pinger_idx = 1 if num_nodes > 1 else 0
+        ponger_idx = num_nodes - 1
+            
+    elif topology_name == "grid":
+        # Create a square-ish grid
+        side = int(np.ceil(np.sqrt(num_nodes)))
+        topo_params["grid_shape"] = (side, side)
+        actual_num_nodes = side * side
+        
+        # IMPORTANT: Update num_nodes to match the grid's actual size
+        if num_nodes != actual_num_nodes:
+            print(f"Note: Grid topology requested {num_nodes}, creating a {side}x{side} grid with {actual_num_nodes} nodes.")
+            num_nodes = actual_num_nodes
+            topo_params["num_nodes"] = actual_num_nodes
+            
+        topo_params["node_distance"] = 30
+        pinger_idx = 1 if num_nodes > 1 else 0
+        ponger_idx = num_nodes - 1
+        
+    elif topology_name == "random":
+        side_length = num_nodes * 7 # Simple heuristic for area
+        topo_params["area_box"] = (-side_length, side_length, -side_length, side_length)
+        
+        pinger_idx = 1 if num_nodes > 1 else 0
+        ponger_idx = num_nodes - 1
+
+    elif topology_name == "star":
+        topo_params["radius"] = 100
+        # Node 0 is hub/sink
+        pinger_idx = 1 if num_nodes > 1 else 0
+        ponger_idx = num_nodes - 1
+        
+    elif topology_name == "cluster-tree":
+        # Specific logic for 5 nodes: 1 root, 2 clusters, 2 nodes/cluster
+        if num_nodes == 5:
+            topo_params["num_clusters"] = 2
+            topo_params["nodes_per_cluster"] = 2 # (1 head + 1 node)
+        else:
+            # Default logic for other counts
+            topo_params["num_clusters"] = 3
+            topo_params["nodes_per_cluster"] = num_nodes // 3
+            
+        topo_params["cluster_radius"] = 100 # Dist of clusters from root
+        topo_params["node_radius"] = 30    # Dist of nodes from cluster head
+        
+        pinger_idx = 1 # First cluster head
+        ponger_idx = num_nodes - 1 # Last node in last cluster
+
+    else: # Default for "ring"
+        topo_params["radius"] = 150
+        
+        pinger_idx = num_nodes // 4
+        ponger_idx = (3 * num_nodes) // 4
+        if pinger_idx == 0: pinger_idx = 1 # Avoid sink
+        if ponger_idx == 0: ponger_idx = num_nodes - 1
+    
+    # --- Generate positions using the factory ---
+    node_positions = factory.create_topology(topology_name, **topo_params)
+    
+    # Final check on node count (e.g., cluster-tree might create a different amount)
+    actual_num_nodes = len(node_positions)
+    if num_nodes != actual_num_nodes:
+        print(f"Note: Topology generator adjusted node count to {actual_num_nodes}")
+        num_nodes = actual_num_nodes
+        
+    # Final check on pinger/ponger indices
+    if pinger_idx >= num_nodes: pinger_idx = num_nodes - 1
+    if ponger_idx >= num_nodes: ponger_idx = num_nodes - 1
+    if pinger_idx == ponger_idx and pinger_idx > 0: pinger_idx = 0
+    
+
+    # Create plots directory
     if not os.path.exists(plots_dir):
         os.makedirs(plots_dir)
         print(f"Created directory: {plots_dir}")
         
     plot_path = os.path.join(plots_dir, f"{topology_name}_{channel_name}_{num_nodes}nodes_scenario.png")
     
-    return node_positions, pinger_idx, ponger_idx, plot_path
+    return node_positions, pinger_idx, ponger_idx, plot_path, num_nodes
 
 
 if __name__ == "__main__":
@@ -371,8 +442,9 @@ if __name__ == "__main__":
         KERNEL_SEED = 12345 # The single source of truth for all seeds
         simulation_time = 1200.0
 
-        # 2. Setup Logging
-        log_dir = "logs"
+        # 2. Setup Logging (MODIFIED)
+        # Use PROJECT_ROOT to define log_dir
+        log_dir = os.path.join(PROJECT_ROOT, "logs")
         log_filename = os.path.join(log_dir, f"log_{args.topology}_{args.channel}_{num_nodes}nodes.txt")
         
         # Print initial status to the console
@@ -391,51 +463,83 @@ if __name__ == "__main__":
         print(f"Seed: {KERNEL_SEED}")
         print(f"DSpace Grid Step (Density): {args.dspace_step}m") # Log the density
 
+        
+        # --- 3. Create a dedicated RNG for topology generation ---
+        topo_rng_manager = RandomManager(root_seed=KERNEL_SEED)
+        topo_rng = RandomGenerator(topo_rng_manager, "TOPOLOGY_GENERATION_STREAM")
+        np_rng_seed = topo_rng.uniform(0, 2**32 - 1)
+        np_rng = np.random.default_rng(int(np_rng_seed))
 
-        # 3. Get Topology Assets (Positions, Pinger/Ponger IDs)
-        node_positions, pinger_idx, ponger_idx, plot_path = create_topology_assets(
-            args.topology, num_nodes, args.channel
+
+        # 4. Get Topology Assets (Positions, Pinger/Ponger IDs)
+        node_positions, pinger_idx, ponger_idx, plot_path, num_nodes = create_topology_assets(
+            args.topology, num_nodes, args.channel, np_rng
         )
-
-        # 4. Calculate DSpace NPT (Number of Points) from Topology
+        # num_nodes may have been updated
+        
+        # 5. Calculate DSpace NPT (Number of Points) from Topology
         print("\n--- Calculating DSpace NPT from Topology and Step ---")
         padding_meters = 10 # Add 10m padding around the topology bounds
         dspace_npt = calculate_bounds_and_params(
             node_positions, padding=padding_meters, dspace_step=args.dspace_step
         )
 
-        # 5. Get Channel Parameters & Set DSpace
+        # 6. Get Channel Parameters & Set DSpace
         bootstrap_params = get_channel_params(args.channel)
         
-        # --- DSpace is now dynamically calculated again ---
         bootstrap_params['dspace_npt'] = dspace_npt
         bootstrap_params['dspace_step'] = args.dspace_step
         bootstrap_params['seed'] = KERNEL_SEED 
         
-        # 6. Bootstrap the Kernel
+        # 7. Bootstrap the Kernel
         print("\n--- Bootstrapping Kernel with Dynamic DSpace ---")
         kernel = Kernel(root_seed=KERNEL_SEED) # Use the seed for the RandomManager
         kernel.bootstrap(**bootstrap_params)  # Use the same seed for the environment
         
         
-        # 7. Generate Topology + Shadowing Plot
+        # 8. Generate Topology + Shadowing Plot
         print(f"\n--- Generating topology plot with shadowing map ---")
         plot_title = (
             f"Scenario: {args.topology.capitalize()} Topology, "
             f"{args.channel.capitalize()} Channel ({num_nodes} Nodes)"
         )
-        plot_scenario_with_shadowing(
+        
+        # Build the node_info dict required by the new plotting function
+        node_info_for_plot = {}
+        for i, pos in enumerate(node_positions):
+            node_id = f"Node-{i+1}"
+            role = "default"
+            if i == 0:
+                role = "sink"
+            if i == pinger_idx:
+                role = "pinger"
+            if i == ponger_idx:
+                role = "ponger"
+            
+            node_info_for_plot[node_id] = {
+                "position": pos,
+                "role": role,
+                "addr": (i + 1).to_bytes(2, "big")
+            }
+        
+        # Define the links we want to annotate (or not, in this case)
+        pinger_id_str = f"Node-{pinger_idx+1}"
+        ponger_id_str = f"Node-{ponger_idx+1}"
+        # We pass the link, but the plotting function (as modified) will ignore it
+        links_to_plot = [(pinger_id_str, ponger_id_str)] 
+        
+        plot_scenario(
             kernel=kernel,
-            node_positions=node_positions,
-            pinger_idx=pinger_idx,
-            ponger_idx=ponger_idx,
+            node_info=node_info_for_plot,
             title=plot_title,
-            save_path=plot_path
+            save_path=plot_path,
+            links_to_annotate=links_to_plot, # Pass this, but it won't be drawn
+            figsize=(13, 10) # Give extra space for legend
         )
         
-        # 8. Run the Simulation
+        # 9. Run the Simulation
         main(
-            num_nodes=num_nodes,
+            num_nodes=num_nodes, # Use the (potentially updated) num_nodes
             simulation_time=simulation_time,
             root_seed=KERNEL_SEED, # Pass the seed to main for logging
             bootstrap_params=bootstrap_params,
@@ -452,12 +556,12 @@ if __name__ == "__main__":
 
     except Exception as e:
         # If any exception occurs, print it to the original stderr
-        original_stderr.write("\n\n" + "="*60 + "\n")
-        original_stderr.write("--- SIMULATION CRASHED WITH AN EXCEPTION ---\n")
-        original_stderr.write("="*60 + "\n")
+        original_stdout.write("\n\n" + "="*60 + "\n")
+        original_stdout.write("--- SIMULATION CRASHED WITH AN EXCEPTION ---\n")
+        original_stdout.write("="*60 + "\n")
         traceback.print_exc(file=original_stderr)
-        original_stderr.write("="*60 + "\n")
-        original_stderr.write(f"--- STDOUT log file is incomplete: {log_filename} ---\n")
+        original_stdout.write("="*60 + "\n")
+        original_stdout.write(f"--- STDOUT log file is incomplete: {log_filename} ---\n")
         
     finally:
         # Robustly clean up logging. This is the *only* place it's called.

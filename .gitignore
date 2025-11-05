@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # Plot files
-*topology.png
+*.png
 
 # Distribution / packaging
 .Python

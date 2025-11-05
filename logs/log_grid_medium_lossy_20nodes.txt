@@ -1,0 +1,273 @@
+
+--- Selected Configuration (from log) ---
+Topology: grid
+Channel: medium_lossy
+Num Nodes: 20
+Seed: 12345
+DSpace Grid Step (Density): 1.0m
+
+--- Generating 'grid' topology positions... ---
+Note: Grid topology requested 20, creating a 5x5 grid with 25 nodes.
+Generating 'grid' topology with params: {'num_nodes': 25, 'rng': Generator(PCG64) at 0x72746CC79A80, 'grid_shape': (5, 5), 'node_distance': 30}
+
+--- Calculating DSpace NPT from Topology and Step ---
+Topology bounds (unpadded): X=[0.0, 120.0], Y=[0.0, 120.0]
+Max absolute coordinate (padded): 130.0
+Calculated DSpace params: step=1.0, npt=264 (Grid will span approx. [-132.0, 131.0])
+
+--- Bootstrapping Kernel with Dynamic DSpace ---
+Kernel bootstrapped successfully.
+
+--- Generating topology plot with shadowing map ---
+Plotting shadowing map from kernel.
+Saving scenario plot to /home/damole/Documents/develop/SPE-project/plots/topology/grid_medium_lossy_25nodes_scenario.png
+
+--- Simulation Parameters ---
+Root seed: 12345
+Network configuration: num_nodes=25
+Simulation time: 1200.0s
+
+--- Initializing Kernel and Scheduler ---
+Using provided bootstrapped kernel with parameters:
+Kernel configuration: freq=2400000000.0, filter_bandwidth=2000000.0, coh_d=20, shadow_dev=5.0, pl_exponent=3.8, d0=1.0, fading_shape=1.5, dspace_npt=264, dspace_step=1.0, seed=12345
+
+--- Creating Network Nodes and setting up PingPongApp ---
+Node 'Node-1' added at position (0.0, 0.0).
+Node-2 (Addr: 0002) is PINGER, peer is Node-25 (Addr: 0019)
+Node 'Node-2' added at position (30.0, 0.0).
+Node 'Node-3' added at position (60.0, 0.0).
+Node 'Node-4' added at position (90.0, 0.0).
+Node 'Node-5' added at position (120.0, 0.0).
+Node 'Node-6' added at position (0.0, 30.0).
+Node 'Node-7' added at position (30.0, 30.0).
+Node 'Node-8' added at position (60.0, 30.0).
+Node 'Node-9' added at position (90.0, 30.0).
+Node 'Node-10' added at position (120.0, 30.0).
+Node 'Node-11' added at position (0.0, 60.0).
+Node 'Node-12' added at position (30.0, 60.0).
+Node 'Node-13' added at position (60.0, 60.0).
+Node 'Node-14' added at position (90.0, 60.0).
+Node 'Node-15' added at position (120.0, 60.0).
+Node 'Node-16' added at position (0.0, 90.0).
+Node 'Node-17' added at position (30.0, 90.0).
+Node 'Node-18' added at position (60.0, 90.0).
+Node 'Node-19' added at position (90.0, 90.0).
+Node 'Node-20' added at position (120.0, 90.0).
+Node 'Node-21' added at position (0.0, 120.0).
+Node 'Node-22' added at position (30.0, 120.0).
+Node 'Node-23' added at position (60.0, 120.0).
+Node 'Node-24' added at position (90.0, 120.0).
+Node-25 (Addr: 0019) is PONGER, peer is Node-2 (Addr: 0002)
+Node 'Node-25' added at position (120.0, 120.0).
+
+--- Attaching Monitors to all nodes ---
+Monitor 'PacketMonitor' attached to 'Node-1.phy'.
+Monitor 'PacketMonitor' attached to 'Node-2.phy'.
+Monitor 'PacketMonitor' attached to 'Node-3.phy'.
+Monitor 'PacketMonitor' attached to 'Node-4.phy'.
+Monitor 'PacketMonitor' attached to 'Node-5.phy'.
+Monitor 'PacketMonitor' attached to 'Node-6.phy'.
+Monitor 'PacketMonitor' attached to 'Node-7.phy'.
+Monitor 'PacketMonitor' attached to 'Node-8.phy'.
+Monitor 'PacketMonitor' attached to 'Node-9.phy'.
+Monitor 'PacketMonitor' attached to 'Node-10.phy'.
+Monitor 'PacketMonitor' attached to 'Node-11.phy'.
+Monitor 'PacketMonitor' attached to 'Node-12.phy'.
+Monitor 'PacketMonitor' attached to 'Node-13.phy'.
+Monitor 'PacketMonitor' attached to 'Node-14.phy'.
+Monitor 'PacketMonitor' attached to 'Node-15.phy'.
+Monitor 'PacketMonitor' attached to 'Node-16.phy'.
+Monitor 'PacketMonitor' attached to 'Node-17.phy'.
+Monitor 'PacketMonitor' attached to 'Node-18.phy'.
+Monitor 'PacketMonitor' attached to 'Node-19.phy'.
+Monitor 'PacketMonitor' attached to 'Node-20.phy'.
+Monitor 'PacketMonitor' attached to 'Node-21.phy'.
+Monitor 'PacketMonitor' attached to 'Node-22.phy'.
+Monitor 'PacketMonitor' attached to 'Node-23.phy'.
+Monitor 'PacketMonitor' attached to 'Node-24.phy'.
+Monitor 'PacketMonitor' attached to 'Node-25.phy'.
+[APP_MONITOR] [0.000000s] [Node-2] Application started.
+[APP_MONITOR] [0.000000s] [Node-25] Application started.
+
+--- Running Simulation ---
+Running simulation until time 1200.0 or event queue is empty...
+[TARP_MONITOR] [1.000000s] [Node-1] Sent BEACON (epoch->1, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [61.000000s] [Node-1] Sent BEACON (epoch->2, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [120.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [120.000000s] [Node-2] Failed to send PING #1 (Reason: No Route)
+[TARP_MONITOR] [121.000000s] [Node-1] Sent BEACON (epoch->3, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [135.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [135.000000s] [Node-2] Failed to send PING #2 (Reason: No Route)
+[TARP_MONITOR] [150.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [150.000000s] [Node-2] Failed to send PING #3 (Reason: No Route)
+[TARP_MONITOR] [165.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [165.000000s] [Node-2] Failed to send PING #4 (Reason: No Route)
+[TARP_MONITOR] [180.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [180.000000s] [Node-2] Failed to send PING #5 (Reason: No Route)
+[TARP_MONITOR] [181.000000s] [Node-1] Sent BEACON (epoch->4, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [195.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [195.000000s] [Node-2] Failed to send PING #6 (Reason: No Route)
+[TARP_MONITOR] [210.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [210.000000s] [Node-2] Failed to send PING #7 (Reason: No Route)
+[TARP_MONITOR] [225.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [225.000000s] [Node-2] Failed to send PING #8 (Reason: No Route)
+[TARP_MONITOR] [240.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [240.000000s] [Node-2] Failed to send PING #9 (Reason: No Route)
+[TARP_MONITOR] [241.000000s] [Node-1] Sent BEACON (epoch->5, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [255.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [255.000000s] [Node-2] Failed to send PING #10 (Reason: No Route)
+[TARP_MONITOR] [270.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [270.000000s] [Node-2] Failed to send PING #11 (Reason: No Route)
+[TARP_MONITOR] [285.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [285.000000s] [Node-2] Failed to send PING #12 (Reason: No Route)
+[TARP_MONITOR] [300.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [300.000000s] [Node-2] Failed to send PING #13 (Reason: No Route)
+[TARP_MONITOR] [301.000000s] [Node-1] Sent BEACON (epoch->6, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [315.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [315.000000s] [Node-2] Failed to send PING #14 (Reason: No Route)
+[TARP_MONITOR] [330.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [330.000000s] [Node-2] Failed to send PING #15 (Reason: No Route)
+[TARP_MONITOR] [345.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [345.000000s] [Node-2] Failed to send PING #16 (Reason: No Route)
+[TARP_MONITOR] [360.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [360.000000s] [Node-2] Failed to send PING #17 (Reason: No Route)
+[TARP_MONITOR] [361.000000s] [Node-1] Sent BEACON (epoch->7, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [375.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [375.000000s] [Node-2] Failed to send PING #18 (Reason: No Route)
+[TARP_MONITOR] [390.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [390.000000s] [Node-2] Failed to send PING #19 (Reason: No Route)
+[TARP_MONITOR] [405.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [405.000000s] [Node-2] Failed to send PING #20 (Reason: No Route)
+[TARP_MONITOR] [420.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [420.000000s] [Node-2] Failed to send PING #21 (Reason: No Route)
+[TARP_MONITOR] [421.000000s] [Node-1] Sent BEACON (epoch->8, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [435.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [435.000000s] [Node-2] Failed to send PING #22 (Reason: No Route)
+[TARP_MONITOR] [450.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [450.000000s] [Node-2] Failed to send PING #23 (Reason: No Route)
+[TARP_MONITOR] [465.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [465.000000s] [Node-2] Failed to send PING #24 (Reason: No Route)
+[TARP_MONITOR] [480.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [480.000000s] [Node-2] Failed to send PING #25 (Reason: No Route)
+[TARP_MONITOR] [481.000000s] [Node-1] Sent BEACON (epoch->9, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [495.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [495.000000s] [Node-2] Failed to send PING #26 (Reason: No Route)
+[TARP_MONITOR] [510.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [510.000000s] [Node-2] Failed to send PING #27 (Reason: No Route)
+[TARP_MONITOR] [525.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [525.000000s] [Node-2] Failed to send PING #28 (Reason: No Route)
+[TARP_MONITOR] [540.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [540.000000s] [Node-2] Failed to send PING #29 (Reason: No Route)
+[TARP_MONITOR] [541.000000s] [Node-1] Sent BEACON (epoch->10, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [555.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [555.000000s] [Node-2] Failed to send PING #30 (Reason: No Route)
+[TARP_MONITOR] [570.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [570.000000s] [Node-2] Failed to send PING #31 (Reason: No Route)
+[TARP_MONITOR] [585.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [585.000000s] [Node-2] Failed to send PING #32 (Reason: No Route)
+[TARP_MONITOR] [600.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [600.000000s] [Node-2] Failed to send PING #33 (Reason: No Route)
+[TARP_MONITOR] [601.000000s] [Node-1] Sent BEACON (epoch->11, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [615.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [615.000000s] [Node-2] Failed to send PING #34 (Reason: No Route)
+[TARP_MONITOR] [630.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [630.000000s] [Node-2] Failed to send PING #35 (Reason: No Route)
+[TARP_MONITOR] [645.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [645.000000s] [Node-2] Failed to send PING #36 (Reason: No Route)
+[TARP_MONITOR] [660.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [660.000000s] [Node-2] Failed to send PING #37 (Reason: No Route)
+[TARP_MONITOR] [661.000000s] [Node-1] Sent BEACON (epoch->12, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [675.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [675.000000s] [Node-2] Failed to send PING #38 (Reason: No Route)
+[TARP_MONITOR] [690.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [690.000000s] [Node-2] Failed to send PING #39 (Reason: No Route)
+[TARP_MONITOR] [705.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [705.000000s] [Node-2] Failed to send PING #40 (Reason: No Route)
+[TARP_MONITOR] [720.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [720.000000s] [Node-2] Failed to send PING #41 (Reason: No Route)
+[TARP_MONITOR] [721.000000s] [Node-1] Sent BEACON (epoch->13, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [735.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [735.000000s] [Node-2] Failed to send PING #42 (Reason: No Route)
+[TARP_MONITOR] [750.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [750.000000s] [Node-2] Failed to send PING #43 (Reason: No Route)
+[TARP_MONITOR] [765.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [765.000000s] [Node-2] Failed to send PING #44 (Reason: No Route)
+[TARP_MONITOR] [780.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [780.000000s] [Node-2] Failed to send PING #45 (Reason: No Route)
+[TARP_MONITOR] [781.000000s] [Node-1] Sent BEACON (epoch->14, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [795.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [795.000000s] [Node-2] Failed to send PING #46 (Reason: No Route)
+[TARP_MONITOR] [810.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [810.000000s] [Node-2] Failed to send PING #47 (Reason: No Route)
+[TARP_MONITOR] [825.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [825.000000s] [Node-2] Failed to send PING #48 (Reason: No Route)
+[TARP_MONITOR] [840.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [840.000000s] [Node-2] Failed to send PING #49 (Reason: No Route)
+[TARP_MONITOR] [841.000000s] [Node-1] Sent BEACON (epoch->15, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [855.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [855.000000s] [Node-2] Failed to send PING #50 (Reason: No Route)
+[TARP_MONITOR] [870.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [870.000000s] [Node-2] Failed to send PING #51 (Reason: No Route)
+[TARP_MONITOR] [885.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [885.000000s] [Node-2] Failed to send PING #52 (Reason: No Route)
+[TARP_MONITOR] [900.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [900.000000s] [Node-2] Failed to send PING #53 (Reason: No Route)
+[TARP_MONITOR] [901.000000s] [Node-1] Sent BEACON (epoch->16, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [915.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [915.000000s] [Node-2] Failed to send PING #54 (Reason: No Route)
+[TARP_MONITOR] [930.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [930.000000s] [Node-2] Failed to send PING #55 (Reason: No Route)
+[TARP_MONITOR] [945.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [945.000000s] [Node-2] Failed to send PING #56 (Reason: No Route)
+[TARP_MONITOR] [960.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [960.000000s] [Node-2] Failed to send PING #57 (Reason: No Route)
+[TARP_MONITOR] [961.000000s] [Node-1] Sent BEACON (epoch->17, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [975.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [975.000000s] [Node-2] Failed to send PING #58 (Reason: No Route)
+[TARP_MONITOR] [990.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [990.000000s] [Node-2] Failed to send PING #59 (Reason: No Route)
+[TARP_MONITOR] [1005.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1005.000000s] [Node-2] Failed to send PING #60 (Reason: No Route)
+[TARP_MONITOR] [1020.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1020.000000s] [Node-2] Failed to send PING #61 (Reason: No Route)
+[TARP_MONITOR] [1021.000000s] [Node-1] Sent BEACON (epoch->18, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1035.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1035.000000s] [Node-2] Failed to send PING #62 (Reason: No Route)
+[TARP_MONITOR] [1050.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1050.000000s] [Node-2] Failed to send PING #63 (Reason: No Route)
+[TARP_MONITOR] [1065.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1065.000000s] [Node-2] Failed to send PING #64 (Reason: No Route)
+[TARP_MONITOR] [1080.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1080.000000s] [Node-2] Failed to send PING #65 (Reason: No Route)
+[TARP_MONITOR] [1081.000000s] [Node-1] Sent BEACON (epoch->19, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1095.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1095.000000s] [Node-2] Failed to send PING #66 (Reason: No Route)
+[TARP_MONITOR] [1110.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1110.000000s] [Node-2] Failed to send PING #67 (Reason: No Route)
+[TARP_MONITOR] [1125.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1125.000000s] [Node-2] Failed to send PING #68 (Reason: No Route)
+[TARP_MONITOR] [1140.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1140.000000s] [Node-2] Failed to send PING #69 (Reason: No Route)
+[TARP_MONITOR] [1141.000000s] [Node-1] Sent BEACON (epoch->20, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1155.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1155.000000s] [Node-2] Failed to send PING #70 (Reason: No Route)
+[TARP_MONITOR] [1170.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1170.000000s] [Node-2] Failed to send PING #71 (Reason: No Route)
+[TARP_MONITOR] [1185.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1185.000000s] [Node-2] Failed to send PING #72 (Reason: No Route)
+[TARP_MONITOR] [1200.000000s] [Node-2] Drop UC_TYPE_DATA for 0019. Reason: 0019).
+[APP_MONITOR] [1200.000000s] [Node-2] Failed to send PING #73 (Reason: No Route)
+[TARP_MONITOR] [1201.000000s] [Node-1] Sent BEACON (epoch->21, metric->0, hops->0, parent->.)
+Simulation stopped at time: 1201.0
+
+
+--- Simulation Finished ---
+Final simulation time: 1201.000000s
+Events remaining in queue: 28
+
+--- First 5 Events in Queue ---
+1: t=1201.000001s, Event=MacTrySendNextEvent, Blame=ContikiOS_MAC_802154_Unslotted, Descriptor: None, Cancelled: False
+2: t=1215.000000s, Event=Event, Blame=PingPongApp, Descriptor: None, Cancelled: False
+3: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+4: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+5: t=1215.000000s, Event=NetRoutingTableCleanupEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
