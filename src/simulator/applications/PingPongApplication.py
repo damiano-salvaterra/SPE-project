@@ -77,11 +77,8 @@ class PingPongApp(Application):
         payload_str = f"PING #{self.ping_count} from {self.host.id}"
         packet = NetPacket(APDU=payload_str)
 
-        send_success = False
-        try:
-            send_success = self.host.net.send(packet, destination=self.peer_addr)
-        except Exception:
-            send_success = False  # Ensure it's false on exception
+        # --- No try...except block. Exceptions will halt the simulation. ---
+        send_success = self.host.net.send(packet, destination=self.peer_addr)
 
         if send_success:
             # --- Packet was accepted by TARP, set a PONG timeout ---
@@ -183,11 +180,8 @@ class PingPongApp(Application):
             reply_payload_str = f"PONG #{seq_num} from {self.host.id}"
             reply_packet = NetPacket(APDU=reply_payload_str.encode("utf-8"))
             
-            send_pong_success = False
-            try:
-                send_pong_success = self.host.net.send(reply_packet, destination=sender_addr)
-            except Exception:
-                send_pong_success = False
+            # --- No try...except block. Exceptions will halt the simulation. ---
+            send_pong_success = self.host.net.send(reply_packet, destination=sender_addr)
 
             if send_pong_success:
                 signal = AppSendSignal(

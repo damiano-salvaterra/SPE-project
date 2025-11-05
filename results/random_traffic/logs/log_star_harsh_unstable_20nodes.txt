@@ -1,0 +1,1855 @@
+
+--- Selected Configuration (from log) ---
+Application: random_traffic
+Topology: star
+Channel: harsh_unstable
+Num Nodes: 20
+Seed: 12345
+DSpace Grid Step (Density): 1.0m
+App Param (mean_interarrival): 30.0s
+
+--- Generating 'star' topology positions... ---
+Generating 'star' topology with params: {'num_nodes': 20, 'rng': Generator(PCG64) at 0x7D2433875B60, 'radius': 100}
+
+--- Calculating DSpace NPT from Topology and Step ---
+Topology bounds (unpadded): X=[-98.6, 100.0], Y=[-99.7, 99.7]
+Max absolute coordinate (padded): 110.0
+Calculated DSpace params: step=1.0, npt=224 (Grid will span approx. [-112.0, 111.0])
+
+--- Bootstrapping Kernel with Dynamic DSpace ---
+Kernel bootstrapped successfully.
+
+--- Generating topology plot with shadowing map ---
+Plotting shadowing map from kernel.
+Saving scenario plot to /home/damole/Documents/develop/SPE-project/results/random_traffic/plots/topology/star_harsh_unstable_20nodes_scenario.png
+
+--- Simulation Parameters ---
+Application: random_traffic
+Root seed: 12345
+Network configuration: num_nodes=20
+Simulation time: 1200.0s
+
+--- Initializing Kernel and Scheduler ---
+Using provided bootstrapped kernel with parameters:
+Kernel configuration: freq=2400000000.0, filter_bandwidth=2000000.0, coh_d=15, shadow_dev=5.0, pl_exponent=4.0, d0=1.0, fading_shape=1.0, dspace_npt=224, dspace_step=1.0, seed=12345
+
+--- Creating Network Nodes and setting up random_traffic ---
+Node-1 (Addr: 0001) is SINK/ROOT.
+Node 'Node-1' added at position (0.0, 0.0).
+Node 'Node-2' added at position (100.0, 0.0).
+Node 'Node-3' added at position (94.58172417006347, 32.469946920468345).
+Node 'Node-4' added at position (78.91405093963935, 61.421271268966784).
+Node 'Node-5' added at position (54.694815812242695, 83.71664782625285).
+Node 'Node-6' added at position (24.548548714079924, 96.94002659393304).
+Node 'Node-7' added at position (-8.257934547233226, 99.65844930066699).
+Node 'Node-8' added at position (-40.16954246529694, 91.57733266550574).
+Node 'Node-9' added at position (-67.72815716257409, 73.57239106731318).
+Node 'Node-10' added at position (-87.9473751206489, 47.59473930370737).
+Node 'Node-11' added at position (-98.63613034027223, 16.459459028073404).
+Node 'Node-12' added at position (-98.63613034027225, -16.45945902807338).
+Node 'Node-13' added at position (-87.94737512064893, -47.594739303707314).
+Node 'Node-14' added at position (-67.7281571625741, -73.57239106731316).
+Node 'Node-15' added at position (-40.16954246529691, -91.57733266550576).
+Node 'Node-16' added at position (-8.257934547233274, -99.65844930066699).
+Node 'Node-17' added at position (24.548548714079878, -96.94002659393306).
+Node 'Node-18' added at position (54.69481581224266, -83.71664782625288).
+Node 'Node-19' added at position (78.9140509396394, -61.421271268966734).
+Node 'Node-20' added at position (94.58172417006347, -32.469946920468374).
+
+--- Attaching Monitors to all nodes ---
+Monitor 'PacketMonitor' attached to 'Node-1.phy'.
+Monitor 'PacketMonitor' attached to 'Node-2.phy'.
+Monitor 'PacketMonitor' attached to 'Node-3.phy'.
+Monitor 'PacketMonitor' attached to 'Node-4.phy'.
+Monitor 'PacketMonitor' attached to 'Node-5.phy'.
+Monitor 'PacketMonitor' attached to 'Node-6.phy'.
+Monitor 'PacketMonitor' attached to 'Node-7.phy'.
+Monitor 'PacketMonitor' attached to 'Node-8.phy'.
+Monitor 'PacketMonitor' attached to 'Node-9.phy'.
+Monitor 'PacketMonitor' attached to 'Node-10.phy'.
+Monitor 'PacketMonitor' attached to 'Node-11.phy'.
+Monitor 'PacketMonitor' attached to 'Node-12.phy'.
+Monitor 'PacketMonitor' attached to 'Node-13.phy'.
+Monitor 'PacketMonitor' attached to 'Node-14.phy'.
+Monitor 'PacketMonitor' attached to 'Node-15.phy'.
+Monitor 'PacketMonitor' attached to 'Node-16.phy'.
+Monitor 'PacketMonitor' attached to 'Node-17.phy'.
+Monitor 'PacketMonitor' attached to 'Node-18.phy'.
+Monitor 'PacketMonitor' attached to 'Node-19.phy'.
+Monitor 'PacketMonitor' attached to 'Node-20.phy'.
+
+--- Starting Applications ---
+[APP_MONITOR] [0.000000s] [Node-1] Application started.
+[APP_MONITOR] [0.000000s] [Node-2] Application started.
+[APP_MONITOR] [0.000000s] [Node-3] Application started.
+[APP_MONITOR] [0.000000s] [Node-4] Application started.
+[APP_MONITOR] [0.000000s] [Node-5] Application started.
+[APP_MONITOR] [0.000000s] [Node-6] Application started.
+[APP_MONITOR] [0.000000s] [Node-7] Application started.
+[APP_MONITOR] [0.000000s] [Node-8] Application started.
+[APP_MONITOR] [0.000000s] [Node-9] Application started.
+[APP_MONITOR] [0.000000s] [Node-10] Application started.
+[APP_MONITOR] [0.000000s] [Node-11] Application started.
+[APP_MONITOR] [0.000000s] [Node-12] Application started.
+[APP_MONITOR] [0.000000s] [Node-13] Application started.
+[APP_MONITOR] [0.000000s] [Node-14] Application started.
+[APP_MONITOR] [0.000000s] [Node-15] Application started.
+[APP_MONITOR] [0.000000s] [Node-16] Application started.
+[APP_MONITOR] [0.000000s] [Node-17] Application started.
+[APP_MONITOR] [0.000000s] [Node-18] Application started.
+[APP_MONITOR] [0.000000s] [Node-19] Application started.
+[APP_MONITOR] [0.000000s] [Node-20] Application started.
+Started RandomTrafficApplication on all 20 nodes.
+
+--- Running Simulation ---
+Running simulation until time 1200.0 or event queue is empty...
+[TARP_MONITOR] [1.000000s] [Node-1] Sent BEACON (epoch->1, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1.431903s] [Node-16] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [1.431903s] [Node-16] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [2.759829s] [Node-13] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [2.759829s] [Node-13] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [4.357330s] [Node-8] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [4.357330s] [Node-8] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [5.524876s] [Node-6] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [5.524876s] [Node-6] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [8.888499s] [Node-17] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [8.888499s] [Node-17] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [10.125940s] [Node-4] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [10.125940s] [Node-4] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [10.375928s] [Node-10] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [10.375928s] [Node-10] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [11.149872s] [Node-11] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [11.149872s] [Node-11] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [12.434684s] [Node-14] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [12.434684s] [Node-14] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [13.626141s] [Node-10] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [13.626141s] [Node-10] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [15.294780s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0003).
+[APP_MONITOR] [15.294780s] [Node-1] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [15.630442s] [Node-12] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [15.630442s] [Node-12] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [15.849634s] [Node-20] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [15.849634s] [Node-20] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [16.597598s] [Node-4] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [16.597598s] [Node-4] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [17.064179s] [Node-16] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [17.064179s] [Node-16] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [19.115915s] [Node-4] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [19.115915s] [Node-4] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [19.257334s] [Node-2] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [19.257334s] [Node-2] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [20.207787s] [Node-6] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [20.207787s] [Node-6] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [22.331222s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0003).
+[APP_MONITOR] [22.331222s] [Node-1] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [26.632573s] [Node-6] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [26.632573s] [Node-6] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [27.598314s] [Node-17] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [27.598314s] [Node-17] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [29.544470s] [Node-6] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [29.544470s] [Node-6] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [31.409430s] [Node-8] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [31.409430s] [Node-8] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [32.599234s] [Node-2] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [32.599234s] [Node-2] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [35.224780s] [Node-2] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [35.224780s] [Node-2] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [35.538567s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [35.538567s] [Node-20] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [37.758603s] [Node-16] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [37.758603s] [Node-16] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [39.155528s] [Node-3] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [39.155528s] [Node-3] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [41.093090s] [Node-6] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [41.093090s] [Node-6] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [41.596747s] [Node-7] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [41.596747s] [Node-7] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [42.420665s] [Node-16] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [42.420665s] [Node-16] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [43.723473s] [Node-11] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [43.723473s] [Node-11] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [44.405960s] [Node-4] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [44.405960s] [Node-4] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [45.704069s] [Node-13] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [45.704069s] [Node-13] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [45.976995s] [Node-3] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [45.976995s] [Node-3] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [46.625204s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000a).
+[APP_MONITOR] [46.625204s] [Node-1] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [47.363519s] [Node-8] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [47.363519s] [Node-8] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [47.578813s] [Node-9] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [47.578813s] [Node-9] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [48.202492s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0014).
+[APP_MONITOR] [48.202492s] [Node-1] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [49.843433s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [49.843433s] [Node-20] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [50.037354s] [Node-15] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [50.037354s] [Node-15] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [50.721273s] [Node-12] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [50.721273s] [Node-12] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [51.806854s] [Node-18] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [51.806854s] [Node-18] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [55.534509s] [Node-14] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [55.534509s] [Node-14] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [56.359657s] [Node-3] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [56.359657s] [Node-3] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [57.320763s] [Node-13] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [57.320763s] [Node-13] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [57.755072s] [Node-7] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [57.755072s] [Node-7] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [59.615061s] [Node-19] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [59.615061s] [Node-19] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [60.188888s] [Node-5] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [60.188888s] [Node-5] Failed to send DATA #1 (Reason: No Route)
+[TARP_MONITOR] [60.595358s] [Node-19] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [60.595358s] [Node-19] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [60.829227s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [60.829227s] [Node-14] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [61.000000s] [Node-1] Sent BEACON (epoch->2, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [62.212850s] [Node-12] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [62.212850s] [Node-12] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [62.573076s] [Node-15] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [62.573076s] [Node-15] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [64.535044s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000a).
+[APP_MONITOR] [64.535044s] [Node-1] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [64.933868s] [Node-2] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [64.933868s] [Node-2] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [68.351244s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [68.351244s] [Node-19] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [68.415866s] [Node-18] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [68.415866s] [Node-18] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [69.982116s] [Node-17] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [69.982116s] [Node-17] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [70.534029s] [Node-3] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [70.534029s] [Node-3] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [73.367109s] [Node-2] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [73.367109s] [Node-2] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [74.461792s] [Node-13] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [74.461792s] [Node-13] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [76.666504s] [Node-10] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [76.666504s] [Node-10] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [78.090032s] [Node-15] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [78.090032s] [Node-15] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [79.965604s] [Node-18] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [79.965604s] [Node-18] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [81.885150s] [Node-3] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [81.885150s] [Node-3] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [82.191152s] [Node-14] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [82.191152s] [Node-14] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [82.571963s] [Node-18] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [82.571963s] [Node-18] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [82.940582s] [Node-9] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [82.940582s] [Node-9] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [83.407147s] [Node-9] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [83.407147s] [Node-9] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [84.759354s] [Node-13] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [84.759354s] [Node-13] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [85.395180s] [Node-2] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [85.395180s] [Node-2] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [85.660573s] [Node-9] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [85.660573s] [Node-9] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [87.400487s] [Node-15] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [87.400487s] [Node-15] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [87.922482s] [Node-4] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [87.922482s] [Node-4] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [88.170270s] [Node-10] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [88.170270s] [Node-10] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [89.376299s] [Node-3] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [89.376299s] [Node-3] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [89.719048s] [Node-4] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [89.719048s] [Node-4] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [94.206738s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000b).
+[APP_MONITOR] [94.206738s] [Node-1] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [95.313737s] [Node-10] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [95.313737s] [Node-10] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [98.194595s] [Node-20] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [98.194595s] [Node-20] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [99.499377s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [99.499377s] [Node-14] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [101.013945s] [Node-9] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [101.013945s] [Node-9] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [102.673938s] [Node-6] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [102.673938s] [Node-6] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [103.012193s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0013).
+[APP_MONITOR] [103.012193s] [Node-1] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [106.784028s] [Node-4] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [106.784028s] [Node-4] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [106.981426s] [Node-7] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [106.981426s] [Node-7] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [109.770229s] [Node-11] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [109.770229s] [Node-11] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [109.869676s] [Node-16] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [109.869676s] [Node-16] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [110.656370s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000c).
+[APP_MONITOR] [110.656370s] [Node-1] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [110.731319s] [Node-14] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [110.731319s] [Node-14] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [112.396932s] [Node-19] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [112.396932s] [Node-19] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [115.702466s] [Node-9] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [115.702466s] [Node-9] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [116.294776s] [Node-10] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [116.294776s] [Node-10] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [116.761479s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [116.761479s] [Node-20] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [118.623745s] [Node-6] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [118.623745s] [Node-6] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [119.490890s] [Node-17] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [119.490890s] [Node-17] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [121.000000s] [Node-1] Sent BEACON (epoch->3, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [122.008162s] [Node-4] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [122.008162s] [Node-4] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [122.191903s] [Node-12] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [122.191903s] [Node-12] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [122.281065s] [Node-18] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [122.281065s] [Node-18] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [123.699227s] [Node-4] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [123.699227s] [Node-4] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [124.012846s] [Node-7] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [124.012846s] [Node-7] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [124.092716s] [Node-20] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [124.092716s] [Node-20] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [125.837717s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [125.837717s] [Node-14] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [126.139510s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [126.139510s] [Node-15] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [126.781308s] [Node-9] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [126.781308s] [Node-9] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [128.163791s] [Node-7] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [128.163791s] [Node-7] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [130.286439s] [Node-18] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [130.286439s] [Node-18] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [130.416897s] [Node-17] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [130.416897s] [Node-17] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [131.434175s] [Node-18] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [131.434175s] [Node-18] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [134.306507s] [Node-11] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [134.306507s] [Node-11] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [137.287530s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0014).
+[APP_MONITOR] [137.287530s] [Node-1] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [139.958806s] [Node-6] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [139.958806s] [Node-6] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [140.558134s] [Node-18] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [140.558134s] [Node-18] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [140.589484s] [Node-4] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [140.589484s] [Node-4] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [142.444385s] [Node-13] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [142.444385s] [Node-13] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [142.712003s] [Node-4] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [142.712003s] [Node-4] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [142.911006s] [Node-10] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [142.911006s] [Node-10] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [143.059822s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0009).
+[APP_MONITOR] [143.059822s] [Node-1] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [144.786645s] [Node-2] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [144.786645s] [Node-2] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [147.134892s] [Node-9] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [147.134892s] [Node-9] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [147.466194s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0008).
+[APP_MONITOR] [147.466194s] [Node-1] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [147.671760s] [Node-6] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [147.671760s] [Node-6] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [148.024002s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [148.024002s] [Node-14] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [148.919145s] [Node-10] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [148.919145s] [Node-10] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [151.504022s] [Node-2] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [151.504022s] [Node-2] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [154.360252s] [Node-8] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [154.360252s] [Node-8] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [155.748945s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0004).
+[APP_MONITOR] [155.748945s] [Node-1] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [156.248207s] [Node-9] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [156.248207s] [Node-9] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [156.520781s] [Node-17] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [156.520781s] [Node-17] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [157.831773s] [Node-7] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [157.831773s] [Node-7] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [157.919852s] [Node-9] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [157.919852s] [Node-9] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [158.737297s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0011).
+[APP_MONITOR] [158.737297s] [Node-1] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [159.360382s] [Node-10] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [159.360382s] [Node-10] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [160.515141s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [160.515141s] [Node-1] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [161.072092s] [Node-17] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [161.072092s] [Node-17] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [163.293560s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0002).
+[APP_MONITOR] [163.293560s] [Node-1] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [163.603395s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0009).
+[APP_MONITOR] [163.603395s] [Node-1] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [164.451159s] [Node-9] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [164.451159s] [Node-9] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [164.487645s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [164.487645s] [Node-18] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [165.630005s] [Node-19] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [165.630005s] [Node-19] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [166.284410s] [Node-14] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [166.284410s] [Node-14] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [166.499881s] [Node-12] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [166.499881s] [Node-12] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [166.879914s] [Node-19] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [166.879914s] [Node-19] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [167.620308s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0010).
+[APP_MONITOR] [167.620308s] [Node-1] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [168.338723s] [Node-19] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [168.338723s] [Node-19] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [170.468909s] [Node-20] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [170.468909s] [Node-20] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [172.985207s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0011).
+[APP_MONITOR] [172.985207s] [Node-1] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [174.926086s] [Node-6] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [174.926086s] [Node-6] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [176.088740s] [Node-14] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [176.088740s] [Node-14] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [178.893001s] [Node-3] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [178.893001s] [Node-3] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [179.960179s] [Node-15] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [179.960179s] [Node-15] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [181.000000s] [Node-1] Sent BEACON (epoch->4, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [189.239010s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [189.239010s] [Node-14] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [189.453169s] [Node-10] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [189.453169s] [Node-10] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [189.612889s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0010).
+[APP_MONITOR] [189.612889s] [Node-1] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [190.059842s] [Node-11] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [190.059842s] [Node-11] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [190.686909s] [Node-11] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [190.686909s] [Node-11] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [191.089567s] [Node-13] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [191.089567s] [Node-13] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [192.623127s] [Node-5] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [192.623127s] [Node-5] Failed to send DATA #2 (Reason: No Route)
+[TARP_MONITOR] [194.021096s] [Node-16] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [194.021096s] [Node-16] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [196.023719s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [196.023719s] [Node-15] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [197.016022s] [Node-3] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [197.016022s] [Node-3] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [198.481788s] [Node-10] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [198.481788s] [Node-10] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [199.271755s] [Node-14] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [199.271755s] [Node-14] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [199.462051s] [Node-10] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [199.462051s] [Node-10] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [201.838001s] [Node-5] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [201.838001s] [Node-5] Failed to send DATA #3 (Reason: No Route)
+[TARP_MONITOR] [202.625832s] [Node-12] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [202.625832s] [Node-12] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [202.792057s] [Node-17] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [202.792057s] [Node-17] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [203.073525s] [Node-19] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [203.073525s] [Node-19] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [208.416873s] [Node-16] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [208.416873s] [Node-16] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [208.580960s] [Node-12] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [208.580960s] [Node-12] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [210.480662s] [Node-9] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [210.480662s] [Node-9] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [212.299114s] [Node-20] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [212.299114s] [Node-20] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [212.821646s] [Node-4] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [212.821646s] [Node-4] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [213.504132s] [Node-18] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [213.504132s] [Node-18] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [214.403959s] [Node-2] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [214.403959s] [Node-2] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [214.933619s] [Node-13] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [214.933619s] [Node-13] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [215.823828s] [Node-7] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [215.823828s] [Node-7] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [219.786891s] [Node-10] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [219.786891s] [Node-10] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [220.621418s] [Node-8] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [220.621418s] [Node-8] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [222.043202s] [Node-13] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [222.043202s] [Node-13] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [224.717262s] [Node-6] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [224.717262s] [Node-6] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [226.295462s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [226.295462s] [Node-5] Failed to send DATA #4 (Reason: No Route)
+[TARP_MONITOR] [227.246534s] [Node-16] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [227.246534s] [Node-16] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [227.291795s] [Node-20] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [227.291795s] [Node-20] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [227.592623s] [Node-7] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [227.592623s] [Node-7] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [229.249105s] [Node-20] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [229.249105s] [Node-20] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [232.763337s] [Node-3] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [232.763337s] [Node-3] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [235.144414s] [Node-12] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [235.144414s] [Node-12] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [238.147014s] [Node-10] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [238.147014s] [Node-10] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [238.181346s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [238.181346s] [Node-1] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [238.525382s] [Node-13] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [238.525382s] [Node-13] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [239.089476s] [Node-10] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [239.089476s] [Node-10] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [239.713438s] [Node-3] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [239.713438s] [Node-3] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [241.000000s] [Node-1] Sent BEACON (epoch->5, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [243.559192s] [Node-16] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [243.559192s] [Node-16] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [244.163115s] [Node-19] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [244.163115s] [Node-19] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [244.293542s] [Node-2] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [244.293542s] [Node-2] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [244.672225s] [Node-2] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [244.672225s] [Node-2] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [245.196036s] [Node-11] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [245.196036s] [Node-11] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [246.125946s] [Node-2] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [246.125946s] [Node-2] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [246.210551s] [Node-14] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [246.210551s] [Node-14] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [247.182326s] [Node-20] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [247.182326s] [Node-20] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [248.336284s] [Node-9] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [248.336284s] [Node-9] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [249.111208s] [Node-5] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [249.111208s] [Node-5] Failed to send DATA #5 (Reason: No Route)
+[TARP_MONITOR] [252.207649s] [Node-17] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [252.207649s] [Node-17] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [254.004747s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000c).
+[APP_MONITOR] [254.004747s] [Node-1] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [259.620121s] [Node-6] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [259.620121s] [Node-6] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [262.494891s] [Node-19] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [262.494891s] [Node-19] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [262.886043s] [Node-17] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [262.886043s] [Node-17] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [263.516083s] [Node-8] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [263.516083s] [Node-8] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [264.803706s] [Node-6] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [264.803706s] [Node-6] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [274.566982s] [Node-12] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [274.566982s] [Node-12] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [275.834601s] [Node-2] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [275.834601s] [Node-2] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [276.919778s] [Node-8] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [276.919778s] [Node-8] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [277.143069s] [Node-18] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [277.143069s] [Node-18] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [277.350877s] [Node-17] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [277.350877s] [Node-17] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [277.956267s] [Node-9] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [277.956267s] [Node-9] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [278.097052s] [Node-4] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [278.097052s] [Node-4] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [279.998712s] [Node-5] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [279.998712s] [Node-5] Failed to send DATA #6 (Reason: No Route)
+[TARP_MONITOR] [281.694624s] [Node-10] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [281.694624s] [Node-10] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [284.742889s] [Node-15] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [284.742889s] [Node-15] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [290.892001s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [290.892001s] [Node-18] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [291.502817s] [Node-10] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [291.502817s] [Node-10] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [293.451989s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [293.451989s] [Node-20] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [293.846519s] [Node-5] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [293.846519s] [Node-5] Failed to send DATA #7 (Reason: No Route)
+[TARP_MONITOR] [294.209927s] [Node-3] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [294.209927s] [Node-3] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [295.215948s] [Node-11] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [295.215948s] [Node-11] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [295.852937s] [Node-9] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [295.852937s] [Node-9] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [296.810077s] [Node-19] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [296.810077s] [Node-19] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [297.067807s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [297.067807s] [Node-5] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [299.896222s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [299.896222s] [Node-5] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [299.988096s] [Node-19] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [299.988096s] [Node-19] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [301.000000s] [Node-1] Sent BEACON (epoch->6, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [301.578197s] [Node-20] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [301.578197s] [Node-20] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [303.504290s] [Node-7] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [303.504290s] [Node-7] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [303.992905s] [Node-4] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [303.992905s] [Node-4] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [304.865614s] [Node-15] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [304.865614s] [Node-15] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [308.394476s] [Node-4] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [308.394476s] [Node-4] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [308.747315s] [Node-11] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [308.747315s] [Node-11] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [310.408866s] [Node-4] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [310.408866s] [Node-4] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [311.364942s] [Node-15] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [311.364942s] [Node-15] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [317.022217s] [Node-2] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [317.022217s] [Node-2] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [317.070971s] [Node-11] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [317.070971s] [Node-11] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [317.998197s] [Node-3] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [317.998197s] [Node-3] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [318.710815s] [Node-17] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [318.710815s] [Node-17] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [318.872487s] [Node-11] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [318.872487s] [Node-11] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [321.459254s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [321.459254s] [Node-20] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [321.467642s] [Node-4] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [321.467642s] [Node-4] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [322.495961s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0013).
+[APP_MONITOR] [322.495961s] [Node-1] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [324.550130s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [324.550130s] [Node-14] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [326.644833s] [Node-19] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [326.644833s] [Node-19] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [326.851558s] [Node-12] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [326.851558s] [Node-12] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [328.102733s] [Node-19] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [328.102733s] [Node-19] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [332.373226s] [Node-4] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [332.373226s] [Node-4] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [333.675990s] [Node-15] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [333.675990s] [Node-15] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [335.295803s] [Node-18] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [335.295803s] [Node-18] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [335.717177s] [Node-17] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [335.717177s] [Node-17] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [341.327121s] [Node-17] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [341.327121s] [Node-17] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [341.626593s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [341.626593s] [Node-18] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [342.125432s] [Node-3] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [342.125432s] [Node-3] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [342.190320s] [Node-20] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [342.190320s] [Node-20] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [342.910242s] [Node-3] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [342.910242s] [Node-3] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [342.920838s] [Node-12] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [342.920838s] [Node-12] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [344.682228s] [Node-10] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [344.682228s] [Node-10] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [344.738362s] [Node-17] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [344.738362s] [Node-17] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [345.241049s] [Node-17] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [345.241049s] [Node-17] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [345.557476s] [Node-16] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [345.557476s] [Node-16] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [345.829387s] [Node-6] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [345.829387s] [Node-6] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [347.320999s] [Node-10] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [347.320999s] [Node-10] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [347.705658s] [Node-8] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [347.705658s] [Node-8] Failed to send DATA #8 (Reason: No Route)
+[TARP_MONITOR] [348.869294s] [Node-18] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [348.869294s] [Node-18] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [350.250904s] [Node-19] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [350.250904s] [Node-19] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [352.168721s] [Node-12] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [352.168721s] [Node-12] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [353.028575s] [Node-17] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [353.028575s] [Node-17] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [354.935093s] [Node-6] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [354.935093s] [Node-6] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [355.375457s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [355.375457s] [Node-5] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [356.545577s] [Node-17] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [356.545577s] [Node-17] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [358.596064s] [Node-3] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [358.596064s] [Node-3] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [359.502485s] [Node-7] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [359.502485s] [Node-7] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [360.742774s] [Node-11] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [360.742774s] [Node-11] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [361.000000s] [Node-1] Sent BEACON (epoch->7, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [362.479352s] [Node-7] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [362.479352s] [Node-7] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [362.516796s] [Node-19] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [362.516796s] [Node-19] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [362.693626s] [Node-9] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [362.693626s] [Node-9] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [363.968710s] [Node-20] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [363.968710s] [Node-20] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [366.472185s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [366.472185s] [Node-19] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [369.839770s] [Node-11] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [369.839770s] [Node-11] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [372.772167s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [372.772167s] [Node-15] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [372.809177s] [Node-19] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [372.809177s] [Node-19] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [373.400784s] [Node-8] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [373.400784s] [Node-8] Failed to send DATA #9 (Reason: No Route)
+[TARP_MONITOR] [373.501562s] [Node-18] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [373.501562s] [Node-18] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [374.773566s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000a).
+[APP_MONITOR] [374.773566s] [Node-1] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [376.685394s] [Node-5] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [376.685394s] [Node-5] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [377.840213s] [Node-9] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [377.840213s] [Node-9] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [378.004912s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [378.004912s] [Node-19] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [378.396490s] [Node-12] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [378.396490s] [Node-12] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [381.388735s] [Node-10] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [381.388735s] [Node-10] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [384.061128s] [Node-18] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [384.061128s] [Node-18] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [384.877343s] [Node-13] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [384.877343s] [Node-13] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [385.080333s] [Node-6] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [385.080333s] [Node-6] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [387.656613s] [Node-12] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [387.656613s] [Node-12] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [387.741369s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [387.741369s] [Node-14] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [387.882868s] [Node-16] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [387.882868s] [Node-16] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [394.459083s] [Node-19] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [394.459083s] [Node-19] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [394.600391s] [Node-13] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [394.600391s] [Node-13] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [394.873090s] [Node-20] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [394.873090s] [Node-20] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [395.778104s] [Node-9] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [395.778104s] [Node-9] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [395.849583s] [Node-4] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [395.849583s] [Node-4] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [396.486955s] [Node-4] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [396.486955s] [Node-4] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [396.641680s] [Node-19] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [396.641680s] [Node-19] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [397.062342s] [Node-17] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [397.062342s] [Node-17] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [397.823267s] [Node-2] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [397.823267s] [Node-2] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [398.506773s] [Node-5] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [398.506773s] [Node-5] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [399.095150s] [Node-14] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [399.095150s] [Node-14] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [399.240265s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [399.240265s] [Node-1] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [399.457777s] [Node-10] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [399.457777s] [Node-10] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [401.027787s] [Node-20] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [401.027787s] [Node-20] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [402.278279s] [Node-17] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [402.278279s] [Node-17] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [403.542486s] [Node-2] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [403.542486s] [Node-2] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [410.133039s] [Node-14] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [410.133039s] [Node-14] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [410.299157s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0011).
+[APP_MONITOR] [410.299157s] [Node-1] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [411.950624s] [Node-20] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [411.950624s] [Node-20] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [413.574222s] [Node-20] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [413.574222s] [Node-20] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [415.499952s] [Node-5] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [415.499952s] [Node-5] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [415.609918s] [Node-17] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [415.609918s] [Node-17] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [415.919565s] [Node-4] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [415.919565s] [Node-4] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [417.927172s] [Node-19] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [417.927172s] [Node-19] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [418.178039s] [Node-19] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [418.178039s] [Node-19] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [418.573305s] [Node-16] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [418.573305s] [Node-16] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [419.965196s] [Node-4] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [419.965196s] [Node-4] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [421.000000s] [Node-1] Sent BEACON (epoch->8, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [422.187663s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [422.187663s] [Node-1] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [427.168338s] [Node-12] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [427.168338s] [Node-12] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [430.576574s] [Node-17] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [430.576574s] [Node-17] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [431.527892s] [Node-7] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [431.527892s] [Node-7] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [431.840527s] [Node-10] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [431.840527s] [Node-10] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [431.945379s] [Node-11] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [431.945379s] [Node-11] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [431.987228s] [Node-11] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [431.987228s] [Node-11] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [434.635390s] [Node-10] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [434.635390s] [Node-10] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [435.693240s] [Node-18] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [435.693240s] [Node-18] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [436.610991s] [Node-18] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [436.610991s] [Node-18] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [443.200939s] [Node-14] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [443.200939s] [Node-14] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [444.947265s] [Node-12] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [444.947265s] [Node-12] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [447.586497s] [Node-3] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [447.586497s] [Node-3] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [449.921000s] [Node-2] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [449.921000s] [Node-2] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [451.525594s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0011).
+[APP_MONITOR] [451.525594s] [Node-1] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [454.282905s] [Node-4] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [454.282905s] [Node-4] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [456.632704s] [Node-3] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [456.632704s] [Node-3] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [457.779167s] [Node-8] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [457.779167s] [Node-8] Failed to send DATA #10 (Reason: No Route)
+[TARP_MONITOR] [458.025960s] [Node-10] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [458.025960s] [Node-10] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [458.088147s] [Node-2] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [458.088147s] [Node-2] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [458.594774s] [Node-17] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [458.594774s] [Node-17] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [460.919241s] [Node-5] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [460.919241s] [Node-5] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [466.660515s] [Node-4] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [466.660515s] [Node-4] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [466.770639s] [Node-6] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [466.770639s] [Node-6] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [466.931126s] [Node-14] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [466.931126s] [Node-14] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [468.048178s] [Node-18] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [468.048178s] [Node-18] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [475.497218s] [Node-13] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [475.497218s] [Node-13] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [475.516310s] [Node-17] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [475.516310s] [Node-17] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [476.529479s] [Node-8] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [476.529479s] [Node-8] Failed to send DATA #11 (Reason: No Route)
+[TARP_MONITOR] [478.151452s] [Node-11] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [478.151452s] [Node-11] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [479.746159s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0007).
+[APP_MONITOR] [479.746159s] [Node-1] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [481.000000s] [Node-1] Sent BEACON (epoch->9, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [485.436755s] [Node-17] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [485.436755s] [Node-17] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [486.012041s] [Node-13] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [486.012041s] [Node-13] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [487.510343s] [Node-11] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [487.510343s] [Node-11] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [491.267125s] [Node-17] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [491.267125s] [Node-17] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [491.455889s] [Node-2] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [491.455889s] [Node-2] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [491.579316s] [Node-20] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [491.579316s] [Node-20] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [493.874787s] [Node-17] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [493.874787s] [Node-17] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [496.271512s] [Node-16] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [496.271512s] [Node-16] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [498.773921s] [Node-7] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [498.773921s] [Node-7] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [504.379443s] [Node-12] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [504.379443s] [Node-12] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [507.335770s] [Node-18] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [507.335770s] [Node-18] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [508.728237s] [Node-4] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [508.728237s] [Node-4] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [509.222146s] [Node-20] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [509.222146s] [Node-20] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [509.674377s] [Node-17] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [509.674377s] [Node-17] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [510.703157s] [Node-13] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [510.703157s] [Node-13] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [512.750678s] [Node-9] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [512.750678s] [Node-9] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [514.744086s] [Node-4] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [514.744086s] [Node-4] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [515.254955s] [Node-4] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [515.254955s] [Node-4] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [515.724143s] [Node-6] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [515.724143s] [Node-6] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [519.059942s] [Node-3] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [519.059942s] [Node-3] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [520.282451s] [Node-20] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [520.282451s] [Node-20] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [521.719632s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0008).
+[APP_MONITOR] [521.719632s] [Node-1] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [522.642013s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [522.642013s] [Node-19] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [523.397747s] [Node-16] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [523.397747s] [Node-16] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [525.672368s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [525.672368s] [Node-14] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [526.457642s] [Node-14] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [526.457642s] [Node-14] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [528.023497s] [Node-19] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [528.023497s] [Node-19] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [528.708557s] [Node-8] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [528.708557s] [Node-8] Failed to send DATA #12 (Reason: No Route)
+[TARP_MONITOR] [528.901271s] [Node-9] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [528.901271s] [Node-9] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [530.603359s] [Node-12] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [530.603359s] [Node-12] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [531.837679s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0008).
+[APP_MONITOR] [531.837679s] [Node-1] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [532.894835s] [Node-5] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [532.894835s] [Node-5] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [535.921101s] [Node-15] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [535.921101s] [Node-15] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [541.000000s] [Node-1] Sent BEACON (epoch->10, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [543.504228s] [Node-10] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [543.504228s] [Node-10] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [547.070511s] [Node-9] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [547.070511s] [Node-9] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [547.416557s] [Node-6] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [547.416557s] [Node-6] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [547.448265s] [Node-11] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [547.448265s] [Node-11] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [550.271517s] [Node-19] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [550.271517s] [Node-19] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [550.614698s] [Node-18] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [550.614698s] [Node-18] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [551.831950s] [Node-6] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [551.831950s] [Node-6] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [553.056538s] [Node-5] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [553.056538s] [Node-5] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [553.640895s] [Node-17] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [553.640895s] [Node-17] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [553.793776s] [Node-18] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [553.793776s] [Node-18] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [555.106608s] [Node-19] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [555.106608s] [Node-19] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [555.873626s] [Node-15] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [555.873626s] [Node-15] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [558.916428s] [Node-15] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [558.916428s] [Node-15] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [560.019865s] [Node-12] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [560.019865s] [Node-12] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [560.150085s] [Node-18] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [560.150085s] [Node-18] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [562.422970s] [Node-5] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [562.422970s] [Node-5] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [565.649773s] [Node-4] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [565.649773s] [Node-4] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [566.877235s] [Node-7] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [566.877235s] [Node-7] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [568.365645s] [Node-16] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [568.365645s] [Node-16] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [570.290352s] [Node-13] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [570.290352s] [Node-13] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [572.011849s] [Node-4] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [572.011849s] [Node-4] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [573.179892s] [Node-13] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [573.179892s] [Node-13] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [574.021052s] [Node-20] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [574.021052s] [Node-20] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [577.368342s] [Node-8] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [577.368342s] [Node-8] Failed to send DATA #13 (Reason: No Route)
+[TARP_MONITOR] [577.381631s] [Node-9] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [577.381631s] [Node-9] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [580.425792s] [Node-7] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [580.425792s] [Node-7] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [580.795623s] [Node-12] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [580.795623s] [Node-12] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [584.226957s] [Node-9] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [584.226957s] [Node-9] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [586.661255s] [Node-8] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [586.661255s] [Node-8] Failed to send DATA #14 (Reason: No Route)
+[TARP_MONITOR] [589.676401s] [Node-7] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [589.676401s] [Node-7] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [592.796574s] [Node-10] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [592.796574s] [Node-10] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [593.918317s] [Node-2] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [593.918317s] [Node-2] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [596.427018s] [Node-9] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [596.427018s] [Node-9] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [597.277744s] [Node-16] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [597.277744s] [Node-16] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [597.686855s] [Node-11] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [597.686855s] [Node-11] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [597.714802s] [Node-5] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [597.714802s] [Node-5] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [598.887565s] [Node-16] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [598.887565s] [Node-16] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [601.000000s] [Node-1] Sent BEACON (epoch->11, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [606.184899s] [Node-7] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [606.184899s] [Node-7] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [607.110789s] [Node-2] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [607.110789s] [Node-2] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [608.510921s] [Node-15] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [608.510921s] [Node-15] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [608.940299s] [Node-7] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [608.940299s] [Node-7] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [610.903541s] [Node-5] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [610.903541s] [Node-5] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [614.268444s] [Node-2] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [614.268444s] [Node-2] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [615.951851s] [Node-7] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [615.951851s] [Node-7] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [619.851788s] [Node-11] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [619.851788s] [Node-11] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [622.856340s] [Node-18] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [622.856340s] [Node-18] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [627.889770s] [Node-20] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [627.889770s] [Node-20] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [629.919784s] [Node-10] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [629.919784s] [Node-10] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [630.571239s] [Node-17] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [630.571239s] [Node-17] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [633.051424s] [Node-8] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [633.051424s] [Node-8] Failed to send DATA #15 (Reason: No Route)
+[TARP_MONITOR] [634.534273s] [Node-16] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [634.534273s] [Node-16] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [634.905580s] [Node-17] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [634.905580s] [Node-17] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [634.994067s] [Node-19] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [634.994067s] [Node-19] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [635.063829s] [Node-17] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [635.063829s] [Node-17] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [637.376139s] [Node-17] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [637.376139s] [Node-17] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [638.608907s] [Node-20] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [638.608907s] [Node-20] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [639.872467s] [Node-16] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [639.872467s] [Node-16] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [641.372363s] [Node-14] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [641.372363s] [Node-14] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [642.040258s] [Node-11] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [642.040258s] [Node-11] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [643.033840s] [Node-8] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [643.033840s] [Node-8] Failed to send DATA #16 (Reason: No Route)
+[TARP_MONITOR] [644.182741s] [Node-9] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [644.182741s] [Node-9] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [646.252903s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [646.252903s] [Node-18] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [648.875461s] [Node-11] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [648.875461s] [Node-11] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [649.957676s] [Node-12] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [649.957676s] [Node-12] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [650.388679s] [Node-7] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [650.388679s] [Node-7] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [650.401357s] [Node-16] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [650.401357s] [Node-16] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [651.813873s] [Node-12] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [651.813873s] [Node-12] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [652.090299s] [Node-2] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [652.090299s] [Node-2] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [653.530289s] [Node-15] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [653.530289s] [Node-15] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [654.389393s] [Node-18] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [654.389393s] [Node-18] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [656.631407s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0003).
+[APP_MONITOR] [656.631407s] [Node-1] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [657.954918s] [Node-4] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [657.954918s] [Node-4] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [658.527876s] [Node-11] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [658.527876s] [Node-11] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [660.600028s] [Node-7] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [660.600028s] [Node-7] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [661.000000s] [Node-1] Sent BEACON (epoch->12, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [661.198324s] [Node-3] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [661.198324s] [Node-3] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [661.384655s] [Node-5] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [661.384655s] [Node-5] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [661.882450s] [Node-8] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [661.882450s] [Node-8] Failed to send DATA #17 (Reason: No Route)
+[TARP_MONITOR] [662.669350s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0014).
+[APP_MONITOR] [662.669350s] [Node-1] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [662.990029s] [Node-11] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [662.990029s] [Node-11] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [663.690819s] [Node-19] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [663.690819s] [Node-19] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [663.901340s] [Node-11] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [663.901340s] [Node-11] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [665.323746s] [Node-13] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [665.323746s] [Node-13] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [667.120925s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0011).
+[APP_MONITOR] [667.120925s] [Node-1] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [667.630496s] [Node-7] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [667.630496s] [Node-7] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [669.507751s] [Node-17] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [669.507751s] [Node-17] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [669.743586s] [Node-15] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [669.743586s] [Node-15] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [670.126411s] [Node-2] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [670.126411s] [Node-2] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [670.628668s] [Node-17] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [670.628668s] [Node-17] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [672.225335s] [Node-5] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [672.225335s] [Node-5] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [673.838670s] [Node-15] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [673.838670s] [Node-15] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [674.715789s] [Node-4] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [674.715789s] [Node-4] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [676.191052s] [Node-8] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [676.191052s] [Node-8] Failed to send DATA #18 (Reason: No Route)
+[TARP_MONITOR] [677.227850s] [Node-7] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [677.227850s] [Node-7] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [678.359238s] [Node-10] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [678.359238s] [Node-10] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [679.377521s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0007).
+[APP_MONITOR] [679.377521s] [Node-1] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [681.534915s] [Node-7] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [681.534915s] [Node-7] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [683.074680s] [Node-11] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [683.074680s] [Node-11] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [688.524399s] [Node-17] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [688.524399s] [Node-17] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [689.175208s] [Node-15] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [689.175208s] [Node-15] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [689.450998s] [Node-4] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [689.450998s] [Node-4] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [691.868755s] [Node-19] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [691.868755s] [Node-19] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [691.917570s] [Node-20] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [691.917570s] [Node-20] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [694.642782s] [Node-3] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [694.642782s] [Node-3] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [695.402309s] [Node-20] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [695.402309s] [Node-20] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [695.958962s] [Node-9] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [695.958962s] [Node-9] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [696.676145s] [Node-16] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [696.676145s] [Node-16] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [698.013451s] [Node-11] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [698.013451s] [Node-11] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [698.663609s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [698.663609s] [Node-5] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [702.222212s] [Node-5] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [702.222212s] [Node-5] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [702.840598s] [Node-14] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [702.840598s] [Node-14] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [703.004376s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [703.004376s] [Node-15] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [705.467365s] [Node-13] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [705.467365s] [Node-13] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [707.000141s] [Node-19] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [707.000141s] [Node-19] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [708.307793s] [Node-8] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [708.307793s] [Node-8] Failed to send DATA #19 (Reason: No Route)
+[TARP_MONITOR] [710.022548s] [Node-15] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [710.022548s] [Node-15] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [712.689838s] [Node-8] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [712.689838s] [Node-8] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [715.103328s] [Node-5] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [715.103328s] [Node-5] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [715.877252s] [Node-13] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [715.877252s] [Node-13] Failed to send DATA #20 (Reason: No Route)
+[TARP_MONITOR] [717.844688s] [Node-20] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [717.844688s] [Node-20] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [721.000000s] [Node-1] Sent BEACON (epoch->13, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [721.126271s] [Node-6] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [721.126271s] [Node-6] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [721.275497s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0009).
+[APP_MONITOR] [721.275497s] [Node-1] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [722.535988s] [Node-3] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [722.535988s] [Node-3] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [723.387599s] [Node-10] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [723.387599s] [Node-10] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [723.767845s] [Node-13] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [723.767845s] [Node-13] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [723.842979s] [Node-11] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [723.842979s] [Node-11] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [727.030226s] [Node-14] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [727.030226s] [Node-14] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [733.566107s] [Node-8] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [733.566107s] [Node-8] Failed to send DATA #21 (Reason: No Route)
+[TARP_MONITOR] [733.753275s] [Node-15] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [733.753275s] [Node-15] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [734.706069s] [Node-6] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [734.706069s] [Node-6] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [735.694004s] [Node-14] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [735.694004s] [Node-14] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [738.942920s] [Node-14] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [738.942920s] [Node-14] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [739.675527s] [Node-18] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [739.675527s] [Node-18] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [740.039810s] [Node-18] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [740.039810s] [Node-18] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [742.308069s] [Node-20] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [742.308069s] [Node-20] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [744.279188s] [Node-15] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [744.279188s] [Node-15] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [744.414943s] [Node-19] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [744.414943s] [Node-19] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [746.745451s] [Node-15] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [746.745451s] [Node-15] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [747.891937s] [Node-10] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [747.891937s] [Node-10] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [748.208923s] [Node-10] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [748.208923s] [Node-10] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [748.856260s] [Node-14] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [748.856260s] [Node-14] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [749.065310s] [Node-15] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [749.065310s] [Node-15] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [749.734276s] [Node-4] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [749.734276s] [Node-4] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [750.214506s] [Node-13] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [750.214506s] [Node-13] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [750.788247s] [Node-4] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [750.788247s] [Node-4] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [752.194607s] [Node-4] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [752.194607s] [Node-4] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [754.249905s] [Node-14] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [754.249905s] [Node-14] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [756.250585s] [Node-13] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [756.250585s] [Node-13] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [758.023424s] [Node-12] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [758.023424s] [Node-12] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [759.032336s] [Node-17] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [759.032336s] [Node-17] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [760.486418s] [Node-2] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [760.486418s] [Node-2] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [761.600791s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000f).
+[APP_MONITOR] [761.600791s] [Node-1] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [761.763536s] [Node-10] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [761.763536s] [Node-10] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [762.548971s] [Node-10] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [762.548971s] [Node-10] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [762.963001s] [Node-16] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [762.963001s] [Node-16] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [764.242082s] [Node-19] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [764.242082s] [Node-19] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [765.201310s] [Node-9] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [765.201310s] [Node-9] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [766.267031s] [Node-15] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [766.267031s] [Node-15] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [766.618194s] [Node-7] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [766.618194s] [Node-7] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [767.261190s] [Node-16] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [767.261190s] [Node-16] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [771.120005s] [Node-15] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [771.120005s] [Node-15] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [772.141349s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0006).
+[APP_MONITOR] [772.141349s] [Node-1] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [773.027096s] [Node-14] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [773.027096s] [Node-14] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [774.455618s] [Node-10] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [774.455618s] [Node-10] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [775.069755s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0010).
+[APP_MONITOR] [775.069755s] [Node-1] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [775.243238s] [Node-2] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [775.243238s] [Node-2] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [776.773025s] [Node-19] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [776.773025s] [Node-19] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [777.115437s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [777.115437s] [Node-19] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [781.000000s] [Node-1] Sent BEACON (epoch->14, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [781.645239s] [Node-14] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [781.645239s] [Node-14] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [781.876040s] [Node-17] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [781.876040s] [Node-17] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [782.728132s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [782.728132s] [Node-15] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [784.049443s] [Node-15] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [784.049443s] [Node-15] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [784.127022s] [Node-5] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [784.127022s] [Node-5] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [784.974075s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [784.974075s] [Node-15] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [785.442089s] [Node-11] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [785.442089s] [Node-11] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [788.106460s] [Node-16] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [788.106460s] [Node-16] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [790.213839s] [Node-19] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [790.213839s] [Node-19] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [790.870669s] [Node-18] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [790.870669s] [Node-18] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [791.656071s] [Node-8] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [791.656071s] [Node-8] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [792.135151s] [Node-17] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [792.135151s] [Node-17] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [793.508973s] [Node-2] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [793.508973s] [Node-2] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [793.674205s] [Node-20] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [793.674205s] [Node-20] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [793.877435s] [Node-6] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [793.877435s] [Node-6] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [794.461094s] [Node-2] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [794.461094s] [Node-2] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [796.789064s] [Node-20] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [796.789064s] [Node-20] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [797.905730s] [Node-15] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [797.905730s] [Node-15] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [799.636971s] [Node-16] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [799.636971s] [Node-16] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [800.272773s] [Node-3] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [800.272773s] [Node-3] Failed to send DATA #22 (Reason: No Route)
+[TARP_MONITOR] [806.492796s] [Node-4] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [806.492796s] [Node-4] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [806.869518s] [Node-3] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [806.869518s] [Node-3] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [810.473329s] [Node-14] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [810.473329s] [Node-14] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [810.791098s] [Node-20] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [810.791098s] [Node-20] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [811.411156s] [Node-4] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [811.411156s] [Node-4] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [811.967518s] [Node-20] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [811.967518s] [Node-20] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [811.983383s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0002).
+[APP_MONITOR] [811.983383s] [Node-1] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [812.369858s] [Node-5] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [812.369858s] [Node-5] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [813.148543s] [Node-4] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [813.148543s] [Node-4] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [814.069333s] [Node-9] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [814.069333s] [Node-9] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [815.857713s] [Node-16] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [815.857713s] [Node-16] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [815.886240s] [Node-2] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [815.886240s] [Node-2] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [816.541343s] [Node-2] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [816.541343s] [Node-2] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [819.014421s] [Node-3] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [819.014421s] [Node-3] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [819.297388s] [Node-17] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [819.297388s] [Node-17] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [822.064640s] [Node-10] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [822.064640s] [Node-10] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [822.887917s] [Node-12] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [822.887917s] [Node-12] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [823.115667s] [Node-17] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [823.115667s] [Node-17] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [823.318045s] [Node-10] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [823.318045s] [Node-10] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [824.196329s] [Node-11] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [824.196329s] [Node-11] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [830.095789s] [Node-19] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [830.095789s] [Node-19] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [830.808707s] [Node-3] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [830.808707s] [Node-3] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [833.531731s] [Node-3] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [833.531731s] [Node-3] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [834.996556s] [Node-3] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [834.996556s] [Node-3] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [835.079288s] [Node-8] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [835.079288s] [Node-8] Failed to send DATA #23 (Reason: No Route)
+[TARP_MONITOR] [838.778067s] [Node-19] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [838.778067s] [Node-19] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [840.355311s] [Node-17] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [840.355311s] [Node-17] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [841.000000s] [Node-1] Sent BEACON (epoch->15, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [843.075048s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [843.075048s] [Node-19] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [844.268769s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [844.268769s] [Node-18] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [845.040465s] [Node-10] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [845.040465s] [Node-10] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [847.882049s] [Node-10] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [847.882049s] [Node-10] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [848.207232s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000b).
+[APP_MONITOR] [848.207232s] [Node-1] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [848.996970s] [Node-3] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [848.996970s] [Node-3] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [851.804167s] [Node-13] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [851.804167s] [Node-13] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [852.481510s] [Node-16] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [852.481510s] [Node-16] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [853.046294s] [Node-20] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [853.046294s] [Node-20] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [853.965718s] [Node-18] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [853.965718s] [Node-18] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [854.153319s] [Node-12] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [854.153319s] [Node-12] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [854.402805s] [Node-20] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [854.402805s] [Node-20] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [856.378724s] [Node-15] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [856.378724s] [Node-15] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [856.825887s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0004).
+[APP_MONITOR] [856.825887s] [Node-1] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [858.408453s] [Node-13] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [858.408453s] [Node-13] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [858.436910s] [Node-17] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [858.436910s] [Node-17] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [859.738976s] [Node-4] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [859.738976s] [Node-4] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [859.872930s] [Node-7] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [859.872930s] [Node-7] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [860.232857s] [Node-11] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [860.232857s] [Node-11] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [863.724345s] [Node-8] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [863.724345s] [Node-8] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [864.820506s] [Node-14] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [864.820506s] [Node-14] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [866.252488s] [Node-3] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [866.252488s] [Node-3] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [866.743446s] [Node-15] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [866.743446s] [Node-15] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [866.934909s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0006).
+[APP_MONITOR] [866.934909s] [Node-1] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [867.383692s] [Node-7] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [867.383692s] [Node-7] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [868.246368s] [Node-15] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [868.246368s] [Node-15] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [869.458334s] [Node-6] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [869.458334s] [Node-6] Failed to send DATA #24 (Reason: No Route)
+[TARP_MONITOR] [871.784206s] [Node-18] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [871.784206s] [Node-18] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [871.916097s] [Node-15] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [871.916097s] [Node-15] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [873.055190s] [Node-12] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [873.055190s] [Node-12] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [873.724024s] [Node-12] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [873.724024s] [Node-12] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [873.919741s] [Node-8] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [873.919741s] [Node-8] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [874.480103s] [Node-3] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [874.480103s] [Node-3] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [875.566800s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0002).
+[APP_MONITOR] [875.566800s] [Node-1] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [876.470698s] [Node-19] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [876.470698s] [Node-19] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [881.603113s] [Node-18] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [881.603113s] [Node-18] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [882.499122s] [Node-20] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [882.499122s] [Node-20] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [886.502021s] [Node-10] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [886.502021s] [Node-10] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [887.653327s] [Node-6] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [887.653327s] [Node-6] Failed to send DATA #25 (Reason: No Route)
+[TARP_MONITOR] [888.860980s] [Node-14] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [888.860980s] [Node-14] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [893.169955s] [Node-20] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [893.169955s] [Node-20] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [894.210535s] [Node-19] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [894.210535s] [Node-19] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [897.686502s] [Node-17] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [897.686502s] [Node-17] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [897.903920s] [Node-12] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [897.903920s] [Node-12] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [898.416341s] [Node-11] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [898.416341s] [Node-11] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [898.600655s] [Node-10] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [898.600655s] [Node-10] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [899.134730s] [Node-3] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [899.134730s] [Node-3] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [899.530597s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [899.530597s] [Node-14] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [900.099645s] [Node-19] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [900.099645s] [Node-19] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [900.331257s] [Node-4] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [900.331257s] [Node-4] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [901.000000s] [Node-1] Sent BEACON (epoch->16, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [901.123311s] [Node-2] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [901.123311s] [Node-2] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [901.874730s] [Node-4] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [901.874730s] [Node-4] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [902.046037s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0002).
+[APP_MONITOR] [902.046037s] [Node-1] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [902.108265s] [Node-8] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [902.108265s] [Node-8] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [906.667035s] [Node-2] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [906.667035s] [Node-2] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [908.318335s] [Node-18] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [908.318335s] [Node-18] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [908.944622s] [Node-17] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [908.944622s] [Node-17] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [910.121584s] [Node-17] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [910.121584s] [Node-17] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [910.169141s] [Node-17] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [910.169141s] [Node-17] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [911.556273s] [Node-11] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [911.556273s] [Node-11] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [914.172632s] [Node-4] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [914.172632s] [Node-4] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [915.450514s] [Node-4] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [915.450514s] [Node-4] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [916.767055s] [Node-17] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [916.767055s] [Node-17] Failed to send DATA #48 (Reason: No Route)
+[TARP_MONITOR] [917.646458s] [Node-9] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [917.646458s] [Node-9] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [919.036288s] [Node-7] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [919.036288s] [Node-7] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [925.410987s] [Node-14] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [925.410987s] [Node-14] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [927.958915s] [Node-6] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [927.958915s] [Node-6] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [928.063641s] [Node-9] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [928.063641s] [Node-9] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [929.863664s] [Node-16] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [929.863664s] [Node-16] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [930.620319s] [Node-10] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [930.620319s] [Node-10] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [930.820689s] [Node-13] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [930.820689s] [Node-13] Failed to send DATA #26 (Reason: No Route)
+[TARP_MONITOR] [931.713843s] [Node-7] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [931.713843s] [Node-7] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [931.966353s] [Node-19] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [931.966353s] [Node-19] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [933.189483s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0013).
+[APP_MONITOR] [933.189483s] [Node-1] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [936.600455s] [Node-2] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [936.600455s] [Node-2] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [937.922490s] [Node-6] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [937.922490s] [Node-6] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [939.297300s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0004).
+[APP_MONITOR] [939.297300s] [Node-1] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [940.115101s] [Node-13] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [940.115101s] [Node-13] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [942.377364s] [Node-14] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [942.377364s] [Node-14] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [943.123141s] [Node-11] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [943.123141s] [Node-11] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [943.570099s] [Node-8] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [943.570099s] [Node-8] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [943.799035s] [Node-6] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [943.799035s] [Node-6] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [943.828994s] [Node-5] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [943.828994s] [Node-5] Failed to send DATA #27 (Reason: No Route)
+[TARP_MONITOR] [945.285725s] [Node-16] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [945.285725s] [Node-16] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [946.271263s] [Node-2] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [946.271263s] [Node-2] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [948.933153s] [Node-5] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [948.933153s] [Node-5] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [949.390050s] [Node-4] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [949.390050s] [Node-4] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [951.043687s] [Node-16] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [951.043687s] [Node-16] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [953.189673s] [Node-14] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [953.189673s] [Node-14] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [954.808812s] [Node-12] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [954.808812s] [Node-12] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [955.810951s] [Node-9] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [955.810951s] [Node-9] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [956.525247s] [Node-15] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [956.525247s] [Node-15] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [957.729078s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [957.729078s] [Node-14] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [960.529681s] [Node-20] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [960.529681s] [Node-20] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [960.781969s] [Node-18] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [960.781969s] [Node-18] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [961.000000s] [Node-1] Sent BEACON (epoch->17, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [962.213808s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0002).
+[APP_MONITOR] [962.213808s] [Node-1] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [962.760745s] [Node-19] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [962.760745s] [Node-19] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [963.598575s] [Node-14] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [963.598575s] [Node-14] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [968.560325s] [Node-20] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [968.560325s] [Node-20] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [969.586857s] [Node-6] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [969.586857s] [Node-6] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [970.123606s] [Node-18] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [970.123606s] [Node-18] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [970.284766s] [Node-18] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [970.284766s] [Node-18] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [978.085866s] [Node-2] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [978.085866s] [Node-2] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [979.817476s] [Node-2] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [979.817476s] [Node-2] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [983.329241s] [Node-17] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [983.329241s] [Node-17] Failed to send DATA #49 (Reason: No Route)
+[TARP_MONITOR] [983.948952s] [Node-18] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [983.948952s] [Node-18] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [984.158106s] [Node-11] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [984.158106s] [Node-11] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [985.121002s] [Node-14] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [985.121002s] [Node-14] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [985.496150s] [Node-6] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [985.496150s] [Node-6] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [985.994600s] [Node-17] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [985.994600s] [Node-17] Failed to send DATA #50 (Reason: No Route)
+[TARP_MONITOR] [990.109549s] [Node-18] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [990.109549s] [Node-18] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [991.722811s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [991.722811s] [Node-1] Failed to send DATA #48 (Reason: No Route)
+[TARP_MONITOR] [992.156641s] [Node-11] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [992.156641s] [Node-11] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [992.354601s] [Node-20] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [992.354601s] [Node-20] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [992.946736s] [Node-20] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [992.946736s] [Node-20] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [995.061503s] [Node-12] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [995.061503s] [Node-12] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [997.279108s] [Node-5] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [997.279108s] [Node-5] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [998.967915s] [Node-2] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [998.967915s] [Node-2] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [1001.268678s] [Node-12] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1001.268678s] [Node-12] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1003.775003s] [Node-19] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1003.775003s] [Node-19] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1005.642739s] [Node-3] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1005.642739s] [Node-3] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1007.386649s] [Node-7] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1007.386649s] [Node-7] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [1008.366348s] [Node-5] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1008.366348s] [Node-5] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [1008.840353s] [Node-17] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [1008.840353s] [Node-17] Failed to send DATA #51 (Reason: No Route)
+[TARP_MONITOR] [1011.833141s] [Node-17] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1011.833141s] [Node-17] Failed to send DATA #52 (Reason: No Route)
+[TARP_MONITOR] [1013.652689s] [Node-12] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1013.652689s] [Node-12] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1015.042852s] [Node-4] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1015.042852s] [Node-4] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1015.337434s] [Node-8] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1015.337434s] [Node-8] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [1015.979131s] [Node-13] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1015.979131s] [Node-13] Failed to send DATA #28 (Reason: No Route)
+[TARP_MONITOR] [1018.509465s] [Node-5] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1018.509465s] [Node-5] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1018.743021s] [Node-4] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1018.743021s] [Node-4] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1021.000000s] [Node-1] Sent BEACON (epoch->18, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1023.782094s] [Node-8] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1023.782094s] [Node-8] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [1024.157959s] [Node-14] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1024.157959s] [Node-14] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [1025.478771s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0006).
+[APP_MONITOR] [1025.478771s] [Node-1] Failed to send DATA #49 (Reason: No Route)
+[TARP_MONITOR] [1028.388529s] [Node-11] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1028.388529s] [Node-11] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [1030.082496s] [Node-17] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1030.082496s] [Node-17] Failed to send DATA #53 (Reason: No Route)
+[TARP_MONITOR] [1031.039557s] [Node-17] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1031.039557s] [Node-17] Failed to send DATA #54 (Reason: No Route)
+[TARP_MONITOR] [1032.920466s] [Node-9] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [1032.920466s] [Node-9] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1033.081685s] [Node-14] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1033.081685s] [Node-14] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [1033.705119s] [Node-14] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1033.705119s] [Node-14] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [1037.071147s] [Node-7] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1037.071147s] [Node-7] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1037.088114s] [Node-10] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1037.088114s] [Node-10] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [1038.958146s] [Node-6] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1038.958146s] [Node-6] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1039.367819s] [Node-13] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1039.367819s] [Node-13] Failed to send DATA #29 (Reason: No Route)
+[TARP_MONITOR] [1039.811627s] [Node-2] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1039.811627s] [Node-2] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1041.099179s] [Node-16] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [1041.099179s] [Node-16] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1043.988290s] [Node-20] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [1043.988290s] [Node-20] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [1052.833662s] [Node-17] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1052.833662s] [Node-17] Failed to send DATA #55 (Reason: No Route)
+[TARP_MONITOR] [1056.773094s] [Node-4] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1056.773094s] [Node-4] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [1060.193066s] [Node-5] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1060.193066s] [Node-5] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1060.644614s] [Node-19] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1060.644614s] [Node-19] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1060.787719s] [Node-17] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1060.787719s] [Node-17] Failed to send DATA #56 (Reason: No Route)
+[TARP_MONITOR] [1061.077731s] [Node-10] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1061.077731s] [Node-10] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [1064.027767s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0004).
+[APP_MONITOR] [1064.027767s] [Node-1] Failed to send DATA #50 (Reason: No Route)
+[TARP_MONITOR] [1064.248430s] [Node-5] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1064.248430s] [Node-5] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1064.296541s] [Node-11] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [1064.296541s] [Node-11] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1064.837611s] [Node-19] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1064.837611s] [Node-19] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [1065.151785s] [Node-5] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1065.151785s] [Node-5] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1066.652912s] [Node-19] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1066.652912s] [Node-19] Failed to send DATA #48 (Reason: No Route)
+[TARP_MONITOR] [1067.349668s] [Node-18] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1067.349668s] [Node-18] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [1068.638544s] [Node-15] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1068.638544s] [Node-15] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1069.223920s] [Node-16] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1069.223920s] [Node-16] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1073.643118s] [Node-8] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [1073.643118s] [Node-8] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [1074.039999s] [Node-11] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1074.039999s] [Node-11] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [1074.227407s] [Node-3] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1074.227407s] [Node-3] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1074.560008s] [Node-3] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1074.560008s] [Node-3] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1075.821577s] [Node-15] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1075.821577s] [Node-15] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [1075.845521s] [Node-14] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [1075.845521s] [Node-14] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [1077.572234s] [Node-20] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1077.572234s] [Node-20] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [1077.737642s] [Node-15] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1077.737642s] [Node-15] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [1077.954106s] [Node-3] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [1077.954106s] [Node-3] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1079.140111s] [Node-7] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1079.140111s] [Node-7] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1080.232657s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000e).
+[APP_MONITOR] [1080.232657s] [Node-1] Failed to send DATA #51 (Reason: No Route)
+[TARP_MONITOR] [1081.000000s] [Node-1] Sent BEACON (epoch->19, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1081.163369s] [Node-17] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1081.163369s] [Node-17] Failed to send DATA #57 (Reason: No Route)
+[TARP_MONITOR] [1081.339137s] [Node-19] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1081.339137s] [Node-19] Failed to send DATA #49 (Reason: No Route)
+[TARP_MONITOR] [1083.096932s] [Node-4] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [1083.096932s] [Node-4] Failed to send DATA #48 (Reason: No Route)
+[TARP_MONITOR] [1085.569201s] [Node-12] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1085.569201s] [Node-12] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1086.512331s] [Node-15] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [1086.512331s] [Node-15] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [1087.652745s] [Node-18] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1087.652745s] [Node-18] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [1089.661292s] [Node-9] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1089.661292s] [Node-9] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1090.580978s] [Node-6] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1090.580978s] [Node-6] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1091.227889s] [Node-8] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [1091.227889s] [Node-8] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1093.282736s] [Node-19] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [1093.282736s] [Node-19] Failed to send DATA #50 (Reason: No Route)
+[TARP_MONITOR] [1093.857822s] [Node-7] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1093.857822s] [Node-7] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1095.125318s] [Node-10] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [1095.125318s] [Node-10] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [1096.023326s] [Node-18] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1096.023326s] [Node-18] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [1099.038951s] [Node-4] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1099.038951s] [Node-4] Failed to send DATA #49 (Reason: No Route)
+[TARP_MONITOR] [1099.559429s] [Node-3] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1099.559429s] [Node-3] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [1100.563478s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000c).
+[APP_MONITOR] [1100.563478s] [Node-1] Failed to send DATA #52 (Reason: No Route)
+[TARP_MONITOR] [1102.153295s] [Node-17] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1102.153295s] [Node-17] Failed to send DATA #58 (Reason: No Route)
+[TARP_MONITOR] [1103.112714s] [Node-12] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1103.112714s] [Node-12] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1104.270848s] [Node-15] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [1104.270848s] [Node-15] Failed to send DATA #42 (Reason: No Route)
+[TARP_MONITOR] [1104.603655s] [Node-7] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [1104.603655s] [Node-7] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1107.705710s] [Node-2] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [1107.705710s] [Node-2] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [1115.415820s] [Node-4] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [1115.415820s] [Node-4] Failed to send DATA #50 (Reason: No Route)
+[TARP_MONITOR] [1117.275372s] [Node-8] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1117.275372s] [Node-8] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1118.034762s] [Node-4] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1118.034762s] [Node-4] Failed to send DATA #51 (Reason: No Route)
+[TARP_MONITOR] [1118.296835s] [Node-13] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1118.296835s] [Node-13] Failed to send DATA #30 (Reason: No Route)
+[TARP_MONITOR] [1121.100042s] [Node-7] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [1121.100042s] [Node-7] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1121.551155s] [Node-6] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1121.551155s] [Node-6] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1122.853933s] [Node-20] TARP send: No parent, dropping packet (dest: 0003).
+[APP_MONITOR] [1122.853933s] [Node-20] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1122.967924s] [Node-12] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1122.967924s] [Node-12] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1123.827288s] [Node-5] TARP send: No parent, dropping packet (dest: 000c).
+[APP_MONITOR] [1123.827288s] [Node-5] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1124.471728s] [Node-10] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1124.471728s] [Node-10] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1126.556041s] [Node-6] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1126.556041s] [Node-6] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1127.224298s] [Node-20] TARP send: No parent, dropping packet (dest: 000b).
+[APP_MONITOR] [1127.224298s] [Node-20] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1128.177684s] [Node-12] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1128.177684s] [Node-12] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [1128.851190s] [Node-2] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1128.851190s] [Node-2] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [1129.779897s] [Node-16] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1129.779897s] [Node-16] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1130.552313s] [Node-4] TARP send: No parent, dropping packet (dest: 0014).
+[APP_MONITOR] [1130.552313s] [Node-4] Failed to send DATA #52 (Reason: No Route)
+[TARP_MONITOR] [1130.595797s] [Node-5] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1130.595797s] [Node-5] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [1130.596179s] [Node-19] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [1130.596179s] [Node-19] Failed to send DATA #51 (Reason: No Route)
+[TARP_MONITOR] [1131.520171s] [Node-6] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1131.520171s] [Node-6] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1132.202511s] [Node-5] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1132.202511s] [Node-5] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [1134.437294s] [Node-14] TARP send: No parent, dropping packet (dest: 000d).
+[APP_MONITOR] [1134.437294s] [Node-14] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1134.705247s] [Node-18] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1134.705247s] [Node-18] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [1141.000000s] [Node-1] Sent BEACON (epoch->20, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1145.141322s] [Node-20] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1145.141322s] [Node-20] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [1150.122127s] [Node-19] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1150.122127s] [Node-19] Failed to send DATA #52 (Reason: No Route)
+[TARP_MONITOR] [1150.129001s] [Node-7] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1150.129001s] [Node-7] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [1151.571483s] [Node-7] TARP send: No parent, dropping packet (dest: 0013).
+[APP_MONITOR] [1151.571483s] [Node-7] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [1151.696323s] [Node-16] TARP send: No parent, dropping packet (dest: 0002).
+[APP_MONITOR] [1151.696323s] [Node-16] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1152.972307s] [Node-5] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1152.972307s] [Node-5] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1153.501530s] [Node-12] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1153.501530s] [Node-12] Failed to send DATA #37 (Reason: No Route)
+[TARP_MONITOR] [1154.141459s] [Node-1] TARP send: No route for destination, dropping packet (dest: 0005).
+[APP_MONITOR] [1154.141459s] [Node-1] Failed to send DATA #53 (Reason: No Route)
+[TARP_MONITOR] [1155.387433s] [Node-9] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [1155.387433s] [Node-9] Failed to send DATA #34 (Reason: No Route)
+[TARP_MONITOR] [1157.067948s] [Node-15] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1157.067948s] [Node-15] Failed to send DATA #43 (Reason: No Route)
+[TARP_MONITOR] [1160.687326s] [Node-5] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1160.687326s] [Node-5] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [1161.204920s] [Node-15] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1161.204920s] [Node-15] Failed to send DATA #44 (Reason: No Route)
+[TARP_MONITOR] [1161.899759s] [Node-18] TARP send: No parent, dropping packet (dest: 0004).
+[APP_MONITOR] [1161.899759s] [Node-18] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1163.956119s] [Node-6] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1163.956119s] [Node-6] Failed to send DATA #36 (Reason: No Route)
+[TARP_MONITOR] [1164.147384s] [Node-7] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1164.147384s] [Node-7] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1164.979158s] [Node-12] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1164.979158s] [Node-12] Failed to send DATA #38 (Reason: No Route)
+[TARP_MONITOR] [1165.707354s] [Node-14] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1165.707354s] [Node-14] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1165.728775s] [Node-15] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1165.728775s] [Node-15] Failed to send DATA #45 (Reason: No Route)
+[TARP_MONITOR] [1166.339943s] [Node-8] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1166.339943s] [Node-8] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1167.046804s] [Node-11] TARP send: No parent, dropping packet (dest: 0012).
+[APP_MONITOR] [1167.046804s] [Node-11] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [1167.319467s] [Node-10] TARP send: No parent, dropping packet (dest: 000f).
+[APP_MONITOR] [1167.319467s] [Node-10] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1171.294480s] [Node-13] TARP send: No parent, dropping packet (dest: 0009).
+[APP_MONITOR] [1171.294480s] [Node-13] Failed to send DATA #31 (Reason: No Route)
+[TARP_MONITOR] [1171.475033s] [Node-2] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1171.475033s] [Node-2] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [1171.487439s] [Node-7] TARP send: No parent, dropping packet (dest: 0010).
+[APP_MONITOR] [1171.487439s] [Node-7] Failed to send DATA #39 (Reason: No Route)
+[TARP_MONITOR] [1173.976911s] [Node-13] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1173.976911s] [Node-13] Failed to send DATA #32 (Reason: No Route)
+[TARP_MONITOR] [1174.396452s] [Node-18] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1174.396452s] [Node-18] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1177.412350s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000d).
+[APP_MONITOR] [1177.412350s] [Node-1] Failed to send DATA #54 (Reason: No Route)
+[TARP_MONITOR] [1178.454244s] [Node-1] TARP send: No route for destination, dropping packet (dest: 000d).
+[APP_MONITOR] [1178.454244s] [Node-1] Failed to send DATA #55 (Reason: No Route)
+[TARP_MONITOR] [1182.016407s] [Node-13] TARP send: No parent, dropping packet (dest: 0007).
+[APP_MONITOR] [1182.016407s] [Node-13] Failed to send DATA #33 (Reason: No Route)
+[TARP_MONITOR] [1182.232518s] [Node-18] TARP send: No parent, dropping packet (dest: 0005).
+[APP_MONITOR] [1182.232518s] [Node-18] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [1191.570433s] [Node-10] TARP send: No parent, dropping packet (dest: 0006).
+[APP_MONITOR] [1191.570433s] [Node-10] Failed to send DATA #47 (Reason: No Route)
+[TARP_MONITOR] [1191.839800s] [Node-15] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1191.839800s] [Node-15] Failed to send DATA #46 (Reason: No Route)
+[TARP_MONITOR] [1194.627463s] [Node-10] TARP send: No parent, dropping packet (dest: 000e).
+[APP_MONITOR] [1194.627463s] [Node-10] Failed to send DATA #48 (Reason: No Route)
+[TARP_MONITOR] [1194.668054s] [Node-11] TARP send: No parent, dropping packet (dest: 0008).
+[APP_MONITOR] [1194.668054s] [Node-11] Failed to send DATA #41 (Reason: No Route)
+[TARP_MONITOR] [1194.927733s] [Node-4] TARP send: No parent, dropping packet (dest: 000a).
+[APP_MONITOR] [1194.927733s] [Node-4] Failed to send DATA #53 (Reason: No Route)
+[TARP_MONITOR] [1197.123200s] [Node-5] TARP send: No parent, dropping packet (dest: 0001).
+[APP_MONITOR] [1197.123200s] [Node-5] Failed to send DATA #40 (Reason: No Route)
+[TARP_MONITOR] [1197.671843s] [Node-16] TARP send: No parent, dropping packet (dest: 0011).
+[APP_MONITOR] [1197.671843s] [Node-16] Failed to send DATA #35 (Reason: No Route)
+[TARP_MONITOR] [1201.000000s] [Node-1] Sent BEACON (epoch->21, metric->0, hops->0, parent->.)
+Simulation stopped at time: 1201.0
+
+
+--- Simulation Finished ---
+Final simulation time: 1201.000000s
+Events remaining in queue: 42
+
+--- First 5 Events in Queue ---
+1: t=1201.000001s, Event=MacTrySendNextEvent, Blame=ContikiOS_MAC_802154_Unslotted, Descriptor: None, Cancelled: False
+2: t=1201.551293s, Event=Event, Blame=RandomTrafficApplication, Descriptor: None, Cancelled: False
+3: t=1206.426307s, Event=Event, Blame=RandomTrafficApplication, Descriptor: None, Cancelled: False
+4: t=1206.692049s, Event=Event, Blame=RandomTrafficApplication, Descriptor: None, Cancelled: False
+5: t=1208.724925s, Event=Event, Blame=RandomTrafficApplication, Descriptor: None, Cancelled: False

@@ -255,7 +255,7 @@ class TARPProtocol(Layer, Entity):
     def receive(self, payload: TARPPacket, sender_addr: bytes, rssi: float):
         """Handles incoming packets from the MAC layer."""
         if isinstance(payload.header, TARPUnicastHeader):
-            self._uc_recv(payload, sender_addr)
+            self._uc_recv(payload, sender_addr, rssi=rssi)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, sender_addr, rssi=rssi)
         
@@ -350,16 +350,47 @@ class TARPProtocol(Layer, Entity):
                 if tx_addr in self.tpl_buf:
                     self.tpl_buf.pop(tx_addr)
 
-    def _uc_recv(self, payload: TARPPacket, tx_addr: bytes):
+    def _uc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
         """Handles a received unicast (data or report) packet."""
-        if tx_addr not in self.nbr_tbl:
-            signal = TARPDropSignal(descriptor=f"[{self.host.id}] TARP unicast receive: no route for sender {tx_addr.hex()} (unknown node), dropping packet.",
-                                    timestamp=self.host.context.scheduler.now(),
-                                    destination=tx_addr,
-                                    packet_type=payload.header.type.name
-                                    )
-            self._notify_monitors(signal)
-            return
+        #TODO: should I add the drop for low rssi here also?
+
+        tx_entry = self.nbr_tbl.get(tx_addr)
+        current_time = self.host.context.scheduler.now()
+        header: TARPUnicastHeader = payload.header
+
+        if tx_entry is None:
+            #NOTE!!!!! VERY IMPORTANT: This is a fundamental flaw of the protocol, discovered during simulations:
+            #in the case the received packet is from a node that is selecting me as a parent during tree formation, if i did not
+            #receive a beacon from it before, it will not be in my nbr_tbl, and I will drop its packets, making tree formation impossible
+            #NOTE: we will add a reactive insertion of the sender into nbr_tbl as a child with unknown metric to allow the treeformation.
+                    #If the packet is a data apcket, i can still safely drop it
+
+            if header.type == TARPUnicastType.UC_TYPE_REPORT: #if this is a report, we can assume this is a child that selected me as parent
+                                                                # I can reactively add it to nbr_tbl    
+                initial_etx = tarp_utils._etx_est_rssi(
+                    rssi, TARPParameters.RSSI_HIGH_REF, TARPParameters.RSSI_LOW_THR
+                )
+                tx_entry = self.TARPRoute(
+                    type=self.NodeType.NODE_CHILD,
+                    age=current_time,
+                    nexthop=tx_addr,
+                    hops=header.hops + 1,
+                    etx=initial_etx,
+                    num_tx=0,
+                    num_ack=0,
+                    adv_metric=float('inf')
+                )
+                self.nbr_tbl[tx_addr] = tx_entry
+        
+            else: # If it is a data packet, or some other type from unknown sender, drop it
+                signal = TARPDropSignal(
+                    descriptor=f"[{self.host.id}] TARP unicast receive: dropping {header.type.name} from unknown sender {tx_addr.hex()}.",
+                    timestamp=current_time,
+                    destination=header.d_addr,
+                    packet_type=header.type.name
+                )
+                self._notify_monitors(signal)
+                return
 
         signal = TARPUnicastReceiveSignal(
             descriptor=f"[{self.host.id}] TARP unicast receive: unicast received from {tx_addr.hex()} with destination {payload.header.d_addr.hex()}.",
@@ -370,7 +401,7 @@ class TARPProtocol(Layer, Entity):
         ) 
         self._notify_monitors(signal)
 
-        header: TARPUnicastHeader = payload.header
+        #header: TARPUnicastHeader = payload.header
         header.hops += 1
 
         if header.hops > TARPParameters.MAX_PATH_LENGTH:

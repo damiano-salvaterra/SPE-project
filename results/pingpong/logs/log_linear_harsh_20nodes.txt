@@ -1,0 +1,1478 @@
+
+--- Selected Configuration (from log) ---
+Application: pingpong
+Topology: linear
+Channel: harsh
+Num Nodes: 20
+Seed: 12345
+DSpace Grid Step (Density): 1.0m
+
+--- Generating 'linear' topology positions... ---
+Generating 'linear' topology with params: {'num_nodes': 20, 'rng': Generator(PCG64) at 0x7960A51A5B60, 'node_distance': 10, 'start_x': -95.0}
+
+--- Calculating DSpace NPT from Topology and Step ---
+Topology bounds (unpadded): X=[-95.0, 95.0], Y=[0.0, 0.0]
+Max absolute coordinate (padded): 105.0
+Calculated DSpace params: step=1.0, npt=214 (Grid will span approx. [-107.0, 106.0])
+
+--- Bootstrapping Kernel with Dynamic DSpace ---
+Kernel bootstrapped successfully.
+
+--- Generating topology plot with shadowing map ---
+Plotting shadowing map from kernel.
+Saving scenario plot to /home/damole/Documents/develop/SPE-project/results/pingpong/plots/topology/linear_harsh_20nodes_scenario.png
+
+--- Simulation Parameters ---
+Application: pingpong
+Root seed: 12345
+Network configuration: num_nodes=20
+Simulation time: 1200.0s
+
+--- Initializing Kernel and Scheduler ---
+Using provided bootstrapped kernel with parameters:
+Kernel configuration: freq=2400000000.0, filter_bandwidth=2000000.0, coh_d=10, shadow_dev=6.0, pl_exponent=4.0, d0=1.0, fading_shape=0.75, dspace_npt=214, dspace_step=1.0, seed=12345
+
+--- Creating Network Nodes and setting up pingpong ---
+Node 'Node-1' added at position (-95.0, 0.0).
+Node-2 (Addr: 0002) is PINGER, peer is Node-20 (Addr: 0014)
+Node 'Node-2' added at position (-85.0, 0.0).
+Node 'Node-3' added at position (-75.0, 0.0).
+Node 'Node-4' added at position (-65.0, 0.0).
+Node 'Node-5' added at position (-55.0, 0.0).
+Node 'Node-6' added at position (-45.0, 0.0).
+Node 'Node-7' added at position (-35.0, 0.0).
+Node 'Node-8' added at position (-25.0, 0.0).
+Node 'Node-9' added at position (-15.0, 0.0).
+Node 'Node-10' added at position (-5.0, 0.0).
+Node 'Node-11' added at position (5.0, 0.0).
+Node 'Node-12' added at position (15.0, 0.0).
+Node 'Node-13' added at position (25.0, 0.0).
+Node 'Node-14' added at position (35.0, 0.0).
+Node 'Node-15' added at position (45.0, 0.0).
+Node 'Node-16' added at position (55.0, 0.0).
+Node 'Node-17' added at position (65.0, 0.0).
+Node 'Node-18' added at position (75.0, 0.0).
+Node 'Node-19' added at position (85.0, 0.0).
+Node-20 (Addr: 0014) is PONGER, peer is Node-2 (Addr: 0002)
+Node 'Node-20' added at position (95.0, 0.0).
+
+--- Attaching Monitors to all nodes ---
+Monitor 'PacketMonitor' attached to 'Node-1.phy'.
+Monitor 'PacketMonitor' attached to 'Node-2.phy'.
+Monitor 'PacketMonitor' attached to 'Node-3.phy'.
+Monitor 'PacketMonitor' attached to 'Node-4.phy'.
+Monitor 'PacketMonitor' attached to 'Node-5.phy'.
+Monitor 'PacketMonitor' attached to 'Node-6.phy'.
+Monitor 'PacketMonitor' attached to 'Node-7.phy'.
+Monitor 'PacketMonitor' attached to 'Node-8.phy'.
+Monitor 'PacketMonitor' attached to 'Node-9.phy'.
+Monitor 'PacketMonitor' attached to 'Node-10.phy'.
+Monitor 'PacketMonitor' attached to 'Node-11.phy'.
+Monitor 'PacketMonitor' attached to 'Node-12.phy'.
+Monitor 'PacketMonitor' attached to 'Node-13.phy'.
+Monitor 'PacketMonitor' attached to 'Node-14.phy'.
+Monitor 'PacketMonitor' attached to 'Node-15.phy'.
+Monitor 'PacketMonitor' attached to 'Node-16.phy'.
+Monitor 'PacketMonitor' attached to 'Node-17.phy'.
+Monitor 'PacketMonitor' attached to 'Node-18.phy'.
+Monitor 'PacketMonitor' attached to 'Node-19.phy'.
+Monitor 'PacketMonitor' attached to 'Node-20.phy'.
+
+--- Starting Applications ---
+[APP_MONITOR] [0.000000s] [Node-2] Application started.
+[APP_MONITOR] [0.000000s] [Node-20] Application started.
+Started PingPongApp on Node-2 and Node-20.
+
+--- Running Simulation ---
+Running simulation until time 1200.0 or event queue is empty...
+[TARP_MONITOR] [1.000000s] [Node-1] Sent BEACON (epoch->1, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1.005151s] [Node-2] Recv BEACON from 0001, rssi: -79.52681110081284
+[TARP_MONITOR] [1.005151s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [1.122453s] [Node-2] Sent BEACON (epoch->1, metric->9.01482599814631, hops->1, parent->0001.)
+[TARP_MONITOR] [1.127604s] [Node-3] Recv BEACON from 0002, rssi: -72.708778783251
+[TARP_MONITOR] [1.127604s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [1.304232s] [Node-3] Sent BEACON (epoch->1, metric->16.80240617913149, hops->2, parent->0002.)
+[TARP_MONITOR] [1.310023s] [Node-2] Recv BEACON from 0003, rssi: -80.01422266709264
+[TARP_MONITOR] [1.310023s] [Node-4] Recv BEACON from 0003, rssi: -77.41513301683011
+[TARP_MONITOR] [1.310023s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [1.310023s] [Node-5] Recv BEACON from 0003, rssi: -79.92175390982686
+[TARP_MONITOR] [1.310023s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [1.417552s] [Node-4] Sent BEACON (epoch->1, metric->25.43713012216091, hops->3, parent->0003.)
+[TARP_MONITOR] [1.422383s] [Node-5] Recv BEACON from 0004, rssi: -76.31734261873464
+[TARP_MONITOR] [1.434185s] [Node-5] Sent BEACON (epoch->1, metric->25.88832188290033, hops->3, parent->0003.)
+[TARP_MONITOR] [1.440936s] [Node-4] Recv BEACON from 0005, rssi: -80.42666131427403
+[TARP_MONITOR] [1.440936s] [Node-6] Recv BEACON from 0005, rssi: -83.45700875065035
+[TARP_MONITOR] [1.440936s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [1.563413s] [Node-6] Sent BEACON (epoch->1, metric->35.61058345801739, hops->4, parent->0005.)
+[TARP_MONITOR] [1.568244s] [Node-7] Recv BEACON from 0006, rssi: -82.62716834754409
+[TARP_MONITOR] [1.568244s] [Node-7] Parent change: None -> 0006
+[TARP_MONITOR] [1.741523s] [Node-7] Sent BEACON (epoch->1, metric->45.183473760575325, hops->5, parent->0006.)
+[TARP_MONITOR] [27.430560s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [27.435391s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [27.435391s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [27.994010s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [28.000441s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [28.000441s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [32.809189s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [32.814020s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [32.814020s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [32.854989s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [32.861420s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [32.861420s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [39.482125s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [39.487596s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [39.487596s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [43.165940s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [43.172691s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [43.172691s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [53.414420s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [53.419891s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [53.419891s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [55.387997s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [55.392828s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [55.392828s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [61.000000s] [Node-1] Sent BEACON (epoch->2, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [61.004831s] [Node-2] Recv BEACON from 0001, rssi: -82.56258157316185
+[TARP_MONITOR] [61.004831s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [61.107734s] [Node-2] Sent BEACON (epoch->2, metric->8.11334339833168, hops->1, parent->0001.)
+[TARP_MONITOR] [61.114485s] [Node-1] Recv BEACON from 0002, rssi: -81.41910019447249
+[TARP_MONITOR] [61.114485s] [Node-3] Recv BEACON from 0002, rssi: -77.84346827099165
+[TARP_MONITOR] [61.114485s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [61.114485s] [Node-4] Recv BEACON from 0002, rssi: -84.54630421570204
+[TARP_MONITOR] [61.114485s] [Node-4] Parent change: None -> 0002
+[TARP_MONITOR] [61.288585s] [Node-3] Sent BEACON (epoch->2, metric->15.122165561218342, hops->2, parent->0002.)
+[TARP_MONITOR] [61.295336s] [Node-2] Recv BEACON from 0003, rssi: -83.85840009826123
+[TARP_MONITOR] [61.295336s] [Node-4] Recv BEACON from 0003, rssi: -74.89921249969719
+[TARP_MONITOR] [61.296017s] [Node-4] Sent BEACON (epoch->2, metric->18.031678157158048, hops->2, parent->0002.)
+[TARP_MONITOR] [61.301488s] [Node-3] Recv BEACON from 0004, rssi: -71.72750212942285
+[TARP_MONITOR] [64.857465s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [64.863896s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [64.863896s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [78.233117s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [78.239868s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [78.239868s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [84.599187s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [84.604978s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [84.604978s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [94.276783s] [Node-4] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [94.283534s] [Node-2] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [94.283534s] [Node-2] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [96.540537s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [96.546968s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [96.546968s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [100.932631s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [100.938102s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [100.938102s] [Node-2] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [103.218612s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [103.223443s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [103.223443s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [108.696144s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [108.701935s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [108.701935s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [117.288864s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [117.294015s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [117.294015s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [120.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [120.000000s] [Node-2] Sent PING #1 to 0014
+[TARP_MONITOR] [120.012445s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [120.012445s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [121.000000s] [Node-1] Sent BEACON (epoch->3, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [121.005471s] [Node-2] Recv BEACON from 0001, rssi: -78.48214368841155
+[TARP_MONITOR] [121.005471s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [121.125303s] [Node-2] Sent BEACON (epoch->3, metric->6.605141485981994, hops->1, parent->0001.)
+[TARP_MONITOR] [121.132054s] [Node-3] Recv BEACON from 0002, rssi: -71.48096667930639
+[TARP_MONITOR] [121.132054s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [121.316462s] [Node-3] Sent BEACON (epoch->3, metric->12.91308143257999, hops->2, parent->0002.)
+[TARP_MONITOR] [121.322573s] [Node-2] Recv BEACON from 0003, rssi: -71.45247993243612
+[TARP_MONITOR] [121.322573s] [Node-4] Recv BEACON from 0003, rssi: -82.98111041482345
+[TARP_MONITOR] [121.322573s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [121.516585s] [Node-4] Sent BEACON (epoch->3, metric->20.68433298130647, hops->3, parent->0003.)
+[TARP_MONITOR] [121.522696s] [Node-3] Recv BEACON from 0004, rssi: -70.35672468932235
+[TARP_MONITOR] [121.522696s] [Node-5] Recv BEACON from 0004, rssi: -78.18906804974904
+[TARP_MONITOR] [121.522696s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [121.699736s] [Node-5] Sent BEACON (epoch->3, metric->29.121454652678704, hops->4, parent->0004.)
+[TARP_MONITOR] [121.706167s] [Node-4] Recv BEACON from 0005, rssi: -84.87602947793701
+[TARP_MONITOR] [121.706167s] [Node-6] Recv BEACON from 0005, rssi: -80.83339820236752
+[TARP_MONITOR] [121.706167s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [121.706167s] [Node-3] Recv BEACON from 0005, rssi: -82.10912899899822
+[TARP_MONITOR] [121.890426s] [Node-6] Sent BEACON (epoch->3, metric->35.50023047211301, hops->5, parent->0005.)
+[TARP_MONITOR] [121.896217s] [Node-5] Recv BEACON from 0006, rssi: -83.20379194497232
+[TARP_MONITOR] [129.598794s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [129.605545s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [129.605545s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [146.942430s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [146.948541s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [146.948541s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [151.453616s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [151.458767s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [151.458767s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [153.375275s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [153.380746s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [153.380746s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [155.000000s] [Node-2] PING #1 timed out.
+[TARP_MONITOR] [159.620144s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [159.626895s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [159.626895s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [160.495953s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [160.502704s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [160.502704s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [161.280458s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [161.285289s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [161.285289s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [170.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [170.000000s] [Node-2] Sent PING #2 to 0014
+[TARP_MONITOR] [170.020699s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [170.020699s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [170.027993s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [170.027993s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [172.702738s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [172.707889s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [172.707889s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [177.712773s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [177.732512s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [177.732512s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [181.000000s] [Node-1] Sent BEACON (epoch->4, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [181.005791s] [Node-2] Recv BEACON from 0001, rssi: -77.52717251587781
+[TARP_MONITOR] [181.005791s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [181.005791s] [Node-3] Recv BEACON from 0001, rssi: -84.77511984205748
+[TARP_MONITOR] [181.005791s] [Node-3] Parent change: None -> 0001
+[TARP_MONITOR] [181.116583s] [Node-2] Sent BEACON (epoch->4, metric->5.452664603645416, hops->1, parent->0001.)
+[TARP_MONITOR] [181.121414s] [Node-3] Recv BEACON from 0002, rssi: -75.74257847470423
+[TARP_MONITOR] [181.176277s] [Node-3] Sent BEACON (epoch->4, metric->9.959521571570347, hops->1, parent->0001.)
+[TARP_MONITOR] [181.182388s] [Node-2] Recv BEACON from 0003, rssi: -75.38145387814617
+[TARP_MONITOR] [181.182388s] [Node-4] Recv BEACON from 0003, rssi: -81.31846273097791
+[TARP_MONITOR] [181.182388s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [181.182388s] [Node-5] Recv BEACON from 0003, rssi: -79.35940691263552
+[TARP_MONITOR] [181.182388s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [181.314524s] [Node-4] Sent BEACON (epoch->4, metric->16.953647965424175, hops->2, parent->0003.)
+[TARP_MONITOR] [181.319355s] [Node-5] Recv BEACON from 0004, rssi: -82.50210557329935
+[TARP_MONITOR] [181.333052s] [Node-5] Sent BEACON (epoch->4, metric->16.58315411961783, hops->2, parent->0003.)
+[TARP_MONITOR] [181.339164s] [Node-4] Recv BEACON from 0005, rssi: -79.57381250819915
+[TARP_MONITOR] [181.339164s] [Node-6] Recv BEACON from 0005, rssi: -78.65955744702848
+[TARP_MONITOR] [181.339164s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [181.339164s] [Node-3] Recv BEACON from 0005, rssi: -84.69539512917481
+[TARP_MONITOR] [181.510927s] [Node-6] Sent BEACON (epoch->4, metric->21.78329586669295, hops->3, parent->0005.)
+[TARP_MONITOR] [186.117296s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [186.122127s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [186.122127s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[APP_MONITOR] [205.000000s] [Node-2] PING #2 timed out.
+[TARP_MONITOR] [216.003284s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [216.008115s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [216.008115s] [Node-3] Recv REPORT from 0004 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [216.030769s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [216.037200s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [216.037200s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [216.918017s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [216.923488s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [216.923488s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [219.334304s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [219.341055s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [219.341055s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [220.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [220.000000s] [Node-2] Sent PING #3 to 0014
+[TARP_MONITOR] [220.006751s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [220.006751s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [223.064965s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [223.070116s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [223.070116s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [226.414341s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [226.419172s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [226.419172s] [Node-1] Recv REPORT from 0002 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [241.000000s] [Node-1] Sent BEACON (epoch->5, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [245.892970s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [245.899721s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [245.899721s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [246.858565s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [246.864036s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [246.864036s] [Node-3] Recv REPORT from 0004 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [247.702897s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [247.709648s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [247.709648s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [252.117575s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [252.130340s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [252.130340s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [255.000000s] [Node-2] PING #3 timed out.
+[TARP_MONITOR] [269.997599s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [270.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [270.000000s] [Node-2] Sent PING #4 to 0014
+[TARP_MONITOR] [270.003390s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [270.003390s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [275.925190s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [275.930661s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [275.930661s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [276.303526s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [276.308357s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [276.308357s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [276.315656s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [276.315656s] [Node-1] Recv REPORT from 0002 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [280.767424s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [280.773535s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [280.773535s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [282.212509s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [282.217660s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [282.217660s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [285.350691s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [285.355843s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [285.355843s] [Node-3] Recv REPORT from 0004 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [301.000000s] [Node-1] Sent BEACON (epoch->6, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [301.006111s] [Node-2] Recv BEACON from 0001, rssi: -84.3839821830165
+[TARP_MONITOR] [301.006111s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [301.177971s] [Node-2] Sent BEACON (epoch->6, metric->3.7618234051819157, hops->1, parent->0001.)
+[TARP_MONITOR] [301.184082s] [Node-1] Recv BEACON from 0002, rssi: -80.33397453363864
+[TARP_MONITOR] [301.184082s] [Node-3] Recv BEACON from 0002, rssi: -70.24508123843246
+[TARP_MONITOR] [301.184082s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [301.357217s] [Node-3] Sent BEACON (epoch->6, metric->9.438969357120113, hops->2, parent->0002.)
+[TARP_MONITOR] [301.363328s] [Node-2] Recv BEACON from 0003, rssi: -74.045455398549
+[TARP_MONITOR] [301.363328s] [Node-4] Recv BEACON from 0003, rssi: -81.41413195016153
+[TARP_MONITOR] [301.363328s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [301.363328s] [Node-5] Recv BEACON from 0003, rssi: -83.92302320456814
+[TARP_MONITOR] [301.363328s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [301.476037s] [Node-5] Sent BEACON (epoch->6, metric->14.302264151313395, hops->3, parent->0003.)
+[TARP_MONITOR] [301.481508s] [Node-4] Recv BEACON from 0005, rssi: -76.89935804121392
+[TARP_MONITOR] [301.481508s] [Node-6] Recv BEACON from 0005, rssi: -80.18620513704803
+[TARP_MONITOR] [301.481508s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [301.481508s] [Node-3] Recv BEACON from 0005, rssi: -76.46154764579487
+[TARP_MONITOR] [301.535065s] [Node-4] Sent BEACON (epoch->6, metric->14.537687498239555, hops->3, parent->0003.)
+[TARP_MONITOR] [301.541176s] [Node-3] Recv BEACON from 0004, rssi: -82.8915203977717
+[TARP_MONITOR] [301.541176s] [Node-5] Recv BEACON from 0004, rssi: -73.77046010808621
+[TARP_MONITOR] [301.654540s] [Node-6] Sent BEACON (epoch->6, metric->18.161032564296235, hops->4, parent->0005.)
+[TARP_MONITOR] [301.660331s] [Node-5] Recv BEACON from 0006, rssi: -80.54610384476132
+[TARP_MONITOR] [301.660331s] [Node-7] Recv BEACON from 0006, rssi: -75.82949260158293
+[TARP_MONITOR] [301.660331s] [Node-7] Parent change: None -> 0006
+[TARP_MONITOR] [301.774439s] [Node-7] Sent BEACON (epoch->6, metric->21.49889302224055, hops->5, parent->0006.)
+[APP_MONITOR] [305.000000s] [Node-2] PING #4 timed out.
+[TARP_MONITOR] [320.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [320.000000s] [Node-2] Sent PING #5 to 0014
+[TARP_MONITOR] [320.021019s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [320.021019s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [320.028633s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [320.028633s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [327.490880s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [327.496031s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [327.496031s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [332.724863s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [332.730014s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [332.730014s] [Node-3] Recv REPORT from 0004 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [334.975791s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [334.981902s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [334.981902s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [336.000972s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [336.006763s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [336.006763s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [339.032712s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [339.038503s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [339.038503s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [349.226879s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [349.233630s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [349.233630s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [355.000000s] [Node-2] PING #5 timed out.
+[TARP_MONITOR] [355.318690s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [355.324482s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [355.324482s] [Node-6] Recv REPORT from 0007 (content: {}.)
+[TARP_MONITOR] [361.000000s] [Node-1] Sent BEACON (epoch->7, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [361.006431s] [Node-2] Recv BEACON from 0001, rssi: -84.65043985507106
+[TARP_MONITOR] [361.006431s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [361.145599s] [Node-2] Sent BEACON (epoch->7, metric->3.1737133218337155, hops->1, parent->0001.)
+[TARP_MONITOR] [361.150430s] [Node-3] Recv BEACON from 0002, rssi: -71.19295082058643
+[TARP_MONITOR] [361.150430s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [361.263903s] [Node-3] Sent BEACON (epoch->7, metric->8.283144678578093, hops->2, parent->0002.)
+[TARP_MONITOR] [361.269374s] [Node-2] Recv BEACON from 0003, rssi: -77.16935456579594
+[TARP_MONITOR] [361.269374s] [Node-4] Recv BEACON from 0003, rssi: -78.41654071901897
+[TARP_MONITOR] [361.269374s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [361.386628s] [Node-4] Sent BEACON (epoch->7, metric->12.871991005585592, hops->3, parent->0003.)
+[TARP_MONITOR] [361.391459s] [Node-3] Recv BEACON from 0004, rssi: -80.95685949030043
+[TARP_MONITOR] [361.391459s] [Node-5] Recv BEACON from 0004, rssi: -75.8996518575718
+[TARP_MONITOR] [361.391459s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [361.532486s] [Node-5] Sent BEACON (epoch->7, metric->19.706059559397104, hops->4, parent->0004.)
+[TARP_MONITOR] [361.538917s] [Node-4] Recv BEACON from 0005, rssi: -80.57638134234652
+[TARP_MONITOR] [361.538917s] [Node-3] Recv BEACON from 0005, rssi: -83.15214635463798
+[TARP_MONITOR] [361.538917s] [Node-7] Recv BEACON from 0005, rssi: -82.89923666300496
+[TARP_MONITOR] [361.538917s] [Node-7] Parent change: None -> 0005
+[TARP_MONITOR] [361.640413s] [Node-7] Sent BEACON (epoch->7, metric->29.327922158737998, hops->5, parent->0005.)
+[TARP_MONITOR] [361.645564s] [Node-8] Recv BEACON from 0007, rssi: -70.01860574884856
+[TARP_MONITOR] [361.645564s] [Node-8] Parent change: None -> 0007
+[TARP_MONITOR] [361.778586s] [Node-8] Sent BEACON (epoch->7, metric->36.631271193530736, hops->6, parent->0007.)
+[TARP_MONITOR] [361.784377s] [Node-7] Recv BEACON from 0008, rssi: -82.3479179064442
+[TARP_MONITOR] [361.784377s] [Node-9] Recv BEACON from 0008, rssi: -75.58708972044758
+[TARP_MONITOR] [361.784377s] [Node-9] Parent change: None -> 0008
+[TARP_MONITOR] [361.933326s] [Node-9] Sent BEACON (epoch->7, metric->44.9369473432113, hops->7, parent->0008.)
+[TARP_MONITOR] [361.939117s] [Node-8] Recv BEACON from 0009, rssi: -77.44188115612761
+[TARP_MONITOR] [361.939117s] [Node-10] Recv BEACON from 0009, rssi: -79.83377939169526
+[TARP_MONITOR] [361.939117s] [Node-10] Parent change: None -> 0009
+[TARP_MONITOR] [362.041309s] [Node-10] Sent BEACON (epoch->7, metric->54.00702763371645, hops->8, parent->0009.)
+[TARP_MONITOR] [362.047420s] [Node-9] Recv BEACON from 000a, rssi: -77.10572553194702
+[TARP_MONITOR] [362.047420s] [Node-11] Recv BEACON from 000a, rssi: -84.91592946223717
+[TARP_MONITOR] [362.047420s] [Node-11] Parent change: None -> 000a
+[TARP_MONITOR] [362.208632s] [Node-11] Sent BEACON (epoch->7, metric->63.99189493691914, hops->9, parent->000a.)
+[TARP_MONITOR] [364.807376s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [364.812527s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [364.812527s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [364.819501s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [364.819501s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [370.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [370.000000s] [Node-2] Sent PING #6 to 0014
+[TARP_MONITOR] [370.004831s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [370.004831s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [387.635728s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [387.642159s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [387.642159s] [Node-9] Recv REPORT from 000a (content: {}.)
+[TARP_MONITOR] [390.548373s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [390.554804s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [390.554804s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [391.364809s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [391.371240s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [391.371240s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [391.524840s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [391.530951s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [391.530951s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [391.576394s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [391.588839s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [391.588839s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [393.473603s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [393.480354s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [393.480354s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [394.412794s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [394.417945s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [394.417945s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [396.349197s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [396.355948s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [396.355948s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [400.470923s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [400.476394s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [400.476394s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [405.000000s] [Node-2] PING #6 timed out.
+[TARP_MONITOR] [409.892190s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [409.897341s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [409.897341s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [413.357995s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [413.364426s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [413.364426s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [416.957682s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [416.964433s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [416.964433s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [417.827679s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [417.832510s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [417.832510s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [418.508952s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [418.515703s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [418.515703s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [420.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [420.000000s] [Node-2] Sent PING #7 to 0014
+[TARP_MONITOR] [420.004831s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [420.004831s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [421.000000s] [Node-1] Sent BEACON (epoch->8, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [421.005471s] [Node-2] Recv BEACON from 0001, rssi: -82.85752159306979
+[TARP_MONITOR] [421.005471s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [421.205406s] [Node-2] Sent BEACON (epoch->8, metric->2.4593485500783165, hops->1, parent->0001.)
+[TARP_MONITOR] [421.211197s] [Node-3] Recv BEACON from 0002, rssi: -69.1616540923526
+[TARP_MONITOR] [421.211197s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [421.349614s] [Node-3] Sent BEACON (epoch->8, metric->7.057836771148256, hops->2, parent->0002.)
+[TARP_MONITOR] [421.355085s] [Node-2] Recv BEACON from 0003, rssi: -81.62131845210432
+[TARP_MONITOR] [421.355085s] [Node-4] Recv BEACON from 0003, rssi: -79.25987707378684
+[TARP_MONITOR] [421.355085s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [421.489658s] [Node-4] Sent BEACON (epoch->8, metric->10.77480229602433, hops->3, parent->0003.)
+[TARP_MONITOR] [421.494489s] [Node-3] Recv BEACON from 0004, rssi: -72.60979443155966
+[TARP_MONITOR] [421.494489s] [Node-5] Recv BEACON from 0004, rssi: -83.3299656569622
+[TARP_MONITOR] [421.494489s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [421.668575s] [Node-5] Sent BEACON (epoch->8, metric->16.310397824611655, hops->4, parent->0004.)
+[TARP_MONITOR] [421.674686s] [Node-4] Recv BEACON from 0005, rssi: -79.49831084927536
+[TARP_MONITOR] [421.794410s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [421.799241s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [421.799241s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [423.261025s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [423.267136s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [423.267136s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [425.216252s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [425.221083s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [425.221083s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [427.240428s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [427.245579s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [427.245579s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [441.260662s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [441.267413s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [441.267413s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [447.083233s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [447.089024s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [447.089024s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [447.494063s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [447.500174s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [447.500174s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [450.802840s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [450.809591s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [450.809591s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [451.067198s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [451.073629s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [451.073629s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [451.786055s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [451.790887s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [451.790887s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [452.057865s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [452.063016s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [452.063016s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [453.986063s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [453.991854s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [453.991854s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [455.000000s] [Node-2] PING #7 timed out.
+[TARP_MONITOR] [457.425111s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [457.429942s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [457.429942s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [463.924930s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [463.931681s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [463.931681s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [468.348301s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [468.361706s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [468.361706s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [470.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [470.000000s] [Node-2] Sent PING #8 to 0014
+[TARP_MONITOR] [470.006431s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [470.006431s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [475.195455s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [475.206620s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [475.206620s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [478.715637s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [478.722068s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [478.722068s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [480.018334s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [480.031739s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [480.031739s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [481.000000s] [Node-1] Sent BEACON (epoch->9, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [481.006751s] [Node-2] Recv BEACON from 0001, rssi: -79.983948244895
+[TARP_MONITOR] [481.006751s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [481.202213s] [Node-2] Sent BEACON (epoch->9, metric->2.077822325563437, hops->1, parent->0001.)
+[TARP_MONITOR] [481.208964s] [Node-3] Recv BEACON from 0002, rssi: -75.51281324452896
+[TARP_MONITOR] [481.208964s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [481.208964s] [Node-4] Recv BEACON from 0002, rssi: -84.21507685571714
+[TARP_MONITOR] [481.208964s] [Node-4] Parent change: None -> 0002
+[TARP_MONITOR] [481.250189s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [481.255340s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [481.255340s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [481.314876s] [Node-3] Sent BEACON (epoch->9, metric->6.216461724526383, hops->2, parent->0002.)
+[TARP_MONITOR] [481.319707s] [Node-2] Recv BEACON from 0003, rssi: -83.87367921815297
+[TARP_MONITOR] [481.319707s] [Node-4] Recv BEACON from 0003, rssi: -81.09376414093212
+[TARP_MONITOR] [481.331371s] [Node-4] Sent BEACON (epoch->9, metric->11.004323608507168, hops->2, parent->0002.)
+[TARP_MONITOR] [481.337162s] [Node-3] Recv BEACON from 0004, rssi: -71.10047409407271
+[TARP_MONITOR] [481.337162s] [Node-5] Recv BEACON from 0004, rssi: -77.17328363467934
+[TARP_MONITOR] [481.337162s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [481.462421s] [Node-5] Sent BEACON (epoch->9, metric->15.98635958423576, hops->3, parent->0004.)
+[TARP_MONITOR] [481.468532s] [Node-4] Recv BEACON from 0005, rssi: -72.98606422684227
+[TARP_MONITOR] [482.944343s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [482.950774s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [482.950774s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [495.651520s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [495.656351s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [495.656351s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [499.456346s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [499.462777s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [499.462777s] [Node-10] Recv REPORT from 000b (content: {}.)
+[APP_MONITOR] [505.000000s] [Node-2] PING #8 timed out.
+[TARP_MONITOR] [506.679682s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [506.685153s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [506.685153s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [510.248022s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [510.254453s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [510.254453s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [511.409203s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [511.415954s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [511.415954s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [513.470290s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [513.483055s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [513.483055s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [516.678142s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [516.684573s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [516.684573s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [518.571789s] [Node-4] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [518.584874s] [Node-2] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [518.584874s] [Node-2] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [519.246077s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [519.251548s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [519.251548s] [Node-2] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [520.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [520.000000s] [Node-2] Sent PING #9 to 0014
+[TARP_MONITOR] [520.005791s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [520.005791s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [522.585418s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [522.590249s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [522.590249s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [522.788935s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [522.795366s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [522.795366s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [522.802020s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [522.802020s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [531.021204s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [531.027955s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [531.027955s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [534.443254s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [534.448725s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [534.448725s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [540.379929s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [540.386360s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [540.386360s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [540.402233s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [540.408024s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [540.408024s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [541.000000s] [Node-1] Sent BEACON (epoch->10, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [541.591003s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [541.597114s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [541.597114s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [549.544354s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [549.550465s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [549.550465s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [551.756903s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [551.762694s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [551.762694s] [Node-2] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [551.918480s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [551.923631s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [551.923631s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [552.369624s] [Node-4] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [552.383669s] [Node-2] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [552.383669s] [Node-2] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [552.390323s] [Node-2] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [552.390323s] [Node-2] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [555.000000s] [Node-2] PING #9 timed out.
+[TARP_MONITOR] [556.833198s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [556.846923s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [556.846923s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [560.822650s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [560.828441s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [560.828441s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [568.585878s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [568.590709s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [568.590709s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [569.276590s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [569.282701s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [569.282701s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [570.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [570.000000s] [Node-2] Sent PING #10 to 0014
+[TARP_MONITOR] [570.006751s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [570.006751s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [571.613308s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [571.620059s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [571.620059s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [573.751068s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [573.757819s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [573.757819s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [578.284448s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [578.289599s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [578.289599s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [583.707927s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [583.720052s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [583.720052s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [583.807777s] [Node-4] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [583.825596s] [Node-2] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [583.825596s] [Node-2] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [586.056627s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [586.062418s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [586.062418s] [Node-2] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [586.509134s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [586.515885s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [586.515885s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [592.608021s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [592.612852s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [592.612852s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [594.540519s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [594.545350s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [594.545350s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [601.000000s] [Node-1] Sent BEACON (epoch->11, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [601.004831s] [Node-2] Recv BEACON from 0001, rssi: -84.64438481785123
+[TARP_MONITOR] [601.004831s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [601.170814s] [Node-2] Sent BEACON (epoch->11, metric->1.4929347695978368, hops->1, parent->0001.)
+[TARP_MONITOR] [601.175645s] [Node-3] Recv BEACON from 0002, rssi: -71.13789347828133
+[TARP_MONITOR] [601.175645s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [601.325439s] [Node-3] Sent BEACON (epoch->11, metric->4.510002891441824, hops->2, parent->0002.)
+[TARP_MONITOR] [601.330910s] [Node-2] Recv BEACON from 0003, rssi: -76.01379321925518
+[TARP_MONITOR] [601.330910s] [Node-4] Recv BEACON from 0003, rssi: -75.76507002691935
+[TARP_MONITOR] [601.330910s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [601.460844s] [Node-4] Sent BEACON (epoch->11, metric->7.855271863830291, hops->3, parent->0003.)
+[TARP_MONITOR] [601.465995s] [Node-3] Recv BEACON from 0004, rssi: -82.84054749195116
+[TARP_MONITOR] [601.465995s] [Node-5] Recv BEACON from 0004, rssi: -80.68633242205385
+[TARP_MONITOR] [601.465995s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [601.640410s] [Node-5] Sent BEACON (epoch->11, metric->11.487176090136435, hops->4, parent->0004.)
+[TARP_MONITOR] [601.646201s] [Node-4] Recv BEACON from 0005, rssi: -81.50502150072158
+[TARP_MONITOR] [601.646201s] [Node-3] Recv BEACON from 0005, rssi: -80.15459528532942
+[TARP_MONITOR] [602.353520s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [602.359951s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [602.359951s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [605.000000s] [Node-2] PING #10 timed out.
+[TARP_MONITOR] [606.568696s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [606.574167s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [606.574167s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [606.887026s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [606.892177s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [606.892177s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [608.644097s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [608.648928s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [608.648928s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [617.991599s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [617.997710s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [617.997710s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [620.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [620.000000s] [Node-2] Sent PING #11 to 0014
+[TARP_MONITOR] [620.006751s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [620.006751s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [621.369717s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [621.376148s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [621.376148s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [628.590724s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [628.595555s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [628.595555s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [631.234462s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [631.241213s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [631.241213s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [633.980845s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [633.987276s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [633.987276s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [635.809504s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [635.814655s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [635.814655s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [636.209065s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [636.214216s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [636.214216s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [638.578389s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [638.585140s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [638.585140s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [640.626948s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [640.633379s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [640.633379s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [644.601669s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [644.607780s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [644.607780s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [648.440434s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [648.446225s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [648.446225s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [652.316360s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [652.322791s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [652.322791s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [655.000000s] [Node-2] PING #11 timed out.
+[TARP_MONITOR] [660.126397s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [660.131228s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [660.131228s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [661.000000s] [Node-1] Sent BEACON (epoch->12, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [661.560394s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [661.565865s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [661.565865s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [665.099841s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [665.104992s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [665.104992s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [666.316414s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [666.321565s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [666.321565s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [666.327579s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [666.327579s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [667.881859s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [667.887650s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [667.887650s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [668.784397s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [668.790828s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [668.790828s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [670.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [670.000000s] [Node-2] Sent PING #12 to 0014
+[TARP_MONITOR] [670.006751s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [670.006751s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [671.271130s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [671.277241s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [671.277241s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [671.283255s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [671.283255s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [673.833112s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [673.839543s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [673.839543s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [680.274735s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [680.280206s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [680.280206s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [686.193512s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [686.198343s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [686.198343s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [687.913768s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [687.920519s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [687.920519s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [691.343153s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [691.349584s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [691.349584s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [695.833880s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [695.839031s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [695.839031s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [696.855594s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [696.861705s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [696.861705s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [697.567533s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [697.573644s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [697.573644s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [702.700755s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [702.706866s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [702.706866s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [702.958270s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [702.963101s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [702.963101s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [705.000000s] [Node-2] PING #12 timed out.
+[TARP_MONITOR] [708.535742s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [708.541533s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [708.541533s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [711.368043s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [711.373834s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [711.373834s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [720.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [720.000000s] [Node-2] Sent PING #13 to 0014
+[TARP_MONITOR] [720.005791s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [720.005791s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [720.012765s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [720.012765s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [720.295466s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [720.300937s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [720.300937s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [721.000000s] [Node-1] Sent BEACON (epoch->13, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [721.005791s] [Node-2] Recv BEACON from 0001, rssi: -82.50034894982193
+[TARP_MONITOR] [721.005791s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [721.005791s] [Node-3] Recv BEACON from 0001, rssi: -84.7995920466711
+[TARP_MONITOR] [721.005791s] [Node-3] Parent change: None -> 0001
+[TARP_MONITOR] [721.149461s] [Node-3] Sent BEACON (epoch->13, metric->8.067212472971981, hops->1, parent->0001.)
+[TARP_MONITOR] [721.155252s] [Node-2] Recv BEACON from 0003, rssi: -76.13329141715585
+[TARP_MONITOR] [721.155252s] [Node-4] Recv BEACON from 0003, rssi: -84.3662058334745
+[TARP_MONITOR] [721.155252s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [721.155252s] [Node-1] Recv BEACON from 0003, rssi: -84.64103742280658
+[TARP_MONITOR] [721.155252s] [Node-5] Recv BEACON from 0003, rssi: -83.77179886294834
+[TARP_MONITOR] [721.155252s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [721.173300s] [Node-2] Sent BEACON (epoch->13, metric->1.0095306805583246, hops->1, parent->0001.)
+[TARP_MONITOR] [721.178131s] [Node-3] Recv BEACON from 0002, rssi: -79.71596751243257
+[TARP_MONITOR] [721.261745s] [Node-5] Sent BEACON (epoch->13, metric->12.458463502031648, hops->2, parent->0003.)
+[TARP_MONITOR] [721.268496s] [Node-4] Recv BEACON from 0005, rssi: -84.56196575256875
+[TARP_MONITOR] [721.268496s] [Node-6] Recv BEACON from 0005, rssi: -77.77872723808957
+[TARP_MONITOR] [721.268496s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [721.268496s] [Node-3] Recv BEACON from 0005, rssi: -82.52493760176662
+[TARP_MONITOR] [721.334289s] [Node-4] Sent BEACON (epoch->13, metric->10.505913553843174, hops->2, parent->0003.)
+[TARP_MONITOR] [721.340400s] [Node-3] Recv BEACON from 0004, rssi: -77.18922663312978
+[TARP_MONITOR] [721.340400s] [Node-5] Recv BEACON from 0004, rssi: -72.08732920247539
+[TARP_MONITOR] [721.441476s] [Node-6] Sent BEACON (epoch->13, metric->13.571439352910085, hops->3, parent->0005.)
+[TARP_MONITOR] [721.447907s] [Node-7] Recv BEACON from 0006, rssi: -81.46052975343036
+[TARP_MONITOR] [721.447907s] [Node-7] Parent change: None -> 0006
+[TARP_MONITOR] [721.606500s] [Node-7] Sent BEACON (epoch->13, metric->16.275106323844984, hops->4, parent->0006.)
+[TARP_MONITOR] [721.612291s] [Node-6] Recv BEACON from 0007, rssi: -79.13697907155824
+[TARP_MONITOR] [722.551743s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [722.563548s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [722.563548s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [726.957201s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [726.962032s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [726.962032s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [726.969646s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [726.969646s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [726.977260s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [726.977260s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [728.230092s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [728.236843s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [728.236843s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [728.244137s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [728.244137s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [740.301488s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [740.306959s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [740.306959s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [749.978522s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [749.983993s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [749.983993s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [749.990967s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [749.990967s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [750.003635s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [750.003635s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [752.335802s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [752.340634s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [752.340634s] [Node-3] Recv REPORT from 0005 (content: {}.)
+[TARP_MONITOR] [752.347608s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [752.347608s] [Node-3] Recv REPORT from 0005 (content: {}.)
+[TARP_MONITOR] [753.093838s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [753.106923s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [753.106923s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [754.868939s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [754.881064s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [754.881064s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [755.000000s] [Node-2] PING #13 timed out.
+[TARP_MONITOR] [755.442594s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [755.449025s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [755.449025s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [756.518364s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [756.524795s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [756.524795s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [757.135819s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [757.142250s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [757.142250s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [767.003209s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [767.009320s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [767.009320s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [768.551799s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [768.556950s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [768.556950s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [769.025049s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [769.030200s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [769.030200s] [Node-1] Recv REPORT from 0002 (content: {}.)
+[TARP_MONITOR] [770.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [770.000000s] [Node-2] Sent PING #14 to 0014
+[TARP_MONITOR] [770.004831s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [770.004831s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [779.856619s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [779.861450s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [779.861450s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [780.035577s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [780.042008s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [780.042008s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [781.000000s] [Node-1] Sent BEACON (epoch->14, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [785.104001s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [785.109792s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [785.109792s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [785.693481s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [785.700232s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [785.700232s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [789.346041s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [789.352152s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [789.352152s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [789.660433s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [789.665584s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [789.665584s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [789.672238s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [789.672238s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [792.997642s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [793.002473s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [793.002473s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [798.349155s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [798.355266s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [798.355266s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [805.000000s] [Node-2] PING #14 timed out.
+[TARP_MONITOR] [807.781660s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [807.787452s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [807.787452s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [809.066185s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [809.071976s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [809.071976s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [810.985931s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [810.990762s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [810.990762s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [814.655313s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [814.661104s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [814.661104s] [Node-1] Recv REPORT from 0002 (content: {}.)
+[TARP_MONITOR] [814.727494s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [814.733605s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [814.733605s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [815.966943s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [815.973694s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [815.973694s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [815.979388s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [815.979388s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [815.986362s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [815.986362s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [815.993016s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [815.993016s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [815.999350s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [815.999350s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [816.000214s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [816.000214s] [Node-3] Parent change: 0001 -> 0002
+[TARP_MONITOR] [816.006009s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [816.006009s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [816.011703s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [816.011703s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [818.561913s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [818.568344s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [818.568344s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [820.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [820.000000s] [Node-2] Sent PING #15 to 0014
+[TARP_MONITOR] [820.006111s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [820.006111s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [820.201574s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [820.208325s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [820.208325s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [822.240920s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [822.247351s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [822.247351s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [825.938460s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [825.943291s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [825.943291s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [838.777154s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [838.782945s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [838.782945s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [838.893218s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [838.899010s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [838.899010s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [841.000000s] [Node-1] Sent BEACON (epoch->15, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [841.006751s] [Node-2] Recv BEACON from 0001, rssi: -81.44322465254791
+[TARP_MONITOR] [841.006751s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [841.191882s] [Node-2] Sent BEACON (epoch->15, metric->0.7620843413559235, hops->1, parent->0001.)
+[TARP_MONITOR] [841.197353s] [Node-1] Recv BEACON from 0002, rssi: -82.3433261827928
+[TARP_MONITOR] [841.197353s] [Node-3] Recv BEACON from 0002, rssi: -75.40621036678802
+[TARP_MONITOR] [841.197353s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [841.325842s] [Node-3] Sent BEACON (epoch->15, metric->2.771830987846016, hops->2, parent->0002.)
+[TARP_MONITOR] [841.332274s] [Node-2] Recv BEACON from 0003, rssi: -79.01287925161483
+[TARP_MONITOR] [841.332274s] [Node-4] Recv BEACON from 0003, rssi: -72.23433472361793
+[TARP_MONITOR] [841.332274s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [841.332274s] [Node-1] Recv BEACON from 0003, rssi: -84.99301442624088
+[TARP_MONITOR] [841.526930s] [Node-4] Sent BEACON (epoch->15, metric->4.549644075801115, hops->3, parent->0003.)
+[TARP_MONITOR] [841.533041s] [Node-3] Recv BEACON from 0004, rssi: -71.81093625055709
+[TARP_MONITOR] [841.533041s] [Node-5] Recv BEACON from 0004, rssi: -75.59647241392335
+[TARP_MONITOR] [841.533041s] [Node-5] Parent change: None -> 0004
+[TARP_MONITOR] [841.700223s] [Node-5] Sent BEACON (epoch->15, metric->7.197302256778295, hops->4, parent->0004.)
+[TARP_MONITOR] [841.705054s] [Node-4] Recv BEACON from 0005, rssi: -78.44787084461299
+[TARP_MONITOR] [841.705054s] [Node-3] Recv BEACON from 0005, rssi: -83.03276234314517
+[TARP_MONITOR] [842.221359s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [842.226510s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [842.226510s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [845.796262s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [845.801733s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [845.801733s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [846.798989s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [846.804140s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [846.804140s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [854.705167s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [854.709998s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [854.709998s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [855.000000s] [Node-2] PING #15 timed out.
+[TARP_MONITOR] [865.983994s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [865.990746s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [865.990746s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [869.004983s] [Node-5] Send UC_TYPE_REPORT to 0004
+[TARP_MONITOR] [869.010774s] [Node-4] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [869.010774s] [Node-4] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [869.228239s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [869.234350s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [869.234350s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [870.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [870.000000s] [Node-2] Sent PING #16 to 0014
+[TARP_MONITOR] [870.004831s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [870.004831s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [871.086563s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [871.098048s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [871.098048s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [874.486206s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [874.491037s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [874.491037s] [Node-3] Recv REPORT from 0004 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [875.160259s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [875.166050s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [875.166050s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [875.758247s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [875.763718s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [875.763718s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [878.105501s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [878.111292s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [878.111292s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [883.001547s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [883.007978s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [883.007978s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [884.312075s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [884.318827s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [884.318827s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [888.367858s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [888.372689s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [888.372689s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [893.867822s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [893.874253s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [893.874253s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [899.653786s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [899.658617s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [899.658617s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [901.000000s] [Node-1] Sent BEACON (epoch->16, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [901.006431s] [Node-3] Recv BEACON from 0001, rssi: -81.99295414528414
+[TARP_MONITOR] [901.006431s] [Node-3] Parent change: None -> 0001
+[TARP_MONITOR] [901.110544s] [Node-3] Sent BEACON (epoch->16, metric->9.458731746151146, hops->1, parent->0001.)
+[TARP_MONITOR] [901.117295s] [Node-2] Recv BEACON from 0003, rssi: -71.70004229548886
+[TARP_MONITOR] [901.117295s] [Node-2] Parent change: None -> 0003
+[TARP_MONITOR] [901.117295s] [Node-4] Recv BEACON from 0003, rssi: -77.36247316383077
+[TARP_MONITOR] [901.117295s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [901.117295s] [Node-1] Recv BEACON from 0003, rssi: -81.41579225692638
+[TARP_MONITOR] [901.117295s] [Node-5] Recv BEACON from 0003, rssi: -82.68006616735389
+[TARP_MONITOR] [901.117295s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [901.240076s] [Node-2] Sent BEACON (epoch->16, metric->18.561291826227823, hops->2, parent->0003.)
+[TARP_MONITOR] [901.241081s] [Node-4] Sent BEACON (epoch->16, metric->11.058763525310736, hops->2, parent->0003.)
+[TARP_MONITOR] [901.245912s] [Node-5] Recv BEACON from 0004, rssi: -75.66822062300504
+[TARP_MONITOR] [901.266494s] [Node-5] Sent BEACON (epoch->16, metric->12.720203746335644, hops->2, parent->0003.)
+[APP_MONITOR] [905.000000s] [Node-2] PING #16 timed out.
+[TARP_MONITOR] [906.413239s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [906.738994s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [908.845482s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [917.482531s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [920.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [920.000000s] [Node-2] Sent PING #17 to 0014
+[TARP_MONITOR] [920.005471s] [Node-3] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [920.005471s] [Node-3] Forward UC_TYPE_DATA from 0002 to 0001 (dest: 0014)
+[TARP_MONITOR] [920.010850s] [Node-1] Recv UC_TYPE_DATA from 0003 (orig: 0002)
+[TARP_MONITOR] [920.010850s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [920.311714s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [920.317185s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [920.317185s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [920.337472s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [920.337472s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [920.345081s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [920.345081s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [926.526199s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [933.979440s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [934.504698s] [Node-2] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [936.000495s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [936.006927s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [936.006927s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [936.012306s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [936.012306s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [936.017685s] [Node-4] Recv BEACON from 0005, rssi: -78.97377983958683
+[TARP_MONITOR] [936.025675s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [936.025675s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [936.032969s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [936.032969s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [936.038348s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [936.038348s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [939.823846s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [940.458735s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [940.465166s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [940.465166s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [940.471505s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [940.471505s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [941.491372s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [941.498123s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [941.498123s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [941.504142s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [941.504142s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [943.432450s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [943.437281s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [943.437281s] [Node-1] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [943.541362s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [943.548113s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [943.548113s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [943.553812s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [943.553812s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [943.730372s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [943.736483s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [943.736483s] [Node-10] Recv REPORT from 000b (content: {}.)
+[APP_MONITOR] [955.000000s] [Node-2] PING #17 timed out.
+[TARP_MONITOR] [956.153320s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [956.159431s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [956.159431s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [961.000000s] [Node-1] Sent BEACON (epoch->17, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [961.005791s] [Node-2] Recv BEACON from 0001, rssi: -83.96967429685225
+[TARP_MONITOR] [961.005791s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [961.005791s] [Node-3] Recv BEACON from 0001, rssi: -84.72740634109557
+[TARP_MONITOR] [961.005791s] [Node-3] Parent change: None -> 0001
+[TARP_MONITOR] [961.150100s] [Node-3] Sent BEACON (epoch->17, metric->7.661572714382429, hops->1, parent->0001.)
+[TARP_MONITOR] [961.156211s] [Node-2] Recv BEACON from 0003, rssi: -82.24016203738151
+[TARP_MONITOR] [961.156211s] [Node-4] Recv BEACON from 0003, rssi: -75.88683532766754
+[TARP_MONITOR] [961.156211s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [961.156211s] [Node-5] Recv BEACON from 0003, rssi: -79.22954884510112
+[TARP_MONITOR] [961.156211s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [961.193341s] [Node-2] Sent BEACON (epoch->17, metric->0.6670947681112013, hops->1, parent->0001.)
+[TARP_MONITOR] [961.199452s] [Node-3] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [961.199452s] [Node-3] Recv REPORT from 0002 (content: {}.)
+[TARP_MONITOR] [961.206111s] [Node-3] Recv BEACON from 0002, rssi: -81.93899886158505
+[TARP_MONITOR] [961.291631s] [Node-4] Sent BEACON (epoch->17, metric->9.261604493542018, hops->2, parent->0003.)
+[TARP_MONITOR] [961.298382s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [961.298382s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [961.304721s] [Node-3] Recv BEACON from 0004, rssi: -81.22335888072747
+[TARP_MONITOR] [961.324325s] [Node-5] Sent BEACON (epoch->17, metric->10.615079332730295, hops->2, parent->0003.)
+[TARP_MONITOR] [961.330756s] [Node-4] Recv BEACON from 0005, rssi: -75.73540094861801
+[TARP_MONITOR] [966.168011s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [966.173802s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [966.173802s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [968.315748s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [968.322499s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [968.322499s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [970.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [970.000000s] [Node-2] Sent PING #18 to 0014
+[TARP_MONITOR] [970.005151s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [970.005151s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [970.582129s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [970.587600s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [970.587600s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [971.171109s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [971.176900s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [971.176900s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [971.183234s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [971.183234s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [972.855941s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [972.861092s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [972.861092s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [979.303598s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [979.310029s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [979.310029s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [994.563890s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [994.570321s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [994.570321s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [994.576975s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [994.576975s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [994.584269s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [994.584269s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [996.725875s] [Node-7] Send UC_TYPE_REPORT to 0006
+[TARP_MONITOR] [996.731026s] [Node-6] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [996.731026s] [Node-6] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [998.541250s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [998.546721s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [998.546721s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1000.338798s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1000.343949s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [1000.343949s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [1000.625712s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1000.632463s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1000.632463s] [Node-5] Recv REPORT from 0006 (content: {'0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1001.007819s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1001.013290s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1001.013290s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1004.197544s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1004.203975s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1004.203975s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1004.433326s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1004.439757s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1004.439757s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [1005.000000s] [Node-2] PING #18 timed out.
+[TARP_MONITOR] [1005.533649s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [1005.539760s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [1005.539760s] [Node-1] Recv REPORT from 0002 (content: {}.)
+[TARP_MONITOR] [1008.761585s] [Node-3] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [1008.781644s] [Node-1] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1008.781644s] [Node-1] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1020.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [1020.000000s] [Node-2] Sent PING #19 to 0014
+[TARP_MONITOR] [1020.005791s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [1020.005791s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [1021.000000s] [Node-1] Sent BEACON (epoch->18, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1021.005791s] [Node-2] Recv BEACON from 0001, rssi: -79.15783408771219
+[TARP_MONITOR] [1021.005791s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [1021.152925s] [Node-2] Sent BEACON (epoch->18, metric->0.5519096795359535, hops->1, parent->0001.)
+[TARP_MONITOR] [1021.158077s] [Node-1] Recv BEACON from 0002, rssi: -84.02555329400343
+[TARP_MONITOR] [1021.158077s] [Node-3] Recv BEACON from 0002, rssi: -70.89355499204461
+[TARP_MONITOR] [1021.158077s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [1021.258198s] [Node-3] Sent BEACON (epoch->18, metric->2.374967375662751, hops->2, parent->0002.)
+[TARP_MONITOR] [1021.263990s] [Node-2] Recv BEACON from 0003, rssi: -84.14567514754785
+[TARP_MONITOR] [1021.263990s] [Node-4] Recv BEACON from 0003, rssi: -75.99630479559343
+[TARP_MONITOR] [1021.263990s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [1021.263990s] [Node-5] Recv BEACON from 0003, rssi: -80.01345579892303
+[TARP_MONITOR] [1021.263990s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [1021.414023s] [Node-4] Sent BEACON (epoch->18, metric->3.670993116782018, hops->3, parent->0003.)
+[TARP_MONITOR] [1021.420134s] [Node-5] Recv BEACON from 0004, rssi: -72.78355651025335
+[TARP_MONITOR] [1021.436165s] [Node-5] Sent BEACON (epoch->18, metric->5.049789998842497, hops->3, parent->0003.)
+[TARP_MONITOR] [1021.441636s] [Node-4] Recv BEACON from 0005, rssi: -72.76966316609523
+[TARP_MONITOR] [1021.441636s] [Node-6] Recv BEACON from 0005, rssi: -78.70969701355764
+[TARP_MONITOR] [1021.441636s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [1021.441636s] [Node-3] Recv BEACON from 0005, rssi: -82.88469232963044
+[TARP_MONITOR] [1021.441636s] [Node-7] Recv BEACON from 0005, rssi: -84.14374181556187
+[TARP_MONITOR] [1021.441636s] [Node-7] Parent change: None -> 0005
+[TARP_MONITOR] [1021.603346s] [Node-7] Sent BEACON (epoch->18, metric->8.053866334103384, hops->4, parent->0005.)
+[TARP_MONITOR] [1021.610097s] [Node-8] Recv BEACON from 0007, rssi: -79.59511046199653
+[TARP_MONITOR] [1021.610097s] [Node-8] Parent change: None -> 0007
+[TARP_MONITOR] [1021.625924s] [Node-6] Sent BEACON (epoch->18, metric->5.59067735581126, hops->4, parent->0005.)
+[TARP_MONITOR] [1021.631395s] [Node-7] Recv BEACON from 0006, rssi: -81.15675550012713
+[TARP_MONITOR] [1021.737345s] [Node-8] Sent BEACON (epoch->18, metric->8.781910064730019, hops->5, parent->0007.)
+[TARP_MONITOR] [1021.743456s] [Node-7] Recv BEACON from 0008, rssi: -76.52693012805133
+[TARP_MONITOR] [1021.743456s] [Node-9] Recv BEACON from 0008, rssi: -76.9733835121678
+[TARP_MONITOR] [1021.743456s] [Node-9] Parent change: None -> 0008
+[TARP_MONITOR] [1021.872580s] [Node-9] Sent BEACON (epoch->18, metric->9.555146229833166, hops->6, parent->0008.)
+[TARP_MONITOR] [1021.877731s] [Node-8] Recv BEACON from 0009, rssi: -76.47405539618487
+[TARP_MONITOR] [1021.877731s] [Node-10] Recv BEACON from 0009, rssi: -81.44042272772947
+[TARP_MONITOR] [1021.877731s] [Node-10] Parent change: None -> 0009
+[TARP_MONITOR] [1022.028788s] [Node-10] Sent BEACON (epoch->18, metric->10.647219319277852, hops->7, parent->0009.)
+[TARP_MONITOR] [1023.567619s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1023.574050s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1023.574050s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1023.581664s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1023.581664s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1046.340211s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1046.345682s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1046.345682s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1048.216232s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1048.221063s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1048.221063s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1048.865678s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1048.872429s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1048.872429s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1049.189425s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1049.196177s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1049.196177s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1050.605127s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1050.611878s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1050.611878s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [1051.920270s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [1051.926701s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1051.926701s] [Node-2] Recv REPORT from 0003 (content: {'0005': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1053.666183s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1053.672614s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [1053.672614s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1054.338320s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1054.344751s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1054.344751s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [1055.000000s] [Node-2] PING #19 timed out.
+[TARP_MONITOR] [1056.913129s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1056.918600s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [1056.918600s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [1069.885316s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [1069.892067s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [1069.892067s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1070.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [1070.000000s] [Node-2] Sent PING #20 to 0014
+[TARP_MONITOR] [1070.006431s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [1070.006431s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [1074.837749s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1074.842900s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1074.842900s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1076.702136s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1076.706967s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1076.706967s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1077.675063s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1077.679894s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1077.679894s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1078.717987s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1078.724418s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1078.724418s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1080.115703s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1080.122454s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1080.122454s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [1080.505198s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1080.511629s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1080.511629s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1081.000000s] [Node-1] Sent BEACON (epoch->19, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1081.005151s] [Node-2] Recv BEACON from 0001, rssi: -81.24890971709402
+[TARP_MONITOR] [1081.005151s] [Node-2] Parent change: None -> 0001
+[TARP_MONITOR] [1081.106318s] [Node-2] Sent BEACON (epoch->19, metric->0.48984049121777307, hops->1, parent->0001.)
+[TARP_MONITOR] [1081.112429s] [Node-1] Recv BEACON from 0002, rssi: -81.2672580774764
+[TARP_MONITOR] [1081.112429s] [Node-3] Recv BEACON from 0002, rssi: -77.62933898719217
+[TARP_MONITOR] [1081.112429s] [Node-3] Parent change: None -> 0002
+[TARP_MONITOR] [1081.303067s] [Node-3] Sent BEACON (epoch->19, metric->2.143925751065224, hops->2, parent->0002.)
+[TARP_MONITOR] [1081.308858s] [Node-2] Recv BEACON from 0003, rssi: -69.90554508094536
+[TARP_MONITOR] [1081.308858s] [Node-4] Recv BEACON from 0003, rssi: -72.35045611971489
+[TARP_MONITOR] [1081.308858s] [Node-4] Parent change: None -> 0003
+[TARP_MONITOR] [1081.308859s] [Node-5] Recv BEACON from 0003, rssi: -81.95522768802243
+[TARP_MONITOR] [1081.308859s] [Node-5] Parent change: None -> 0003
+[TARP_MONITOR] [1081.432287s] [Node-5] Sent BEACON (epoch->19, metric->4.566650727311611, hops->3, parent->0003.)
+[TARP_MONITOR] [1081.438078s] [Node-4] Recv BEACON from 0005, rssi: -78.46513857762767
+[TARP_MONITOR] [1081.438078s] [Node-6] Recv BEACON from 0005, rssi: -78.95621699357511
+[TARP_MONITOR] [1081.438078s] [Node-6] Parent change: None -> 0005
+[TARP_MONITOR] [1081.492790s] [Node-4] Sent BEACON (epoch->19, metric->3.310348918072565, hops->3, parent->0003.)
+[TARP_MONITOR] [1081.498901s] [Node-3] Recv BEACON from 0004, rssi: -72.16960400886069
+[TARP_MONITOR] [1081.498901s] [Node-5] Recv BEACON from 0004, rssi: -84.05180298740241
+[TARP_MONITOR] [1081.617876s] [Node-6] Sent BEACON (epoch->19, metric->5.033983501607824, hops->4, parent->0005.)
+[TARP_MONITOR] [1081.623667s] [Node-5] Recv BEACON from 0006, rssi: -81.1587312514983
+[TARP_MONITOR] [1103.300719s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1103.305550s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1103.305550s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1103.597268s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1103.603059s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1103.603059s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [1105.000000s] [Node-2] PING #20 timed out.
+[TARP_MONITOR] [1107.058634s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1107.064745s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1107.064745s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1108.685123s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1108.691554s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1108.691554s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1110.607197s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1110.612988s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [1110.612988s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1113.524429s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1113.530221s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1113.530221s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1113.537515s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1113.537515s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1114.966197s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1114.972628s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [1114.972628s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [1116.421983s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1116.427774s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1116.427774s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [1119.883991s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [1119.889142s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1119.889142s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1120.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [1120.000000s] [Node-2] Sent PING #21 to 0014
+[TARP_MONITOR] [1120.004831s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [1120.004831s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [1130.309551s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [1130.314382s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [1130.314382s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1132.992573s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1132.998364s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1132.998364s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1133.684993s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1133.691744s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1133.691744s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1134.912781s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1134.917612s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1134.917612s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1136.142414s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1136.147885s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1136.147885s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1141.000000s] [Node-1] Sent BEACON (epoch->20, metric->0, hops->0, parent->.)
+[TARP_MONITOR] [1141.992409s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1141.997880s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [1141.997880s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [1144.176399s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1144.181231s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1144.181231s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1144.212539s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1144.217370s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1144.217370s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [1146.124318s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1146.130429s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [1146.130429s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1153.127019s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [1153.132170s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1153.132170s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1153.139464s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1153.139464s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[APP_MONITOR] [1155.000000s] [Node-2] PING #21 timed out.
+[TARP_MONITOR] [1159.732431s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1159.738542s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1159.738542s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1160.561481s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1160.567592s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1160.567592s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1164.984987s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1164.990458s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1164.990458s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1164.997752s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1164.997752s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1167.960231s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1167.966342s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1167.966342s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1170.000000s] [Node-2] Send UC_TYPE_DATA to 0014
+[APP_MONITOR] [1170.000000s] [Node-2] Sent PING #22 to 0014
+[TARP_MONITOR] [1170.012445s] [Node-1] Recv UC_TYPE_DATA from 0002 (orig: 0002)
+[TARP_MONITOR] [1170.012445s] [Node-1] TARP forward: No route for destination, dropping packet (dest: 0014).
+[TARP_MONITOR] [1171.535553s] [Node-2] Send UC_TYPE_REPORT to 0001
+[TARP_MONITOR] [1171.541024s] [Node-1] Recv UC_TYPE_REPORT from 0002 (orig: 0002)
+[TARP_MONITOR] [1171.541024s] [Node-1] Recv REPORT from 0002 (content: {'0003': <RouteStatus.STATUS_ADD: 1>, '0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1173.854273s] [Node-4] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1173.859104s] [Node-3] Recv UC_TYPE_REPORT from 0004 (orig: 0004)
+[TARP_MONITOR] [1173.859104s] [Node-3] Recv REPORT from 0004 (content: {}.)
+[TARP_MONITOR] [1174.166905s] [Node-5] Send UC_TYPE_REPORT to 0003
+[TARP_MONITOR] [1174.173656s] [Node-3] Recv UC_TYPE_REPORT from 0005 (orig: 0005)
+[TARP_MONITOR] [1174.173656s] [Node-3] Recv REPORT from 0005 (content: {'0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1175.266061s] [Node-6] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1175.271532s] [Node-5] Recv UC_TYPE_REPORT from 0006 (orig: 0006)
+[TARP_MONITOR] [1175.271532s] [Node-5] Recv REPORT from 0006 (content: {}.)
+[TARP_MONITOR] [1176.840204s] [Node-7] Send UC_TYPE_REPORT to 0005
+[TARP_MONITOR] [1176.852329s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1176.852329s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1176.864997s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1176.864997s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1176.871011s] [Node-5] Recv UC_TYPE_REPORT from 0007 (orig: 0007)
+[TARP_MONITOR] [1176.871011s] [Node-5] Recv REPORT from 0007 (content: {'0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1182.873146s] [Node-11] Send UC_TYPE_REPORT to 000a
+[TARP_MONITOR] [1182.879257s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1182.879257s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1182.886231s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1182.886231s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1182.893205s] [Node-10] Recv UC_TYPE_REPORT from 000b (orig: 000b)
+[TARP_MONITOR] [1182.893205s] [Node-10] Recv REPORT from 000b (content: {}.)
+[TARP_MONITOR] [1185.189875s] [Node-3] Send UC_TYPE_REPORT to 0002
+[TARP_MONITOR] [1185.195986s] [Node-2] Recv UC_TYPE_REPORT from 0003 (orig: 0003)
+[TARP_MONITOR] [1185.195986s] [Node-2] Recv REPORT from 0003 (content: {'0004': <RouteStatus.STATUS_ADD: 1>, '0005': <RouteStatus.STATUS_ADD: 1>, '0006': <RouteStatus.STATUS_ADD: 1>, '0007': <RouteStatus.STATUS_ADD: 1>, '0008': <RouteStatus.STATUS_ADD: 1>, '0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1191.434445s] [Node-10] Send UC_TYPE_REPORT to 0009
+[TARP_MONITOR] [1191.440877s] [Node-9] Recv UC_TYPE_REPORT from 000a (orig: 000a)
+[TARP_MONITOR] [1191.440877s] [Node-9] Recv REPORT from 000a (content: {'000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1192.775960s] [Node-8] Send UC_TYPE_REPORT to 0007
+[TARP_MONITOR] [1192.789365s] [Node-7] Recv UC_TYPE_REPORT from 0008 (orig: 0008)
+[TARP_MONITOR] [1192.789365s] [Node-7] Recv REPORT from 0008 (content: {'0009': <RouteStatus.STATUS_ADD: 1>, '000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1195.620570s] [Node-9] Send UC_TYPE_REPORT to 0008
+[TARP_MONITOR] [1195.627001s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1195.627001s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1195.632695s] [Node-8] Recv UC_TYPE_REPORT from 0009 (orig: 0009)
+[TARP_MONITOR] [1195.632695s] [Node-8] Recv REPORT from 0009 (content: {'000a': <RouteStatus.STATUS_ADD: 1>, '000b': <RouteStatus.STATUS_ADD: 1>}.)
+[TARP_MONITOR] [1201.000000s] [Node-1] Sent BEACON (epoch->21, metric->0, hops->0, parent->.)
+Simulation stopped at time: 1201.0
+
+
+--- Simulation Finished ---
+Final simulation time: 1201.000000s
+Events remaining in queue: 33
+
+--- First 5 Events in Queue ---
+1: t=1201.000001s, Event=MacTrySendNextEvent, Blame=ContikiOS_MAC_802154_Unslotted, Descriptor: None, Cancelled: False
+2: t=1201.641586s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+3: t=1205.000000s, Event=Event, Blame=PingPongApp, Descriptor: None, Cancelled: False
+4: t=1205.307051s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False
+5: t=1208.388094s, Event=NetTopologyReportSendEvent, Blame=TARPProtocol, Descriptor: None, Cancelled: False

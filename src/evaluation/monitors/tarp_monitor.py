@@ -80,25 +80,31 @@ class TARPMonitor(Monitor):
 
 
         elif isinstance(signal, TARPDropSignal):
-            # The descriptor in TARP.py contains the reason, e.g., "... dropping packet (dest: ...)."
-            # This is not ideal, but we can parse it.
-            reason = "Unknown"
-            try:
-                reason = signal.descriptor.split(":")[-1].strip().split("(")[0].strip()
-            except Exception:
-                pass # Keep "Unknown"
+            # --- MODIFICA ---
+            # Il descriptor del segnale è già un messaggio di log leggibile
+            # formattato all'interno di TARP.py.
+            # Rimuoviamo il parsing fragile e usiamo il descriptor.
+            
+            # Semplifichiamo l'estrazione della ragione per il log dei dati
+            reason_simple = "No Route" # Default
+            if "unknown sender" in signal.descriptor:
+                reason_simple = "Unknown Sender"
             
             log_entry.update({
                 "event": "DROP",
                 "type": signal.packet_type,
                 "dest": signal.destination.hex(),
-                "reason": reason
+                "reason": reason_simple, # Log di una categoria semplice
+                "details": signal.descriptor # Log del messaggio completo
             })
-            print_msg = f"Drop {signal.packet_type} for {signal.destination.hex()}. Reason: {reason}"
+            
+            # Stampa l'intero descriptor, che contiene già il motivo.
+            # Rimuoviamo il prefisso "[Node-X] " perché il monitor lo aggiunge già.
+            print_msg = signal.descriptor.split("] ", 1)[-1]
+            # --- FINE MODIFICA ---
 
         elif isinstance(signal, TARPBroadcastSendSignal):
             # The descriptor has critical info not in the signal object.
-            # This is a flaw in TARP.py's signal creation, but we can work with it.
             details = "BEACON"
             try:
                 details = signal.descriptor.split("beacon:")[1].strip()
@@ -138,4 +144,5 @@ class TARPMonitor(Monitor):
         self.log.append(log_entry)
 
         if self.verbose and print_msg:
+            # L'ID del nodo è ora aggiunto esternamente
             print(f"[TARP_MONITOR] [{current_time:.6f}s] [{node_id}] {print_msg}")

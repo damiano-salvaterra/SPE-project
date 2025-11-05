@@ -5,15 +5,18 @@
 # This script runs a parameter sweep for the specified Python simulation module.
 # It iterates through all defined topologies and channel conditions.
 #
-# Place this script in the project root directory (alongside the 'src/' folder).
 # =============================================================================
 
-# --- 1. Global Simulation Parameters ---
-# (You can easily change these variables)
+# --- Global Simulation Parameters ---
 
-# The Python module to run (relative to the project root)
-# This allows you to easily switch to 'src.evaluation.random_traffic' etc.
-PYTHON_MODULE="src.evaluation.pingpong"
+PYTHON_MODULE="evaluation.run_scenario"
+
+# Application to run for this entire sweep
+# Options: "pingpong" or "random_traffic"
+APP_TO_RUN="random_traffic"
+
+# App-specific parameters (ignored if not applicable)
+MEAN_INTERARRIVAL=30.0 # For 'random_traffic'
 
 # Number of nodes for all simulations
 NUM_NODES=20
@@ -22,7 +25,7 @@ NUM_NODES=20
 DSPACE_STEP=1.0
 
 
-# --- 2. Parameter Sweep Arrays ---
+# --- Parameter Sweep Arrays ---
 # (Add or remove items here to change the sweep)
 
 TOPOLOGIES=(
@@ -43,18 +46,22 @@ CHANNELS=(
 )
 
 
-# --- 3. Simulation Execution ---
+# --- Simulation Execution ---
 
 echo "Starting simulation sweep..."
 echo "====================================================="
 echo "Target Module:   $PYTHON_MODULE"
+echo "Application:     $APP_TO_RUN"
 echo "Nodes per sim:   $NUM_NODES"
 echo "DSpace Step:     $DSPACE_STEP"
+if [ "$APP_TO_RUN" == "random_traffic" ]; then
+  echo "Mean Interarrival: $MEAN_INTERARRIVAL s"
+fi
 echo "====================================================="
 
 # Get the directory where this script is located (the project root)
 # and add 'src' to the PYTHONPATH. This ensures Python can find the
-# 'evaluation' module even when run from the root.
+# module even when run from the root.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export PYTHONPATH="$SCRIPT_DIR/src"
 
@@ -67,20 +74,24 @@ for topo in "${TOPOLOGIES[@]}"; do
   for chan in "${CHANNELS[@]}"; do
     
     echo ""
-    echo "--- Running Sim ($CURRENT_SIM / $TOTAL_SIMS): Topo=$topo, Chan=$chan ---"
+    echo "--- Running Sim ($CURRENT_SIM / $TOTAL_SIMS): App=$APP_TO_RUN, Topo=$topo, Chan=$chan ---"
     
     # Construct and execute the command
-    python3 -m "evaluation.pingpong" \
+    # We pass all parameters: the Python script's argparse will
+    # ignore the ones it doesn't recognize
+    python3 -m "$PYTHON_MODULE" \
+      --app "$APP_TO_RUN" \
       --topology "$topo" \
       --channel "$chan" \
       --num_nodes "$NUM_NODES" \
-      --dspace_step "$DSPACE_STEP"
+      --dspace_step "$DSPACE_STEP" \
+      --mean_interarrival "$MEAN_INTERARRIVAL"
     
-    # Check the exit code of the last command (like '&&')
+    # Check the exit code of the last command
     if [ $? -ne 0 ]; then
       echo ""
       echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      echo "ERROR: Simulation failed for Topo=$topo, Chan=$chan"
+      echo "ERROR: Simulation failed for App=$APP_TO_RUN, Topo=$topo, Chan=$chan"
       echo "Stopping script."
       echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       exit 1
@@ -91,7 +102,7 @@ for topo in "${TOPOLOGIES[@]}"; do
   done
 done
 
-echo ""
+echo " "
 echo "====================================================="
 echo "Simulation sweep completed successfully ($TOTAL_SIMS simulations)."
 echo "====================================================="
