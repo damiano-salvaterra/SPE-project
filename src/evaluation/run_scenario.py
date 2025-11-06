@@ -485,8 +485,9 @@ if __name__ == "__main__":
         # 1. Parse Arguments
         args = setup_argparse()
         num_nodes = args.num_nodes
-        KERNEL_SEED = 12345
-        simulation_time = 1200.0 # 20 minutes
+
+        KERNEL_SEED = 12346
+        simulation_time = 1800.0 # 30 minutes
         app_name = args.app
 
         # 2. Setup Logging and Output Directories

@@ -52,9 +52,9 @@ class PingPongApp(Application):
         self._notify_monitors(signal)
 
         if self.is_pinger:
-            initial_send_time = 120.0
+            warmup_delay = 30.0 #delay before first PING to allow network convergence
             start_ping_event = Event(
-                time=initial_send_time, blame=self, callback=self.generate_traffic
+                time=warmup_delay, blame=self, callback=self.generate_traffic
             )
             self.host.context.scheduler.schedule(start_ping_event)
 

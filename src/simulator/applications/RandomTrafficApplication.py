@@ -18,10 +18,6 @@ class RandomTrafficApplication(Application):
     An application that generates network traffic to random destinations
     with exponentially distributed inter-arrival times (a Poisson process).
     
-    This refactored version:
-    1. Complies with the Application base class and signal/monitor system.
-    2. Initializes the RNG and destination list in start() to avoid host=None errors.
-    3. Continuously schedules packet sends to form a Poisson process.
     """
 
     def __init__(
@@ -82,9 +78,18 @@ class RandomTrafficApplication(Application):
                   f"RandomTrafficApp: No destinations to send to.", file=sys.stderr)
             return
 
-        # 4. Schedule the first packet send
-        self._schedule_next_send()
+        warmup_delay = 30.0 # delay before first packet to allow network convergence
+        initial_jitter = self.rng.uniform(low=0.0, high=30.0) # add some jitter to avoid that all nodes send at once
+        initial_send_time = warmup_delay + initial_jitter
+        #Schedule the first packet send
+        #self._schedule_next_send()
 
+        start_traffic_event = Event(
+            time=initial_send_time,
+            blame=self,
+            callback=self._send_packet_and_reschedule #this will start the poisson process
+        )
+        self.host.context.scheduler.schedule(start_traffic_event)
     def _schedule_next_send(self):
         """
         Schedules the next _send_packet_and_reschedule event using an 
