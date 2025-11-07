@@ -8,7 +8,7 @@ from simulator.entities.applications.common.app_signals import (
     AppSendSignal,
     AppReceiveSignal,
     AppTimeoutSignal,
-    AppSendFailSignal
+    AppSendFailSignal,
 )
 
 # Avoid circular import issues at type-checking time
@@ -37,15 +37,17 @@ class ApplicationMonitor(Monitor):
         try:
             # Get the structured data from the signal
             log_data = signal.get_log_data()
-            
+
             # Add node_id, which is context from the entity
             log_data["node_id"] = entity.host.id
-            
+
             self.log.append(log_data)
 
             if self.verbose:
-                print(f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}")
-                
+                print(
+                    f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}"
+                )
+
         except AttributeError:
             # e.g., signal was emitted by an entity without a .host.id
             return

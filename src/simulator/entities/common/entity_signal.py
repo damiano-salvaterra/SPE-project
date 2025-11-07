@@ -13,14 +13,11 @@ class EntitySignal:
     def __init__(self, timestamp: float, event_type: str, descriptor: str):
         self.timestamp = timestamp
         self.event_type = event_type
-        self.descriptor = descriptor # For human-readable logs, not for CSV data.
-        
+        self.descriptor = descriptor  # For human-readable logs, not for CSV data.
+
     def get_log_data(self) -> Dict[str, Any]:
         """
         returns signal data as dictionary(ready to be converted in Pandas Dataframe row).
         Each signal mustoverride this method to include its own specific data
         """
-        return {
-            "time": self.timestamp,
-            "event": self.event_type
-        }
+        return {"time": self.timestamp, "event": self.event_type}

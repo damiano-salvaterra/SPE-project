@@ -100,8 +100,8 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             )
             self.host.context.scheduler.schedule(send_event)
 
-        return True#always return true, the function queues the packet always
-    
+        return True  # always return true, the function queues the packet always
+
     def _try_send_next(self):
         # if there is nothing to send or the mac is not idle, do nothing
         if not self.tx_queue or self.state != MACState.IDLE:

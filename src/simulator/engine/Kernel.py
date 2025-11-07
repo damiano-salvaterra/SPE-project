@@ -140,7 +140,7 @@ class Kernel:
         if node_id in self.nodes:
             print(f"Error: Node with ID '{node_id}' already exists.")
             return None
-        
+
         # Ensure the node is being placed within the defined physical space (DSpace)
         if not self.dspace.contains(position):
             raise ValueError(

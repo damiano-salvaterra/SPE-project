@@ -16,7 +16,9 @@ from simulator.engine.random import RandomManager, RandomGenerator
 from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate
 from simulator.entities.applications.PingPongApplication import PingPongApp
-from simulator.entities.applications.PoissonTrafficApplication import PoissonTrafficApplication
+from simulator.entities.applications.PoissonTrafficApplication import (
+    PoissonTrafficApplication,
+)
 from simulator.entities.applications.common.app_monitor import ApplicationMonitor
 from simulator.entities.protocols.net.common.tarp_monitor import TARPMonitor
 from evaluation.utils.plotting import plot_scenario
@@ -30,7 +32,7 @@ def get_channel_params(channel_name: str) -> dict:
     """returns a dict of channel parameters from presets"""
     # No need to modify these params
     base_params = {"freq": 2.4e9, "filter_bandwidth": 2e6, "d0": 1.0}
-    
+
     # Stable: Low path loss, low shadowing, high coherence distance (space-stable shadowing)
     stable = base_params.copy()
     stable.update(
@@ -54,15 +56,23 @@ def get_channel_params(channel_name: str) -> dict:
 
 
 def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0) -> int:
-    """Compute the DSpace 'npt' parameter required to contain the topology, since 
+    """Compute the DSpace 'npt' parameter required to contain the topology, since
     the user can create arbitrarily large topologies, they may fall outsidethe shadowing map if not treated properly.
     Add a padding to avoid edge effects from the shadowing generation"""
-    if not node_positions: return 200 # Fallback
-    min_x = min(p.x for p in node_positions) #find the extremum coordinates from the center
+    if not node_positions:
+        return 200  # Fallback
+    min_x = min(
+        p.x for p in node_positions
+    )  # find the extremum coordinates from the center
     max_x = max(p.x for p in node_positions)
     min_y = min(p.y for p in node_positions)
     max_y = max(p.y for p in node_positions)
-    max_abs_coord = max(abs(min_x - padding), abs(max_x + padding), abs(min_y - padding), abs(max_y + padding))
+    max_abs_coord = max(
+        abs(min_x - padding),
+        abs(max_x + padding),
+        abs(min_y - padding),
+        abs(max_y + padding),
+    )
     # compute npt needed for this half-width. +2 for safety buffer.
     half_n = int(np.ceil(max_abs_coord / dspace_step)) + 2
     dspace_npt = half_n * 2
@@ -82,11 +92,30 @@ def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0) -> 
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run a single network simulation replicate.")
-    parser.add_argument("--app", choices=["pingpong", "poisson_traffic"], default="pingpong", help="Application to run")
-    parser.add_argument("--topology", type=str, default="linear", help="Topology name (e.g., linear, ring, grid, random)")
-    parser.add_argument("--channel", choices=["stable", "lossy", "unstable"], default="lossy", help="Channel model")
-    parser.add_argument("--tx_power", type=int, default=0, help="Nodes' transmission power in dBm")
+    parser = argparse.ArgumentParser(
+        description="Run a single network simulation replicate."
+    )
+    parser.add_argument(
+        "--app",
+        choices=["pingpong", "poisson_traffic"],
+        default="pingpong",
+        help="Application to run",
+    )
+    parser.add_argument(
+        "--topology",
+        type=str,
+        default="linear",
+        help="Topology name (e.g., linear, ring, grid, random)",
+    )
+    parser.add_argument(
+        "--channel",
+        choices=["stable", "lossy", "unstable"],
+        default="lossy",
+        help="Channel model",
+    )
+    parser.add_argument(
+        "--tx_power", type=int, default=0, help="Nodes' transmission power in dBm"
+    )
     parser.add_argument("--num_nodes", type=int, default=10, help="Number of nodes")
     parser.add_argument(
         "--sim_time", type=float, default=300.0, help="Simulation time in seconds"
@@ -117,18 +146,18 @@ def main():
     )
     args = parser.parse_args()
 
-    #setup wnvironment and prepare filenames
+    # setup wnvironment and prepare filenames
     os.makedirs(args.out_dir, exist_ok=True)
     base_filename = f"{args.app}_{args.topology}_{args.channel}_{args.num_nodes}nodes_seed{args.seed}"
     print(f"--- Starting Run: {base_filename} ---")
 
     # Create Topology
-    #use a dedicated rng for topology generation, to avoid interfering with the main simulation rng
+    # use a dedicated rng for topology generation, to avoid interfering with the main simulation rng
     topo_rng_manager = RandomManager(root_seed=args.seed)
     topo_rng = RandomGenerator(topo_rng_manager, "TOPOLOGY_STREAM")
-    np_rng_seed = topo_rng.uniform(0, 2**32 - 1) #extract big random number as a seed
+    np_rng_seed = topo_rng.uniform(0, 2**32 - 1)  # extract big random number as a seed
     np_rng = np.random.default_rng(int(np_rng_seed))
-    
+
     factory = TopologyFactory()
     # TODO: put on command line node distnace and radius
     topo_params = {"rng": np_rng}
@@ -137,8 +166,10 @@ def main():
 
     # Bootstrap Kernel
     kernel = Kernel(root_seed=args.seed, antithetic=False)
-    
-    dspace_npt = calculate_bounds_and_params(node_positions, dspace_step=args.dspace_step)
+
+    dspace_npt = calculate_bounds_and_params(
+        node_positions, dspace_step=args.dspace_step
+    )
     bootstrap_params = get_channel_params(args.channel)
     bootstrap_params.update(
         {"seed": args.seed, "dspace_npt": dspace_npt, "dspace_step": args.dspace_step}

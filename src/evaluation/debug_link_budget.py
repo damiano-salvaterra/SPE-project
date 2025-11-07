@@ -24,7 +24,9 @@ from simulator.environment.geometry import CartesianCoordinate
 from simulator.entities.physical.devices.static_node import StaticNode
 from simulator.entities.protocols.phy.SimplePhyLayer import SimplePhyLayer
 from simulator.entities.protocols.radio_dc.NullRDC import NullRDC
-from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import ContikiOS_MAC_802154_Unslotted
+from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import (
+    ContikiOS_MAC_802154_Unslotted,
+)
 from simulator.entities.protocols.net.tarp import TARPProtocol
 from simulator.entities.applications.Application import Application
 from simulator.engine.common.Monitor import Monitor
@@ -61,13 +63,20 @@ def get_channel_params(channel_name: str) -> Dict:
     """Returns parameters for the requested channel presets."""
     base_params = {"freq": 2.4e9, "filter_bandwidth": 2e6, "d0": 1.0}
     stable = base_params.copy()
-    stable.update({"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 2.0, "fading_shape": 3.0})
+    stable.update(
+        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 2.0, "fading_shape": 3.0}
+    )
     lossy = base_params.copy()
-    lossy.update({"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 3.8, "fading_shape": 1.5})
+    lossy.update(
+        {"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 3.8, "fading_shape": 1.5}
+    )
     unstable = base_params.copy()
-    unstable.update({"coh_d": 10, "shadow_dev": 6.0, "pl_exponent": 4.0, "fading_shape": 0.75})
+    unstable.update(
+        {"coh_d": 10, "shadow_dev": 6.0, "pl_exponent": 4.0, "fading_shape": 0.75}
+    )
     params_map = {"stable": stable, "lossy": lossy, "unstable": unstable}
     return params_map.get(channel_name, lossy)
+
 
 # 1. Custom Node to allow setting Tx Power
 # We must override the default StaticNode to inject our Tx Power parameter,
@@ -80,7 +89,7 @@ class CustomTxNode(StaticNode):
         position: CartesianCoordinate,
         application: Application,
         context,
-        tx_power: float, # <-- Our new parameter
+        tx_power: float,  # <-- Our new parameter
         is_sink=False,
     ):
         # We call NetworkNode init, not StaticNode init, to build the stack manually
@@ -103,18 +112,25 @@ class CustomTxNode(StaticNode):
         # Manually link app host, since we overrode __init__
         self.app.host = self
 
+
 # 2. Dummy Application
 # We need a minimal application to satisfy the node's init requirements
 class DummyApp(Application):
     """A minimal Application that does nothing."""
+
     def start(self):
         # print(f"DummyApp started on {self.host.id}")
-        pass # Does nothing
+        pass  # Does nothing
+
     def generate_traffic(self):
-        pass # Does nothing
+        pass  # Does nothing
+
     def receive(self, packet, sender_addr, hops=-1):
-        print(f"[{self.host.context.scheduler.now():.6f}s] Node {self.host.id} received App packet from {sender_addr.hex()}")
-        pass # Does nothing
+        print(
+            f"[{self.host.context.scheduler.now():.6f}s] Node {self.host.id} received App packet from {sender_addr.hex()}"
+        )
+        pass  # Does nothing
+
 
 # 3. Custom Monitor
 # This monitor will intercept and print the beacon RSSI
@@ -132,9 +148,9 @@ class BeaconRssiMonitor(Monitor):
         # We only care about Beacon Received events ("BC_RECV")
         if hasattr(signal, "event_type") and signal.event_type == "BC_RECV":
             self.beacon_received = True
-            rssi = getattr(signal, "rssi", -float('inf'))
+            rssi = getattr(signal, "rssi", -float("inf"))
             self.rssi_values.append(rssi)
-            
+
             print("\n--- BEACON RECEIVED ---")
             print(f"  Time: {signal.timestamp:.6f}s")
             print(f"  Node: {entity.host.id}")
@@ -143,10 +159,15 @@ class BeaconRssiMonitor(Monitor):
             print(f"  TARP Threshold: {TARP_RSSI_LOW_THR:.2f} dBm")
 
             if rssi < TARP_RSSI_LOW_THR:
-                print(f"  RESULT: FAILED. Beacon RSSI is BELOW the TARP threshold. It will be ignored by TARP.")
+                print(
+                    f"  RESULT: FAILED. Beacon RSSI is BELOW the TARP threshold. It will be ignored by TARP."
+                )
             else:
-                print(f"  RESULT: SUCCESS. Beacon RSSI is ABOVE the TARP threshold. It will be processed.")
+                print(
+                    f"  RESULT: SUCCESS. Beacon RSSI is ABOVE the TARP threshold. It will be processed."
+                )
             print("-----------------------\n")
+
 
 # 4. Main test function
 def run_test():
@@ -165,22 +186,20 @@ def run_test():
     # We need a DSpace large enough to hold our nodes
     dspace_step = 1.0
     # Calculate npt to be 0-centered and contain the node
-    dspace_npt = int(DISTANCE_METERS * 2) + 50 # Make it large enough
-    
+    dspace_npt = int(DISTANCE_METERS * 2) + 50  # Make it large enough
+
     bootstrap_params = get_channel_params(CHANNEL_NAME)
-    bootstrap_params.update({
-        "seed": SEED,
-        "dspace_npt": dspace_npt,
-        "dspace_step": dspace_step
-    })
-    
+    bootstrap_params.update(
+        {"seed": SEED, "dspace_npt": dspace_npt, "dspace_step": dspace_step}
+    )
+
     print(f"Bootstrapping kernel with {CHANNEL_NAME} channel and seed {SEED}...")
     kernel.bootstrap(**bootstrap_params)
     print("Kernel bootstrapped. Shadowing map generated.")
 
     # 3. Create Nodes
     print(f"Creating nodes at (0,0) and ({DISTANCE_METERS}, 0)...")
-    
+
     # Create a dummy app instance for the sink
     sink_app = DummyApp()
     sink_node = CustomTxNode(
@@ -190,7 +209,7 @@ def run_test():
         application=sink_app,
         context=kernel.context,
         tx_power=TX_POWER_DBM,  # <-- Using our test parameter
-        is_sink=True
+        is_sink=True,
     )
     # Manually add node to kernel lists (since we used a custom class)
     kernel.nodes[sink_node.id] = sink_node
@@ -205,14 +224,14 @@ def run_test():
         position=CartesianCoordinate(DISTANCE_METERS, 0.0),
         application=rx_app,
         context=kernel.context,
-        tx_power=TX_POWER_DBM, # <-- Using our test parameter
-        is_sink=False
+        tx_power=TX_POWER_DBM,  # <-- Using our test parameter
+        is_sink=False,
     )
     # Manually add node to kernel lists
     kernel.nodes[rx_node.id] = rx_node
     kernel.channel.nodes.append(rx_node)
     rx_node.phy.connect_transmission_media(kernel.channel)
-    
+
     # 4. Attach Monitor
     print("Attaching custom beacon monitor to Node-2...")
     rssi_mon = BeaconRssiMonitor()
@@ -229,20 +248,24 @@ def run_test():
     # on startup because it's a sink (see TARPProtocol._bootstrap_TARP)
     print(f"\nRunning simulation for {SIM_TIME_SEC} seconds...")
     kernel.run(until=SIM_TIME_SEC)
-    
+
     print("--- Simulation Finished ---")
-    
+
     if not rssi_mon.beacon_received:
         print("\n--- TEST FAILED ---")
         print("Node-2 did NOT receive any beacon.")
         print("This could mean:")
         print(" 1. The beacon was lost entirely (fading/shadowing was too high).")
         print(" 2. The signal was below the PHY correlator threshold (-95 dBm).")
-        print(f" 3. The simulation time ({SIM_TIME_SEC}s) was too short (try increasing).")
+        print(
+            f" 3. The simulation time ({SIM_TIME_SEC}s) was too short (try increasing)."
+        )
         print("\nACTION: Try increasing TX_POWER_DBM significantly and run again.")
         print("---------------------\n")
     else:
-        print(f"\nTest complete. {len(rssi_mon.rssi_values)} beacon(s) were received and analyzed.")
+        print(
+            f"\nTest complete. {len(rssi_mon.rssi_values)} beacon(s) were received and analyzed."
+        )
         print("See RSSI report(s) above.")
 
 
@@ -252,4 +275,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n--- SIMULATION CRASHED ---")
         import traceback
+
         traceback.print_exc()

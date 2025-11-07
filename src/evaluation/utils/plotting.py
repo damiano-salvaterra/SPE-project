@@ -8,32 +8,23 @@ from simulator.engine.Kernel import Kernel
 from simulator.environment.geometry import CartesianCoordinate
 
 # Define consistent plotting styles
-MARKER_MAP = {
-    'sink': 'X',
-    'pinger': '^',
-    'ponger': 's',
-    'default': 'o'
-}
-COLOR_MAP = {
-    'sink': 'purple',
-    'pinger': 'green',
-    'ponger': 'red',
-    'default': 'blue'
-}
+MARKER_MAP = {"sink": "X", "pinger": "^", "ponger": "s", "default": "o"}
+COLOR_MAP = {"sink": "purple", "pinger": "green", "ponger": "red", "default": "blue"}
 LABEL_MAP = {
-    'sink': 'Sink/Root',
-    'pinger': 'Pinger',
-    'ponger': 'Ponger',
-    'default': 'Node'
+    "sink": "Sink/Root",
+    "pinger": "Pinger",
+    "ponger": "Ponger",
+    "default": "Node",
 }
 Z_ORDER = {
-    'shadowing': 1,
-    'grid': 2,
-    'link_line': 4, # Z-order for link line (now unused)
-    'node': 5,
-    'node_label': 6,
-    'link_annot': 7  # Z-order for link annotation (now unused)
+    "shadowing": 1,
+    "grid": 2,
+    "link_line": 4,  # Z-order for link line (now unused)
+    "node": 5,
+    "node_label": 6,
+    "link_annot": 7,  # Z-order for link annotation (now unused)
 }
+
 
 def plot_scenario(
     kernel: Optional[Kernel],
@@ -41,16 +32,16 @@ def plot_scenario(
     title: str = "Network Scenario",
     save_path: Optional[str] = None,
     links_to_annotate: Optional[List[Tuple[str, str]]] = None,
-    figsize: Tuple[int, int] = (12, 10)
+    figsize: Tuple[int, int] = (12, 10),
 ):
     """
     Plots the complete network scenario.
-    
+
     - If 'kernel' is provided, plots the shadowing map as a background.
     - Plots all nodes based on their positions and roles from 'node_info'.
     - If 'links_to_annotate' is provided, this function will check
       node positions but will no longer draw lines or annotations.
-      
+
     Args:
         kernel: The bootstrapped simulation kernel. If None,
                 no shadowing map or link losses will be plotted.
@@ -62,27 +53,27 @@ def plot_scenario(
                            (This is kept for API compatibility but no longer draws.)
         figsize: The (width, height) of the figure.
     """
-    
+
     plt.figure(figsize=figsize)
     ax = plt.gca()
-    
+
     prop_model = None
-    cbar = None # Initialize cbar for potential later adjustments
+    cbar = None  # Initialize cbar for potential later adjustments
     if kernel and kernel.dspace and kernel.propagation_model:
         prop_model = kernel.propagation_model
         shadow_map = prop_model.shadowing_map
         dspace = kernel.dspace
-        
+
         if shadow_map is not None:
             print("Plotting shadowing map from kernel.")
             cax = ax.pcolormesh(
-                dspace.X, 
-                dspace.Y, 
-                shadow_map, 
-                cmap='viridis',
-                zorder=Z_ORDER['shadowing'],
+                dspace.X,
+                dspace.Y,
+                shadow_map,
+                cmap="viridis",
+                zorder=Z_ORDER["shadowing"],
                 alpha=0.8,
-                shading='auto'
+                shading="auto",
             )
             # Store the colorbar object
             cbar = plt.colorbar(cax, label="Shadowing Attenuation (dB)")
@@ -95,53 +86,57 @@ def plot_scenario(
         if not pos:
             print(f"Warning: Node '{node_id}' has no position info. Skipping.")
             continue
-            
+
         role = info.get("role", "default")
-        addr = info.get("addr", b'')
+        addr = info.get("addr", b"")
         addr_hex = addr.hex()
 
-        marker = MARKER_MAP.get(role, MARKER_MAP['default'])
-        color = COLOR_MAP.get(role, COLOR_MAP['default'])
-        label = LABEL_MAP.get(role, LABEL_MAP['default'])
+        marker = MARKER_MAP.get(role, MARKER_MAP["default"])
+        color = COLOR_MAP.get(role, COLOR_MAP["default"])
+        label = LABEL_MAP.get(role, LABEL_MAP["default"])
 
         ax.scatter(
-            pos.x, pos.y,
-            marker=marker, 
-            color=color, 
+            pos.x,
+            pos.y,
+            marker=marker,
+            color=color,
             s=120,
-            zorder=Z_ORDER['node'], 
-            alpha=0.9, 
-            edgecolors='black'
+            zorder=Z_ORDER["node"],
+            alpha=0.9,
+            edgecolors="black",
         )
-        
+
         x_coords.append(pos.x)
         y_coords.append(pos.y)
 
         # Create text label
         txt = ax.text(
-            pos.x, pos.y,
+            pos.x,
+            pos.y,
             f"{node_id}\n0x{addr_hex}",
             fontsize=9,
-            ha="center", va="center",
-            zorder=Z_ORDER['node_label']
+            ha="center",
+            va="center",
+            zorder=Z_ORDER["node_label"],
         )
         text_objects.append(txt)
 
         # Store legend items
         if label not in plotted_labels:
             handles[label] = plt.scatter(
-                [], [], marker=marker, color=color, s=120,
-                alpha=1.0, edgecolors='black'
+                [], [], marker=marker, color=color, s=120, alpha=1.0, edgecolors="black"
             )
             plotted_labels.add(label)
 
     if text_objects:
         adjust_text(
             text_objects,
-            x=x_coords, y=y_coords, ax=ax,
-            only_move={'points':'y', 'text':'y'},
-            arrowprops=dict(arrowstyle='-', color='gray', lw=0.5, alpha=0.7),
-            zorder=Z_ORDER['node_label']
+            x=x_coords,
+            y=y_coords,
+            ax=ax,
+            only_move={"points": "y", "text": "y"},
+            arrowprops=dict(arrowstyle="-", color="gray", lw=0.5, alpha=0.7),
+            zorder=Z_ORDER["node_label"],
         )
 
     if links_to_annotate and prop_model:
@@ -149,37 +144,40 @@ def plot_scenario(
         for n1_id, n2_id in links_to_annotate:
             pos1 = node_info.get(n1_id, {}).get("position")
             pos2 = node_info.get(n2_id, {}).get("position")
-            
-            if not pos1 or not pos2:
-                print(f"Warning: Cannot find positions for link {n1_id}-{n2_id}. Skipping.")
-                continue
-            
-            pass # Keep the loop structure but do nothing
 
+            if not pos1 or not pos2:
+                print(
+                    f"Warning: Cannot find positions for link {n1_id}-{n2_id}. Skipping."
+                )
+                continue
+
+            pass  # Keep the loop structure but do nothing
 
     ax.set_title(title, fontsize=16)
     ax.set_xlabel("X Position (m)")
     ax.set_ylabel("Y Position (m)")
-    ax.grid(True, linestyle=':', alpha=0.6, zorder=Z_ORDER['grid'])
-    ax.set_aspect('equal', 'box')
+    ax.grid(True, linestyle=":", alpha=0.6, zorder=Z_ORDER["grid"])
+    ax.set_aspect("equal", "box")
 
-    plt.tight_layout(rect=[0.05, 0.1, 0.95, 0.95]) 
+    plt.tight_layout(rect=[0.05, 0.1, 0.95, 0.95])
 
     if handles:
 
         ax.legend(
-            handles.values(), handles.keys(),
-            title="Legend", 
+            handles.values(),
+            handles.keys(),
+            title="Legend",
             loc="upper center",
-            bbox_to_anchor=(0.5, -0.1), # Position *below* the plot
-            ncol=len(handles),          # Arrange horizontally
-            fancybox=True, shadow=True
+            bbox_to_anchor=(0.5, -0.1),  # Position *below* the plot
+            ncol=len(handles),  # Arrange horizontally
+            fancybox=True,
+            shadow=True,
         )
 
     if save_path:
         print(f"Saving scenario plot to {save_path}")
         # Use bbox_inches='tight' to ensure the legend below is included
-        plt.savefig(save_path, bbox_inches='tight')
+        plt.savefig(save_path, bbox_inches="tight")
         plt.close()
     else:
         plt.show()

@@ -266,7 +266,7 @@ class SimplePhyLayer(Layer, Entity):
 
     def receive(self, payload: MACFrame, sender_addr: bytes, rssi: float):
         # print(f">>> DEBUG-PHY [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
-        
+
         self.host.rdc.receive(payload=payload, sender_addr=sender_addr, rssi=rssi)
 
     # def get_last_rssi(self) -> float:

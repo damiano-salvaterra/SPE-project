@@ -31,7 +31,7 @@ class PingPongApp(Application):
         is_pinger: bool = False,
         peer_addr: Optional[bytes] = None,
         ping_interval: float = 15.0,
-        start_delay: float = 120.0
+        start_delay: float = 120.0,
     ):
         super().__init__()
         self.host = host
@@ -45,7 +45,7 @@ class PingPongApp(Application):
 
     def start(self):
         self._started = True
-        
+
         signal = AppStartSignal(
             descriptor=f"Application started.",
             timestamp=self.host.context.scheduler.now(),
@@ -78,7 +78,7 @@ class PingPongApp(Application):
 
         send_success = self.host.net.send(packet, destination=self.peer_addr)
 
-        if send_success: #packet accepted by network protocolm set pong timeout
+        if send_success:  # packet accepted by network protocolm set pong timeout
             signal = AppSendSignal(
                 descriptor=f"Sent PING #{self.ping_count} to {self.peer_addr.hex()}",
                 timestamp=self.host.context.scheduler.now(),
@@ -87,13 +87,15 @@ class PingPongApp(Application):
                 destination=self.peer_addr,
             )
             self._notify_monitors(signal)
-            
-            timeout_time = self.host.context.scheduler.now() + self.PING_TIMEOUT_DURATION
+
+            timeout_time = (
+                self.host.context.scheduler.now() + self.PING_TIMEOUT_DURATION
+            )
             self.ping_timeout_event = Event(
                 time=timeout_time, blame=self, callback=self._on_ping_timeout
             )
             self.host.context.scheduler.schedule(self.ping_timeout_event)
-        else: #pakcet rejected by lower protocol
+        else:  # pakcet rejected by lower protocol
             signal = AppSendFailSignal(
                 descriptor=f"Failed to send PING #{self.ping_count} (No Route)",
                 timestamp=self.host.context.scheduler.now(),
@@ -102,10 +104,10 @@ class PingPongApp(Application):
                 reason="No Route",
             )
             self._notify_monitors(signal)
-            self._on_ping_timeout()#retry
+            self._on_ping_timeout()  # retry
 
     def _on_ping_timeout(self):
-        
+
         if self.ping_timeout_event:
             signal = AppTimeoutSignal(
                 descriptor=f"PING #{self.ping_count} timed out.",
@@ -114,7 +116,7 @@ class PingPongApp(Application):
             )
             self._notify_monitors(signal)
             self.ping_timeout_event = None
-        
+
         # Schedule the next PING attempt
         retry_time = self.host.context.scheduler.now() + self.PING_RETRY_INTERVAL
         next_ping_event = Event(
@@ -143,11 +145,11 @@ class PingPongApp(Application):
                 pkt_type = "UNKNOWN"
                 seq_num = -1
             return pkt_type, seq_num
-        
+
         pkt_type, seq_num = parse_payload(payload_str)
 
         if pkt_type == "UNKNOWN":
-            return #  do not log unknown packets
+            return  #  do not log unknown packets
 
         signal = AppReceiveSignal(
             descriptor=f"Received {pkt_type} #{seq_num} from {sender_addr.hex()}",
@@ -155,17 +157,18 @@ class PingPongApp(Application):
             packet_type=pkt_type,
             seq_num=seq_num,
             source=sender_addr,
-            hops=hops
+            hops=hops,
         )
         self._notify_monitors(signal)
-
 
         # --- Logic for Ponger ---
         if pkt_type == "PING" and not self.is_pinger:
             reply_payload_str = f"PONG #{seq_num} from {self.host.id}"
             reply_packet = NetPacket(APDU=reply_payload_str.encode("utf-8"))
-            
-            send_pong_success = self.host.net.send(reply_packet, destination=sender_addr)
+
+            send_pong_success = self.host.net.send(
+                reply_packet, destination=sender_addr
+            )
 
             if send_pong_success:
                 signal = AppSendSignal(
@@ -186,14 +189,13 @@ class PingPongApp(Application):
                 )
                 self._notify_monitors(signal)
 
-
         # --- Logic for Pinger ---
         if pkt_type == "PONG" and self.is_pinger:
             if self.ping_timeout_event and not self.ping_timeout_event._cancelled:
                 self.host.context.scheduler.unschedule(self.ping_timeout_event)
                 self.ping_timeout_event = None
             else:
-                pass # pong received after timeout
+                pass  # pong received after timeout
 
             next_ping_time = self.host.context.scheduler.now() + self.ping_interval
             next_ping_event = Event(

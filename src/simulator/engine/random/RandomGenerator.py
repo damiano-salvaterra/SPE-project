@@ -4,6 +4,7 @@ from scipy.stats import expon
 import numpy as np
 from typing import Any
 
+
 class RandomGenerator:
     """
     This class is a wrapper around a random number generator stream managed by the RandomManager to allow
@@ -51,7 +52,7 @@ class RandomGenerator:
         """
         Generates exponential random variates using the inverse transform method
         to support antithetic variates.
-        
+
         Args:
             scale (float): The scale parameter (1/lambda), which is the
                            mean of the distribution (e.g., mean_interarrival_time).
@@ -66,11 +67,11 @@ class RandomGenerator:
         """
         Generates a single random integer in the range [low, high)
         using the inverse transform method to support antithetic variates.
-        
+
         Args:
             low (int): The lower bound (inclusive).
             high (int): The upper bound (exclusive).
-            
+
         Returns:
             int: A random integer.
         """
@@ -81,32 +82,32 @@ class RandomGenerator:
 
         # Use self.uniform() which provides U or (1-U)
         u = self.uniform()
-        
+
         # Apply inverse transform: floor(U * N)
         # We use int() which acts as floor() for positive numbers
         offset = int(u * span)
-        
+
         # Clamp the result to be safe in the antithetic edge case
         # where U=0.0 -> (1-U)=1.0, which would result in offset=span
         if offset >= span:
             offset = span - 1
-            
+
         return low + offset
 
     def choice(self, a: list) -> Any:
         """
         Selects a single random element from a list, supporting
         antithetic variates by using self.integers().
-        
+
         Args:
             a (list): The list to choose from.
-            
+
         Returns:
             Any: A random element from the list.
         """
         if not a:
             return None
-        
+
         n = len(a)
         index = self.integers(low=0, high=n)
         return a[index]
