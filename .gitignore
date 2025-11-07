@@ -9,6 +9,9 @@ __pycache__/
 # results folder
 results/
 
+# Python versioning
+.python-version
+
 # Distribution / packaging
 .Python
 build/
