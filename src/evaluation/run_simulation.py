@@ -101,9 +101,8 @@ def main():
     node_positions = factory.create_topology(args.topology, **topo_params)
     actual_num_nodes = len(node_positions)
 
-    # 3. Bootstrap Kernel
-    # The main seed controls the simulation's core RNG (fading, shadowing, application behavior)
-    kernel = Kernel(root_seed=args.seed, antithetic=False) # Antithetic variates are handled at the batch level
+    # Bootstrap Kernel
+    kernel = Kernel(root_seed=args.seed, antithetic=False)
     
     dspace_npt = calculate_bounds_and_params(node_positions, dspace_step=args.dspace_step)
     bootstrap_params = get_channel_params(args.channel)
