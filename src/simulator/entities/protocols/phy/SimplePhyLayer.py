@@ -36,13 +36,13 @@ class SimplePhyLayer(Layer, Entity):
     machine model (IDLE, BUSY, SYNC, TX)
     """
 
-    def __init__(self, host: NetworkNode, transmission_power: float = 0):
+    def __init__(self, host: NetworkNode, transmission_power_dBm: float = 0):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.capture_threshold_dB = 5
         self.cca_Threshold_dBm = -85
         self.correlator_threshold = -95
-        self.transmission_power = transmission_power
+        self.transmission_power_dBm = transmission_power_dBm
         self.transmission_media = None
 
         # --- state machine control variables ---
@@ -226,7 +226,7 @@ class SimplePhyLayer(Layer, Entity):
         if isinstance(payload, Frame_802_15_4):
             self._last_seqn = payload.seqn
 
-        transmission = Transmission(self.host, payload, self.transmission_power)
+        transmission = Transmission(self.host, payload, self.transmission_power_dBm)
 
         start_time = (
             self.host.context.scheduler.now() + 1e-12

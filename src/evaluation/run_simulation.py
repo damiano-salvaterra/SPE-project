@@ -6,14 +6,12 @@ import numpy as np
 import traceback
 from typing import List, Dict, Any, Optional, Tuple
 
-# --- Python Path Setup ---
-# This ensures we can import the simulator modules from the 'src' directory
+# ensure we can import the simulator modules from the 'src' directory
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SRC_ROOT = os.path.join(PROJECT_ROOT, "src")
 if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
-# --- Simulator Imports ---
 from simulator.engine.Kernel import Kernel
 from simulator.engine.random import RandomManager, RandomGenerator
 from simulator.environment.topology_factory import TopologyFactory
@@ -29,11 +27,11 @@ from evaluation.utils.plotting import plot_scenario
 # ======================================================================================
 
 def get_channel_params(channel_name: str) -> dict:
-    """Returns parameters for the requested channel presets."""
-    # Base: 2.4 GHz, 2 MHz BW, d0=1.0m
+    """returns a dict of channel parameters from presets"""
+    # No need to modify these params
     base_params = {"freq": 2.4e9, "filter_bandwidth": 2e6, "d0": 1.0}
     
-    # Stable: Low path loss, low shadowing, high coherence distance (stable shadowing)
+    # Stable: Low path loss, low shadowing, high coherence distance (space-stable shadowing)
     stable = base_params.copy()
     stable.update({"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 2.0, "fading_shape": 3.0})
     
@@ -41,7 +39,7 @@ def get_channel_params(channel_name: str) -> dict:
     lossy = base_params.copy()
     lossy.update({"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 3.8, "fading_shape": 1.5})
 
-    # Unstable: High path loss, high shadowing, low coherence distance (variable shadowing)
+    # Unstable: High path loss, high shadowing, low coherence distance (space-variable shadowing)
     unstable = base_params.copy()
     unstable.update({"coh_d": 10, "shadow_dev": 6.0, "pl_exponent": 4.0, "fading_shape": 0.75})
 
@@ -49,15 +47,16 @@ def get_channel_params(channel_name: str) -> dict:
     return params_map.get(channel_name, lossy)
 
 def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0) -> int:
-    """Calculates the DSpace 'npt' parameter required to contain the topology."""
+    """Compute the DSpace 'npt' parameter required to contain the topology, since 
+    the user can create arbitrarily large topologies, they may fall outsidethe shadowing map if not treated properly.
+    Add a padding to avoid edge effects from the shadowing generation"""
     if not node_positions: return 200 # Fallback
-    min_x = min(p.x for p in node_positions)
+    min_x = min(p.x for p in node_positions) #find the extremum coordinates from the center
     max_x = max(p.x for p in node_positions)
     min_y = min(p.y for p in node_positions)
     max_y = max(p.y for p in node_positions)
-    # Find the largest absolute coordinate (from center 0,0) required, including padding
     max_abs_coord = max(abs(min_x - padding), abs(max_x + padding), abs(min_y - padding), abs(max_y + padding))
-    # Calculate npt needed for this half-width. +2 for safety buffer.
+    # compute npt needed for this half-width. +2 for safety buffer.
     half_n = int(np.ceil(max_abs_coord / dspace_step)) + 2
     dspace_npt = half_n * 2
     
@@ -74,6 +73,7 @@ def main():
     parser.add_argument("--app", choices=["pingpong", "poisson_traffic"], default="pingpong", help="Application to run")
     parser.add_argument("--topology", type=str, default="linear", help="Topology name (e.g., linear, ring, grid, random)")
     parser.add_argument("--channel", choices=["stable", "lossy", "unstable"], default="lossy", help="Channel model")
+    parser.add_argument("--tx_power", type=int, default=0, help="Nodes' transmission power in dBm")
     parser.add_argument("--num_nodes", type=int, default=10, help="Number of nodes")
     parser.add_argument("--sim_time", type=float, default=300.0, help="Simulation time in seconds")
     parser.add_argument("--seed", type=int, default=123, help="Root seed for this replication")
@@ -83,22 +83,21 @@ def main():
     parser.add_argument("--out_dir", type=str, default="results/run", help="Output directory for data and plots")
     args = parser.parse_args()
 
-    # 1. Setup Environment
+    #setup wnvironment and prepare filenames
     os.makedirs(args.out_dir, exist_ok=True)
     base_filename = f"{args.app}_{args.topology}_{args.channel}_{args.num_nodes}nodes_seed{args.seed}"
     print(f"--- Starting Run: {base_filename} ---")
 
-    # 2. Create Topology
-    # We use a separate RNG for topology, derived from the main seed,
-    # to ensure topology generation is a controllable random stream.
+    # Create Topology
+    #use a dedicated rng for topology generation, to avoid interfering with the main simulation rng
     topo_rng_manager = RandomManager(root_seed=args.seed)
     topo_rng = RandomGenerator(topo_rng_manager, "TOPOLOGY_STREAM")
-    np_rng_seed = topo_rng.uniform(0, 2**32 - 1)
-    np_rng = np.random.default_rng(int(np_rng_seed)) # Many topologies use numpy
+    np_rng_seed = topo_rng.uniform(0, 2**32 - 1) #extract big random number as a seed
+    np_rng = np.random.default_rng(int(np_rng_seed))
     
     factory = TopologyFactory()
-    # Provide common parameters to the factory
-    topo_params = {"num_nodes": args.num_nodes, "rng": np_rng, "node_distance": 15, "radius": 100}
+    # TODO: put on command line node distnace and radius
+    topo_params = {"rng": np_rng}
     node_positions = factory.create_topology(args.topology, **topo_params)
     actual_num_nodes = len(node_positions)
 
@@ -150,6 +149,7 @@ def main():
             )
         
         node = kernel.add_node(node_id, node_positions[i], app_instance, addr, is_sink)
+        node.phy.transmission_power_dBm = args.tx_power
         app_instance.host = node
         node_info_for_plot[node_id] = {"position": node_positions[i], "role": role, "addr": addr}
 
@@ -177,7 +177,7 @@ def main():
 
     # 9. Plot Scenario
     plot_path = os.path.join(args.out_dir, f"{base_filename}_scenario.png")
-    plot_title = f"Scenario: {args.topology.capitalize()} Topo, {args.channel.capitalize()} Channel ({actual_num_nodes} Nodes)\nSeed: {args.seed}, App: {args.app.capitalize()}"
+    plot_title = f"Scenario:{args.topology.capitalize()} Topology, {args.channel.capitalize()} Channel ({actual_num_nodes} Nodes)\nSeed: {args.seed}, App: {args.app.capitalize()}"
     plot_scenario(kernel, node_info_for_plot, plot_title, plot_path, figsize=(12, 10))
     print(f"Plot saved to {plot_path}")
 

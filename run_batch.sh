@@ -36,6 +36,7 @@ CHANNELS=(
 # These parameters are fixed for all runs in this batch.
 
 NUM_NODES=20
+TX_POWER=5        # in dBm
 SIM_TIME=1800.0     # 30 minutes
 APP_DELAY=130.0     # ~2 min (allows TARP to stabilize before traffic)
 MEAN_INTERARRIVAL=30.0 # For 'poisson_traffic' (30s avg per node)
@@ -86,7 +87,7 @@ for app in "${APPS[@]}"; do
       mkdir -p "$RUN_OUTPUT_DIR"
 
       echo "-----------------------------------------------------"
-      echo "Running Batch ($CURRENT_CONFIG / $TOTAL_CONFIGS): App=$app, Topo=$topo, Chan=$chan"
+      echo "Running Batch ($CURRENT_CONFIG / $TOTAL_CONFIGS): App=$app, Topo=$topo, Chan=$chan, tx_dBm=$TX_POWER dBm"
       echo "Replications: $REPLICATIONS, Output Dir: $RUN_OUTPUT_DIR"
       echo "-----------------------------------------------------"
 
@@ -102,6 +103,7 @@ for app in "${APPS[@]}"; do
           --topology "$topo" \
           --channel "$chan" \
           --num_nodes "$NUM_NODES" \
+          --tx_power "$TX_POWER" \
           --sim_time "$SIM_TIME" \
           --seed "$CURRENT_SEED" \
           --app_delay "$APP_DELAY" \

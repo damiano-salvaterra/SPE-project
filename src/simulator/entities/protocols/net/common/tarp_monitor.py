@@ -25,13 +25,6 @@ class TARPMonitor(Monitor):
         Called by the TARP entity when a signal is emitted.
         Filters for TARP-related signals and logs their data.
         """
-        # We only care about signals that have the get_log_data method
-        # and are part of the TARP protocol (identified by event_type)
-        if not (hasattr(signal, "get_log_data") and hasattr(signal, "event_type") and signal.event_type.startswith("TARP_")):
-             # Note: This check is redundant if we only attach this monitor
-             # to TARP, but it's good practice.
-             # We rely on the AppMonitor to ignore TARP signals and vice-versa.
-             pass
         
         # A simpler check: just try to get the log data.
         if not hasattr(signal, "get_log_data"):
