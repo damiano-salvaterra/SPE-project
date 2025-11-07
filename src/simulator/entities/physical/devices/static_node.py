@@ -6,7 +6,7 @@ from simulator.entities.protocols.mac.ContikiOS_MAC_802154 import (
 )
 from simulator.entities.protocols.net.tarp import TARPProtocol
 from simulator.entities.common import NetworkNode
-from simulator.applications.Application import Application
+from simulator.entities.applications.Application import Application
 from simulator.engine.common.SimulationContext import SimulationContext
 
 

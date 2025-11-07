@@ -23,7 +23,7 @@ from simulator.entities.protocols.net.tarp.tarp_structures import (
 )
 from simulator.entities.protocols.net.tarp import tarp_utils
 from simulator.entities.protocols.net.tarp.parameters import TARPParameters
-from evaluation.signals.tarp_signals import (
+from simulator.entities.protocols.net.common.tarp_signals import (
     TARPForwardingSignal,
     TARPUnicastReceiveSignal,
     TARPDropSignal,

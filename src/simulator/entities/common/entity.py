@@ -3,7 +3,7 @@ from typing import List, TYPE_CHECKING
 from simulator.entities.common.signals import EntitySignal
 
 if TYPE_CHECKING:
-    from simulator.engine.common.monitor import Monitor
+    from simulator.engine.common.Monitor import Monitor
 
 
 class Entity:

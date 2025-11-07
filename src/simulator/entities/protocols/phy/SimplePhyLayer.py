@@ -1,8 +1,5 @@
 from simulator.entities.protocols.common.Layer import Layer
 from simulator.entities.common import Entity
-from evaluation.signals.packet_signal import (
-    PacketSignal,
-)  # TODO: This file should not depend on a specific signal type, but it should only depend on the common EntitySignal
 from simulator.entities.protocols.phy.common.phy_events import (
     PhyTxEndEvent,
     PhyTxStartEvent,
@@ -225,14 +222,6 @@ class SimplePhyLayer(Layer, Entity):
     # ----- Interface for upper layers
 
     def send(self, payload: MACFrame, destination: Optional[bytes] = None):
-        # TODO: This should not be dependent on the specific signal type but should be generic
-        signal = PacketSignal(
-            "PHY Packet Transmission",
-            self.host.context.scheduler.now(),
-            "PacketSent",
-            payload,
-        )
-        self._notify_monitors(signal)
 
         if isinstance(payload, Frame_802_15_4):
             self._last_seqn = payload.seqn
@@ -277,13 +266,7 @@ class SimplePhyLayer(Layer, Entity):
 
     def receive(self, payload: MACFrame, sender_addr: bytes, rssi: float):
         # print(f">>> DEBUG-PHY [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
-        signal = PacketSignal(
-            "PHY Packet Reception",
-            self.host.context.scheduler.now(),
-            "PacketReceived",
-            payload,
-        )
-        self._notify_monitors(signal)
+        
         self.host.rdc.receive(payload=payload, sender_addr=sender_addr, rssi=rssi)
 
     # def get_last_rssi(self) -> float:

@@ -6,8 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
-# Plot files
-#*.png
+# results folder
+results/
 
 # Distribution / packaging
 .Python
