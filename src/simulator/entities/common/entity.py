@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 
-from simulator.entities.common.signals import EntitySignal
+from simulator.entities.common.entity_signal import EntitySignal
 
 if TYPE_CHECKING:
     from simulator.engine.common.Monitor import Monitor

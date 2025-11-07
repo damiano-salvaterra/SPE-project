@@ -1,89 +1,69 @@
-"""
-Signals for application-level events
-"""
-
-from simulator.entities.common import EntitySignal
-from simulator.entities.protocols.common.packets import NetPacket
-
+from typing import Any, Dict
+from simulator.entities.common.entity_signal import EntitySignal
 
 class AppStartSignal(EntitySignal):
-    """
-    Signal emitted when the application's start() method is called.
-    """
-    def __init__(
-        self,
-        descriptor: str,
-        timestamp: float,
-    ):
-        super().__init__(descriptor=descriptor, timestamp=timestamp)
-
+    def __init__(self, descriptor: str, timestamp: float):
+        super().__init__(timestamp, "APP_START", descriptor)
 
 class AppSendSignal(EntitySignal):
-    """
-    Signal emitted when the application sends a PING or PONG packet.
-    """
-    def __init__(
-        self,
-        descriptor: str,
-        timestamp: float,
-        packet_type: str, # "PING" or "PONG"
-        seq_num: int,
-        destination: bytes,
-    ):
-        super().__init__(descriptor=descriptor, timestamp=timestamp)
+    def __init__(self, descriptor: str, timestamp: float, 
+                 packet_type: str, seq_num: int, destination: bytes):
+        super().__init__(timestamp, "SEND", descriptor)
         self.packet_type = packet_type
         self.seq_num = seq_num
-        self.destination = destination
+        self.dest = destination.hex()
 
+    def get_log_data(self) -> Dict[str, Any]:
+        data = super().get_log_data()
+        data.update({
+            "type": self.packet_type,
+            "seq_num": self.seq_num,
+            "dest": self.dest
+        })
+        return data
 
 class AppReceiveSignal(EntitySignal):
-    """
-    Signal emitted when the application receives a PING or PONG packet.
-    """
-    def __init__(
-        self,
-        descriptor: str,
-        timestamp: float,
-        packet_type: str, # "PING" or "PONG"
-        seq_num: int,
-        source: bytes,
-        hops: int,
-    ):
-        super().__init__(descriptor=descriptor, timestamp=timestamp)
+    def __init__(self, descriptor: str, timestamp: float, 
+                 packet_type: str, seq_num: int, source: bytes, hops: int):
+        super().__init__(timestamp, "RECEIVE", descriptor)
         self.packet_type = packet_type
         self.seq_num = seq_num
-        self.source = source
+        self.source = source.hex()
         self.hops = hops
 
+    def get_log_data(self) -> Dict[str, Any]:
+        data = super().get_log_data()
+        data.update({
+            "type": self.packet_type,
+            "seq_num": self.seq_num,
+            "source": self.source,
+            "hops": self.hops
+        })
+        return data
 
 class AppTimeoutSignal(EntitySignal):
-    """
-    Signal emitted when a PING times out waiting for a PONG.
-    """
-    def __init__(
-        self,
-        descriptor: str,
-        timestamp: float,
-        seq_num: int,
-    ):
-        super().__init__(descriptor=descriptor, timestamp=timestamp)
+    def __init__(self, descriptor: str, timestamp: float, seq_num: int):
+        super().__init__(timestamp, "TIMEOUT", descriptor)
         self.seq_num = seq_num
-
+        
+    def get_log_data(self) -> Dict[str, Any]:
+        data = super().get_log_data()
+        data.update({"seq_num": self.seq_num})
+        return data
 
 class AppSendFailSignal(EntitySignal):
-    """
-    Signal emitted when the application layer tries to send a packet
-    but the network layer rejects it (e.g., no route).
-    """
-    def __init__(
-        self,
-        descriptor: str,
-        timestamp: float,
-        packet_type: str,
-        seq_num: int,
-        reason: str,
-    ):
-        super().__init__(descriptor=descriptor, timestamp=timestamp)
+    def __init__(self, descriptor: str, timestamp: float, 
+                 packet_type: str, seq_num: int, reason: str):
+        super().__init__(timestamp, "SEND_FAIL", descriptor)
         self.packet_type = packet_type
         self.seq_num = seq_num
-        self.reason = reason
+        self.reason = reason  # Standardized failure reason (e.g., "No Route")
+
+    def get_log_data(self) -> Dict[str, Any]:
+        data = super().get_log_data()
+        data.update({
+            "type": self.packet_type,
+            "seq_num": self.seq_num,
+            "reason": self.reason
+        })
+        return data

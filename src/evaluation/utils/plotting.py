@@ -74,7 +74,6 @@ def plot_scenario(
         dspace = kernel.dspace
         
         if shadow_map is not None:
-            # --- 1. Plot Shadowing Map (Background) ---
             print("Plotting shadowing map from kernel.")
             cax = ax.pcolormesh(
                 dspace.X, 
@@ -88,7 +87,6 @@ def plot_scenario(
             # Store the colorbar object
             cbar = plt.colorbar(cax, label="Shadowing Attenuation (dB)")
 
-    # --- 2. Plot Nodes ---
     handles, plotted_labels = {}, set()
     text_objects, x_coords, y_coords = [], [], []
 
@@ -137,7 +135,6 @@ def plot_scenario(
             )
             plotted_labels.add(label)
 
-    # --- 3. Adjust Text Labels ---
     if text_objects:
         adjust_text(
             text_objects,
@@ -147,7 +144,6 @@ def plot_scenario(
             zorder=Z_ORDER['node_label']
         )
 
-    # --- 4. Plot and Annotate Links (MODIFIED) ---
     if links_to_annotate and prop_model:
         # We still iterate to check for warnings, but do not plot
         for n1_id, n2_id in links_to_annotate:
@@ -160,26 +156,17 @@ def plot_scenario(
             
             pass # Keep the loop structure but do nothing
 
-    # --- 5. Finalize Plot (MODIFIED for layout) ---
+
     ax.set_title(title, fontsize=16)
     ax.set_xlabel("X Position (m)")
     ax.set_ylabel("Y Position (m)")
     ax.grid(True, linestyle=':', alpha=0.6, zorder=Z_ORDER['grid'])
     ax.set_aspect('equal', 'box')
-    
-    # MODIFICATION:
-    # Adjust tight_layout rect. [left, bottom, right, top]
-    # We increase the 'bottom' margin to make room for the horizontal legend.
-    # We keep the 'right' margin as-is for the colorbar.
+
     plt.tight_layout(rect=[0.05, 0.1, 0.95, 0.95]) 
 
     if handles:
-        # MODIFICATION:
-        # Move the legend to be *below* the plot (ax.set_xlabel)
-        # 'loc="upper center"' anchors the top-center of the legend box
-        # 'bbox_to_anchor=(0.5, -0.1)' places that anchor at
-        #   (50% of axes width, -10% of axes height below the axes)
-        # 'ncol' makes all legend items horizontal
+
         ax.legend(
             handles.values(), handles.keys(),
             title="Legend", 

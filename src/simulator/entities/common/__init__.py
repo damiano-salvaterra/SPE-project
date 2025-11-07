@@ -1,5 +1,5 @@
 from .node import NetworkNode
 from .entity import Entity
-from .signals import EntitySignal
+from .entity_signal import EntitySignal
 
-__all__ = ["NetworkNode", "Entity", "EntitySignal"]
+__all__ = ["NetworkNode", "Entity", "entity_signal"]

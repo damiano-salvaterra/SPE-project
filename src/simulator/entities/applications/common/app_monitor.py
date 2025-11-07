@@ -1,3 +1,4 @@
+# src/simulator/entities/applications/common/app_monitor.py
 import pandas as pd
 from typing import TYPE_CHECKING
 
@@ -17,76 +18,34 @@ if TYPE_CHECKING:
 
 class ApplicationMonitor(Monitor):
     """
-    Monitor that tracks PingPong application events (send, receive, timeout, fail).
-    Inherits from BaseMonitor to log structured data.
+    Monitor that tracks application-level events.
+    It logs the structured data from AppSignals.
     """
 
-    def __init__(self, verbose=True):
-        super().__init__(verbose=verbose)
+    def __init__(self, monitor_name: str = "app", verbose=True):
+        super().__init__(monitor_name=monitor_name, verbose=verbose)
 
     def update(self, entity: "Entity", signal: "EntitySignal"):
         """
         Called by the application entity when a signal is emitted.
-        Filters for specific App signals and logs them.
+        Filters for App-related signals and logs their data.
         """
-        # App signals are emitted by the Application, which is hosted on a Node.
-        # We get the node_id from the entity's host attribute.
+        # We only care about signals that have the get_log_data method
+        if not hasattr(signal, "get_log_data"):
+            return
+
         try:
-            current_time = signal.timestamp
-            node_id = entity.host.id
-            log_entry = {"time": current_time, "node_id": node_id}
-            print_msg = None
+            # Get the structured data from the signal
+            log_data = signal.get_log_data()
+            
+            # Add node_id, which is context from the entity
+            log_data["node_id"] = entity.host.id
+            
+            self.log.append(log_data)
+
+            if self.verbose:
+                print(f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}")
+                
         except AttributeError:
-            # Signal was emitted by an entity without a .host.id, ignore it.
+            # e.g., signal was emitted by an entity without a .host.id
             return
-
-        if isinstance(signal, AppStartSignal):
-            log_entry.update({
-                "event": "APP_START",
-                "details": "Application started"
-            })
-            print_msg = "Application started."
-
-        elif isinstance(signal, AppSendSignal):
-            log_entry.update({
-                "event": "SEND",
-                "type": signal.packet_type,
-                "seq_num": signal.seq_num,
-                "dest": signal.destination.hex()
-            })
-            print_msg = f"Sent {signal.packet_type} #{signal.seq_num} to {signal.destination.hex()}"
-        
-        elif isinstance(signal, AppReceiveSignal):
-            log_entry.update({
-                "event": "RECEIVE",
-                "type": signal.packet_type,
-                "seq_num": signal.seq_num,
-                "source": signal.source.hex(),
-                "hops": signal.hops 
-            })
-            print_msg = f"Received {signal.packet_type} #{signal.seq_num} from {signal.source.hex()}, Hops={signal.hops}"
-
-        elif isinstance(signal, AppTimeoutSignal):
-            log_entry.update({
-                "event": "TIMEOUT",
-                "seq_num": signal.seq_num
-            })
-            print_msg = f"PING #{signal.seq_num} timed out."
-
-        elif isinstance(signal, AppSendFailSignal):
-            log_entry.update({
-                "event": "SEND_FAIL",
-                "type": signal.packet_type,
-                "seq_num": signal.seq_num,
-                "reason": signal.reason
-            })
-            print_msg = f"Failed to send {signal.packet_type} #{signal.seq_num} (Reason: {signal.reason})"
-        
-        else:
-            # Ignore other signals
-            return
-
-        self.log.append(log_entry)
-
-        if self.verbose and print_msg:
-            print(f"[APP_MONITOR] [{current_time:.6f}s] [{node_id}] {print_msg}")

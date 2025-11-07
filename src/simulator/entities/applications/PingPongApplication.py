@@ -1,3 +1,4 @@
+# src/simulator/entities/applications/PingPongApplication.py
 from typing import Optional
 
 from simulator.entities.applications.Application import Application
@@ -46,7 +47,7 @@ class PingPongApp(Application):
         self._started = True
         
         signal = AppStartSignal(
-            descriptor=f"[{self.host.id}] Application started.",
+            descriptor=f"Application started.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)
@@ -79,7 +80,7 @@ class PingPongApp(Application):
 
         if send_success: #packet accepted by network protocolm set pong timeout
             signal = AppSendSignal(
-                descriptor=f"[{self.host.id}] Sent PING #{self.ping_count} to {self.peer_addr.hex()}",
+                descriptor=f"Sent PING #{self.ping_count} to {self.peer_addr.hex()}",
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="PING",
                 seq_num=self.ping_count,
@@ -94,7 +95,7 @@ class PingPongApp(Application):
             self.host.context.scheduler.schedule(self.ping_timeout_event)
         else: #pakcet rejected by lower protocol
             signal = AppSendFailSignal(
-                descriptor=f"[{self.host.id}] Failed to send PING #{self.ping_count} (No Route)",
+                descriptor=f"Failed to send PING #{self.ping_count} (No Route)",
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="PING",
                 seq_num=self.ping_count,
@@ -107,7 +108,7 @@ class PingPongApp(Application):
         
         if self.ping_timeout_event:
             signal = AppTimeoutSignal(
-                descriptor=f"[{self.host.id}] PING #{self.ping_count} timed out.",
+                descriptor=f"PING #{self.ping_count} timed out.",
                 timestamp=self.host.context.scheduler.now(),
                 seq_num=self.ping_count,
             )
@@ -149,7 +150,7 @@ class PingPongApp(Application):
             return #  do not log unknown packets
 
         signal = AppReceiveSignal(
-            descriptor=f"[{self.host.id}] Received {pkt_type} #{seq_num} from {sender_addr.hex()}",
+            descriptor=f"Received {pkt_type} #{seq_num} from {sender_addr.hex()}",
             timestamp=self.host.context.scheduler.now(),
             packet_type=pkt_type,
             seq_num=seq_num,
@@ -168,7 +169,7 @@ class PingPongApp(Application):
 
             if send_pong_success:
                 signal = AppSendSignal(
-                    descriptor=f"[{self.host.id}] Sent PONG #{seq_num} to {sender_addr.hex()}",
+                    descriptor=f"Sent PONG #{seq_num} to {sender_addr.hex()}",
                     timestamp=self.host.context.scheduler.now(),
                     packet_type="PONG",
                     seq_num=seq_num,
@@ -177,7 +178,7 @@ class PingPongApp(Application):
                 self._notify_monitors(signal)
             else:
                 signal = AppSendFailSignal(
-                    descriptor=f"[{self.host.id}] Failed to send PONG #{seq_num} (No Route)",
+                    descriptor=f"Failed to send PONG #{seq_num} (No Route)",
                     timestamp=self.host.context.scheduler.now(),
                     packet_type="PONG",
                     seq_num=seq_num,

@@ -1,4 +1,4 @@
-# src/simulator/applications/RandomTrafficApplication.py
+# src/simulator/applications/PoissonTrafficApplication.py
 import sys
 from typing import Optional, Dict, List, Any
 
@@ -55,7 +55,7 @@ class PoissonTrafficApplication(Application):
         ]
         
         signal = AppStartSignal(
-            descriptor=f"[{self.host.id}] RandomTrafficApp started.",
+            descriptor=f"RandomTrafficApp started.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)
@@ -114,7 +114,7 @@ class PoissonTrafficApplication(Application):
 
         if send_success:
             signal = AppSendSignal(
-                descriptor=f"[{self.host.id}] Sent DATA #{self.packet_counter} to {dest_addr.hex()}",
+                descriptor=f"Sent DATA #{self.packet_counter} to {dest_addr.hex()}",
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="DATA",
                 seq_num=self.packet_counter,
@@ -123,7 +123,7 @@ class PoissonTrafficApplication(Application):
             self._notify_monitors(signal)
         else:
             signal = AppSendFailSignal(
-                descriptor=f"[{self.host.id}] Failed to send DATA #{self.packet_counter} (No Route)",
+                descriptor=f"Failed to send DATA #{self.packet_counter} (No Route)",
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="DATA",
                 seq_num=self.packet_counter,
@@ -149,7 +149,7 @@ class PoissonTrafficApplication(Application):
             pass
 
         signal = AppReceiveSignal(
-            descriptor=f"[{self.host.id}] Received DATA #{seq_num} from {sender_addr.hex()}",
+            descriptor=f"Received DATA #{seq_num} from {sender_addr.hex()}",
             timestamp=self.host.context.scheduler.now(),
             packet_type="DATA",
             seq_num=seq_num,
