@@ -19,7 +19,6 @@ class PoissonTrafficApplication(Application):
     """
     Application that generates network traffic to random destinations
     with a poisson process
-
     """
 
     def __init__(

@@ -11,7 +11,7 @@
 # --- 1. Parameter Sweep Definitions ---
 # Define the parameters you want to sweep in these arrays.
 
-REPLICATIONS=30       # Total replications *per* parameter combination
+REPLICATIONS=50       # Total replications *per* parameter combination
 BASE_SEED=12345       # Starting seed. Run 'i' will use (BASE_SEED + i)
 
 APPS=(
@@ -23,8 +23,8 @@ TOPOLOGIES=(
     #"ring"
     #"grid"
     "random"
-    "star"
-    "cluster-tree"
+    #"star"
+    #"cluster-tree"
 )
 CHANNELS=(
     "stable"
@@ -67,6 +67,8 @@ export PYTHONPATH="$SCRIPT_DIR/src"
 # Base output directory for all results from this batch
 BATCH_TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 OUTPUT_BASE_DIR="$SCRIPT_DIR/results/batch_${BATCH_TIMESTAMP}"
+# NOTE: We only create the base directory. Python script handles subdirs.
+mkdir -p "$OUTPUT_BASE_DIR" 
 echo "Batch output will be saved to: $OUTPUT_BASE_DIR"
 
 # =============================================================================
@@ -81,14 +83,10 @@ for app in "${APPS[@]}"; do
   for topo in "${TOPOLOGIES[@]}"; do
     for chan in "${CHANNELS[@]}"; do
 
-      # --- Define a unique output directory for this parameter combination ---
-      CONFIG_NAME="${app}/${topo}_${chan}_${NUM_NODES}nodes"
-      RUN_OUTPUT_DIR="$OUTPUT_BASE_DIR/${CONFIG_NAME}"
-      mkdir -p "$RUN_OUTPUT_DIR"
-
+      # --- This combination is now just for logging ---
       echo "-----------------------------------------------------"
       echo "Running Batch ($CURRENT_CONFIG / $TOTAL_CONFIGS): App=$app, Topo=$topo, Chan=$chan, tx_dBm=$TX_POWER dBm"
-      echo "Replications: $REPLICATIONS, Output Dir: $RUN_OUTPUT_DIR"
+      echo "Replications: $REPLICATIONS"
       echo "-----------------------------------------------------"
 
       # --- Replication Loop (Monte Carlo) ---
@@ -98,6 +96,8 @@ for app in "${APPS[@]}"; do
         echo "  -> Starting Replication $((i+1))/$REPLICATIONS (Seed: $CURRENT_SEED)..."
 
         # Call the Python script for a SINGLE run
+        # Pass the BATCH BASE directory. The Python script
+        # will create the app/topology/channel subdirectories itself.
         python -m evaluation.run_simulation \
           --app "$app" \
           --topology "$topo" \
@@ -109,9 +109,8 @@ for app in "${APPS[@]}"; do
           --app_delay "$APP_DELAY" \
           --mean_interarrival "$MEAN_INTERARRIVAL" \
           --dspace_step "$DSPACE_STEP" \
-          --out_dir "$RUN_OUTPUT_DIR" # Pass the specific output dir
+          --out_dir "$OUTPUT_BASE_DIR"
 
-        # --- Robust Error Checking ---
         # Stop the entire sweep if a single run fails
         if [ $? -ne 0 ]; then
             echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
