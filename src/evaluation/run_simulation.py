@@ -4,7 +4,7 @@ import os
 import argparse
 import numpy as np
 import traceback
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Tuple
 
 # --- Python Path Setup ---
 # This ensures we can import the simulator modules from the 'src' directory

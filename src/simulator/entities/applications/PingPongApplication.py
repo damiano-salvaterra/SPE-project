@@ -47,7 +47,7 @@ class PingPongApp(Application):
         self._started = True
 
         signal = AppStartSignal(
-            descriptor=f"Application started.",
+            descriptor="Application started.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)
