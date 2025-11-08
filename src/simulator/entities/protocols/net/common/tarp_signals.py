@@ -1,4 +1,3 @@
-# src/simulator/entities/protocols/net/common/tarp_signals.py
 from typing import Any, Dict, Optional
 from simulator.entities.common import EntitySignal
 

@@ -122,7 +122,7 @@ class PoissonTrafficApplication(Application):
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="DATA",
                 seq_num=self.packet_counter,
-                destination=dest_addr,
+                dest_addr=dest_addr,
             )
             self._notify_monitors(signal)
         else:
@@ -157,7 +157,7 @@ class PoissonTrafficApplication(Application):
             timestamp=self.host.context.scheduler.now(),
             packet_type="DATA",
             seq_num=seq_num,
-            source=sender_addr,
+            source_addr=sender_addr,
             hops=hops,
         )
         self._notify_monitors(signal)

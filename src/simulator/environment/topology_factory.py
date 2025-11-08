@@ -83,7 +83,7 @@ class RandomTopology(TopologyStrategy):
     requires a RNG"""
 
     def generate_positions(self, **kwargs) -> List[CartesianCoordinate]:
-        num_nodes: int = kwargs.get("num_nodes", 20)
+        num_nodes: int = kwargs.get("num_nodes", 10)
         area_box: Tuple[float, float, float, float] = kwargs.get(
             "area_box", (-100, 100, -100, 100)
         )

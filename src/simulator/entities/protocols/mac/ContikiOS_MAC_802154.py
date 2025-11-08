@@ -91,7 +91,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
 
         self.tx_queue.append(mac_frame)
         # if mac is idle, than send next packet in queue
-        if self.state == MACState.IDLE and not self.host.rdc.is_radio_busy():
+        if self.state == MACState.IDLE and not self.host.rdc.is_radio_busy(): #!! if radio is busy no one schedules the sending of hte packet coming from net
             send_delay = 1e-6
             send_event = MacTrySendNextEvent(
                 time=self.host.context.scheduler.now() + send_delay,
@@ -201,6 +201,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     ):
         # print(f">>> DEBUG-MAC [{self.host.id}]: receive() called with RSSI = {rssi:.2f} dBm")
         if isinstance(payload, Frame_802_15_4):
+            ack_was_scheduled = False #track if we are going to send and ack (so radio stays busy)
             if payload._requires_ack:
                 # if you received a frame you need to send the ack, so set the state and schedule the event
                 self.state = MACState.SENDING_ACK
@@ -213,11 +214,22 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
                     payload=auto_ack,
                 )
                 self.host.context.scheduler.schedule(send_ack_event)
+                ack_was_scheduled = True
 
             # self._last_received_rssi = self.host.phy.get_last_rssi()
             self.host.net.receive(
                 payload=payload.NPDU, sender_addr=sender_addr, rssi=rssi
             )
+
+            if not ack_was_scheduled and self.state == MACState.IDLE and self.tx_queue: #if no ack to send is shceudel and the radio is idle, we need to check if
+                                                                                        #if there is a packet in queue that is arriveed from net while we were receiving
+                send_delay = 1e-6  # Piccolo ritardo per sicurezza
+                send_event = MacTrySendNextEvent(
+                    time=self.host.context.scheduler.now() + send_delay,
+                    blame=self,
+                    callback=self._try_send_next,
+                )
+                self.host.context.scheduler.schedule(send_event)
 
         elif isinstance(payload, Ack_802_15_4):
             # if the sequence number corresponds to the current output frame and I was waiting for it, then this ack is mine

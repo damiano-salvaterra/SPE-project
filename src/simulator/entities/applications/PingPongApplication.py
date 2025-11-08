@@ -84,7 +84,7 @@ class PingPongApp(Application):
                 timestamp=self.host.context.scheduler.now(),
                 packet_type="PING",
                 seq_num=self.ping_count,
-                destination=self.peer_addr,
+                dest_addr=self.peer_addr,
             )
             self._notify_monitors(signal)
 
@@ -156,7 +156,7 @@ class PingPongApp(Application):
             timestamp=self.host.context.scheduler.now(),
             packet_type=pkt_type,
             seq_num=seq_num,
-            source=sender_addr,
+            source_addr=sender_addr,
             hops=hops,
         )
         self._notify_monitors(signal)
@@ -176,7 +176,7 @@ class PingPongApp(Application):
                     timestamp=self.host.context.scheduler.now(),
                     packet_type="PONG",
                     seq_num=seq_num,
-                    destination=sender_addr,
+                    dest_addr=sender_addr,
                 )
                 self._notify_monitors(signal)
             else:

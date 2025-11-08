@@ -11,7 +11,7 @@
 # --- 1. Parameter Sweep Definitions ---
 # Define the parameters you want to sweep in these arrays.
 
-REPLICATIONS=50       # Total replications *per* parameter combination
+REPLICATIONS=1       # Total replications *per* parameter combination
 BASE_SEED=12345       # Starting seed. Run 'i' will use (BASE_SEED + i)
 
 APPS=(
@@ -28,15 +28,15 @@ TOPOLOGIES=(
 )
 CHANNELS=(
     "stable"
-    "lossy"
-    "unstable"
+    #"lossy"
+    #"unstable"
 )
 
 # --- 2. Static Simulation Parameters ---
 # These parameters are fixed for all runs in this batch.
 
-NUM_NODES=20
-TX_POWER=5        # in dBm
+NUM_NODES=5
+TX_POWER=0        # in dBm
 SIM_TIME=1800.0     # 30 minutes
 APP_DELAY=130.0     # ~2 min (allows TARP to stabilize before traffic)
 MEAN_INTERARRIVAL=30.0 # For 'poisson_traffic' (30s avg per node)

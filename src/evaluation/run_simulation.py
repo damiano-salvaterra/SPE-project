@@ -16,6 +16,7 @@ if SRC_ROOT not in sys.path:
 # --- Simulator Imports ---
 from simulator.engine.Kernel import Kernel
 from simulator.engine.random import RandomManager, RandomGenerator
+from simulator.engine.common.Monitor import Monitor
 from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate
 from simulator.entities.applications.PingPongApplication import PingPongApp
@@ -25,13 +26,16 @@ from simulator.entities.applications.PoissonTrafficApplication import (
 from simulator.entities.applications.common.app_monitor import ApplicationMonitor
 from simulator.entities.protocols.net.common.tarp_monitor import TARPMonitor
 from evaluation.utils.plotting import plot_scenario
+from evaluation.evaluation_monitors.E2ELatencyMonitor import E2ELatencyMonitor
+from evaluation.evaluation_monitors.PDRMonitor import PDRMonitor
+
 
 # ======================================================================================
 # --- Plotting Configuration ---
 # ======================================================================================
 # Set to True to generate and save the scenario plot at the end of the run.
 # Set to False to skip plotting (e.g., for faster batch runs).
-ENABLE_PLOTTING = False
+ENABLE_PLOTTING = True
 
 # ======================================================================================
 # Helper Functions
@@ -262,14 +266,22 @@ def create_nodes_and_app(
     return node_info_for_plot
 
 
-def attach_monitors(kernel: Kernel) -> Tuple[ApplicationMonitor, TARPMonitor]:
+def attach_monitors(kernel: Kernel) -> List[Monitor]:
     """Creates and attaches simulation monitors to all nodes."""
-    app_mon = ApplicationMonitor(monitor_name="app", verbose=False)
-    tarp_mon = TARPMonitor(monitor_name="tarp", verbose=False)
+    app_mon = ApplicationMonitor(monitor_name="app", verbose=True)
+    lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=True)
+    pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=True)
+    tarp_mon = TARPMonitor(monitor_name="tarp", verbose=True)
+    
+    monitors = [app_mon, lat_monitor, pdr_monitor, tarp_mon]
+    
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
+        node.app.attach_monitor(lat_monitor)
+        node.app.attach_monitor(pdr_monitor)
         node.net.attach_monitor(tarp_mon)
-    return app_mon, tarp_mon
+    
+    return monitors
 
 
 def run_simulation(kernel: Kernel, args: argparse.Namespace):
@@ -284,16 +296,13 @@ def run_simulation(kernel: Kernel, args: argparse.Namespace):
 
 
 def save_results(
-    app_mon: ApplicationMonitor,
-    tarp_mon: TARPMonitor,
+    monitors: List[Monitor],
     run_output_dir: str,
     base_filename: str,
 ):
-    """Saves monitor data to CSV files."""
-    # base_path will be, e.g., ".../results/batch_.../app/topo/chan/seed/run"
     base_path = os.path.join(run_output_dir, base_filename)
-    app_mon.save_to_csv(base_path)  # Creates .../run_app.csv
-    tarp_mon.save_to_csv(base_path)  # Creates .../run_tarp.csv
+    for monitor in monitors:
+        monitor.save_to_csv(base_path)  # Creates .../run_<monitor_name>.csv
     print(f"Data saved to {run_output_dir}/{base_filename}_*.csv")
 
 
@@ -324,34 +333,28 @@ def plot_results(
 def main():
     """Main function to orchestrate the simulation setup, run, and saving."""
 
-    # 1. Setup
+    # Setup
     args = setup_arguments()
     # The dir for this specific run, e.g., .../app/topo/chan/seed/
     run_output_dir = setup_environment(args)
     # A static filename prefix for files *within* that directory
-    base_filename = "run"
+    base_filename = "log"
 
-    # 2. Topology
     node_positions, actual_num_nodes = create_topology(args)
 
-    # 3. Kernel
     kernel = bootstrap_kernel(args, node_positions)
 
-    # 4. Nodes and Applications
+    # Nodes and Applications
     node_info_for_plot = create_nodes_and_app(
         args, kernel, node_positions, actual_num_nodes
     )
 
-    # 5. Monitors
-    app_mon, tarp_mon = attach_monitors(kernel)
-
-    # 6. Run
+    monitors= attach_monitors(kernel)
     run_simulation(kernel, args)
 
-    # 7. Save
-    save_results(app_mon, tarp_mon, run_output_dir, base_filename)
+    save_results(monitors, run_output_dir, base_filename)
 
-    # 8. Plot (if enabled)
+    # Plot
     if ENABLE_PLOTTING:
         plot_results(
             args,

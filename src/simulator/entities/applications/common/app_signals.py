@@ -14,17 +14,17 @@ class AppSendSignal(EntitySignal):
         timestamp: float,
         packet_type: str,
         seq_num: int,
-        destination: bytes,
+        dest_addr: bytes,
     ):
         super().__init__(timestamp, "SEND", descriptor)
         self.packet_type = packet_type
         self.seq_num = seq_num
-        self.dest = destination.hex()
+        self.dest_addr = dest_addr.hex()
 
     def get_log_data(self) -> Dict[str, Any]:
         data = super().get_log_data()
         data.update(
-            {"type": self.packet_type, "seq_num": self.seq_num, "dest": self.dest}
+            {"type": self.packet_type, "seq_num": self.seq_num, "dest": self.dest_addr}
         )
         return data
 
@@ -36,13 +36,13 @@ class AppReceiveSignal(EntitySignal):
         timestamp: float,
         packet_type: str,
         seq_num: int,
-        source: bytes,
+        source_addr: bytes,
         hops: int,
     ):
         super().__init__(timestamp, "RECEIVE", descriptor)
         self.packet_type = packet_type
         self.seq_num = seq_num
-        self.source = source.hex()
+        self.source_addr = source_addr.hex()
         self.hops = hops
 
     def get_log_data(self) -> Dict[str, Any]:
@@ -51,7 +51,7 @@ class AppReceiveSignal(EntitySignal):
             {
                 "type": self.packet_type,
                 "seq_num": self.seq_num,
-                "source": self.source,
+                "source": self.source_addr,
                 "hops": self.hops,
             }
         )

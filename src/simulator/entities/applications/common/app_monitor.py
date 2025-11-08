@@ -1,15 +1,7 @@
-# src/simulator/entities/applications/common/app_monitor.py
 import pandas as pd
 from typing import TYPE_CHECKING
 
 from simulator.engine.common.Monitor import Monitor
-from simulator.entities.applications.common.app_signals import (
-    AppStartSignal,
-    AppSendSignal,
-    AppReceiveSignal,
-    AppTimeoutSignal,
-    AppSendFailSignal,
-)
 
 # Avoid circular import issues at type-checking time
 if TYPE_CHECKING:
@@ -34,20 +26,14 @@ class ApplicationMonitor(Monitor):
         if not hasattr(signal, "get_log_data"):
             return
 
-        try:
-            # Get the structured data from the signal
-            log_data = signal.get_log_data()
+        
+        # Get the structured data from the signal
+        log_data = signal.get_log_data()
+        # Add node_id, which is context from the entity
+        log_data["node_id"] = entity.host.id
+        self.log.append(log_data)
+        if self.verbose:
+            print(
+                f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}"
+            )
 
-            # Add node_id, which is context from the entity
-            log_data["node_id"] = entity.host.id
-
-            self.log.append(log_data)
-
-            if self.verbose:
-                print(
-                    f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}"
-                )
-
-        except AttributeError:
-            # e.g., signal was emitted by an entity without a .host.id
-            return

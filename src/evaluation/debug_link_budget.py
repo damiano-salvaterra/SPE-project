@@ -45,10 +45,10 @@ TX_POWER_DBM = 5.0
 DISTANCE_METERS = 20.0
 
 # The channel model to test (this is one of the failing ones).
-CHANNEL_NAME = "harsh"
+CHANNEL_NAME = "stable"
 
 # Short duration, just to capture the first beacon(s).
-SIM_TIME_SEC = 5.0
+SIM_TIME_SEC = 1200.0
 
 # Fixed seed for a reproducible channel (shadowing map).
 SEED = 12345
