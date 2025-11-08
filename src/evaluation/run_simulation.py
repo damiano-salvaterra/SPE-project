@@ -272,15 +272,15 @@ def attach_monitors(kernel: Kernel) -> List[Monitor]:
     lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=True)
     pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=True)
     tarp_mon = TARPMonitor(monitor_name="tarp", verbose=True)
-    
+
     monitors = [app_mon, lat_monitor, pdr_monitor, tarp_mon]
-    
+
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
         node.app.attach_monitor(lat_monitor)
         node.app.attach_monitor(pdr_monitor)
         node.net.attach_monitor(tarp_mon)
-    
+
     return monitors
 
 
@@ -349,7 +349,7 @@ def main():
         args, kernel, node_positions, actual_num_nodes
     )
 
-    monitors= attach_monitors(kernel)
+    monitors = attach_monitors(kernel)
     run_simulation(kernel, args)
 
     save_results(monitors, run_output_dir, base_filename)

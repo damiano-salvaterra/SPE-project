@@ -242,6 +242,7 @@ class TARPProtocol(Layer, Entity):
             self._uc_recv(payload, sender_addr, rssi=rssi)
         elif isinstance(payload.header, TARPBroadcastHeader):
             self._bc_recv(payload, sender_addr, rssi=rssi)
+
     '''
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
         """Handles a received broadcast (beacon) packet."""
@@ -369,6 +370,7 @@ class TARPProtocol(Layer, Entity):
                 if tx_addr in self.tpl_buf:
                     self.tpl_buf.pop(tx_addr)
     '''
+
     def _bc_recv(self, payload: TARPPacket, tx_addr: bytes, rssi: float):
         """Handles a received broadcast (beacon) packet."""
 
@@ -387,7 +389,7 @@ class TARPProtocol(Layer, Entity):
             return
 
         # --- CRITICAL FIX: NEW EPOCH HANDLING ---
-        
+
         # If this beacon is from a new epoch, the node MUST reset its state
         # REGARDLESS of who sent it. This is the core logic fix.
         # This solves the bug where re-hearing from the *same parent* in a new
@@ -396,7 +398,7 @@ class TARPProtocol(Layer, Entity):
             # You must choose Strategy 1 OR 2 for this function call.
             self._reset_connection_status(header.epoch)
             # Note: _reset_connection_status() also updates self.seqn
-        
+
         # This handles the case where a node is just starting up (seqn=0)
         # and needs to adopt the current network epoch.
         elif self.seqn == 0 and not self.sink:
@@ -453,7 +455,7 @@ class TARPProtocol(Layer, Entity):
             self.metric = new_metric
             self.hops = header.hops + 1
             # Do not forward refresh beacons to avoid broadcast storms
-            return  
+            return
 
         # Check if this sender is a preferred parent
         is_preferred = tarp_utils._preferred(
@@ -471,7 +473,7 @@ class TARPProtocol(Layer, Entity):
             self.metric = new_metric
             self.hops = header.hops + 1
             tx_entry.type = self.NodeType.NODE_PARENT
-            
+
             # This update is technically redundant if a reset just happened,
             # but it's crucial for the case where a node was orphaned
             # (self.parent = None) and finds a parent in the *same* epoch.

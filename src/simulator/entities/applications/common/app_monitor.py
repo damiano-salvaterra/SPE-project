@@ -26,7 +26,6 @@ class ApplicationMonitor(Monitor):
         if not hasattr(signal, "get_log_data"):
             return
 
-        
         # Get the structured data from the signal
         log_data = signal.get_log_data()
         # Add node_id, which is context from the entity
@@ -36,4 +35,3 @@ class ApplicationMonitor(Monitor):
             print(
                 f"[APP_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] {signal.descriptor}"
             )
-
