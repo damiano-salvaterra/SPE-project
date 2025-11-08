@@ -37,14 +37,14 @@ class E2ELatencyMonitor(Monitor):
             return  # consider only send and recieve messages
 
         if isinstance(signal, AppSendSignal):
-            source_addr_str = str(entity.host._linkaddr)
+            source_addr_str = entity.host._linkaddr.hex()
             packet_key = (source_addr_str, signal.seq_num)
 
             # Store the send time
             self.sent_packets[packet_key] = signal.timestamp
 
         elif isinstance(signal, AppReceiveSignal):
-            source_addr_str = str(signal.source_addr)
+            source_addr_str = signal.source_addr
             packet_key = (source_addr_str, signal.seq_num)
 
             # pop the packet from the dictionary (no longer needed here)

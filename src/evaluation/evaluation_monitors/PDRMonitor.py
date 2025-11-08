@@ -37,8 +37,8 @@ class PDRMonitor(Monitor):
             return  # consider only send and recieve messages
 
         if isinstance(signal, AppSendSignal):
-            source_addr_str = str(entity.host._linkaddr)
-            dest_addr_str = str(signal.dest_addr)
+            source_addr_str = entity.host._linkaddr.hex()
+            dest_addr_str = signal.dest_addr
 
             packet_key = (source_addr_str, signal.seq_num, dest_addr_str)
 
@@ -50,8 +50,8 @@ class PDRMonitor(Monitor):
             }
 
         elif isinstance(signal, AppReceiveSignal):
-            source_addr_str = str(signal.source_addr)
-            current_host_addr = str(entity.host._linkaddr)
+            source_addr_str = signal.source_addr
+            current_host_addr = entity.host._linkaddr.hex()
 
             # recreate key for find the matching
             packet_key = (source_addr_str, signal.seq_num, current_host_addr)
