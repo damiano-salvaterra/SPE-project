@@ -11,7 +11,7 @@
 # --- 1. Parameter Sweep Definitions ---
 # Define the parameters you want to sweep in these arrays.
 
-REPLICATIONS=1       # Total replications *per* parameter combination
+REPLICATIONS=50       # Total replications *per* parameter combination
 BASE_SEED=12345       # Starting seed. Run 'i' will use (BASE_SEED + i)
 
 APPS=(
@@ -26,7 +26,8 @@ TOPOLOGIES=(
     #"star"
     #"cluster-tree"
 )
-CHANNELS=(
+CHANNELS=( #TODO: try to change the shadowing model and use shadowing at the receiver
+    #"ideal"
     "stable"
     #"lossy"
     #"unstable"
@@ -35,12 +36,24 @@ CHANNELS=(
 # --- 2. Static Simulation Parameters ---
 # These parameters are fixed for all runs in this batch.
 
-NUM_NODES=5
-TX_POWER=0        # in dBm
+NUM_NODES=20
+TX_POWER=5        # in dBm
 SIM_TIME=1800.0     # 30 minutes
 APP_DELAY=130.0     # ~2 min (allows TARP to stabilize before traffic)
 MEAN_INTERARRIVAL=30.0 # For 'poisson_traffic' (30s avg per node)
 DSPACE_STEP=1.0
+
+# --- NEW: Parameters for ClusterTreeTopology ---
+#
+# These are used *only* when 'cluster-tree' is in the TOPOLOGIES array.
+# They are ignored by other topology types (like 'random').
+# This configuration generates: 1 (Root) + 5 (L1) + 10 (L2) + 20 (L3) = 36 Nodes
+DEPTH=3                 # Total levels *below* the root
+NUM_CLUSTERS=5          # Number of nodes at Level 1 (Children of Root)
+NODES_PER_CLUSTER=3     # Total nodes *in* a cluster (1 Parent + N-1 Children)
+CLUSTER_RADIUS=100.0    # Radius for L1 node placement
+NODE_RADIUS=25.0        # Radius for L2+ node placement (around their parent)
+# --- End of New Parameters ---
 
 # =============================================================================
 # --- 3. Environment Setup (Do not edit below) ---
@@ -84,16 +97,27 @@ for app in "${APPS[@]}"; do
     for chan in "${CHANNELS[@]}"; do
 
       # --- This combination is now just for logging ---
+      echo
+      echo
+      echo "===================================================================================================================="
       echo "-----------------------------------------------------"
       echo "Running Batch ($CURRENT_CONFIG / $TOTAL_CONFIGS): App=$app, Topo=$topo, Chan=$chan, tx_dBm=$TX_POWER dBm"
       echo "Replications: $REPLICATIONS"
       echo "-----------------------------------------------------"
+      echo "===================================================================================================================="
+      echo
+      echo "---------------------------------------------------------------------------------------------------------------------"
+
 
       # --- Replication Loop (Monte Carlo) ---
       for (( i=0; i<$REPLICATIONS; i++ )); do
         
         CURRENT_SEED=$((BASE_SEED + i))
+        echo
+        echo "===================================================================================================================="
         echo "  -> Starting Replication $((i+1))/$REPLICATIONS (Seed: $CURRENT_SEED)..."
+        echo "===================================================================================================================="
+        echo
 
         # Call the Python script for a SINGLE run
         # Pass the BATCH BASE directory. The Python script
@@ -109,7 +133,14 @@ for app in "${APPS[@]}"; do
           --app_delay "$APP_DELAY" \
           --mean_interarrival "$MEAN_INTERARRIVAL" \
           --dspace_step "$DSPACE_STEP" \
-          --out_dir "$OUTPUT_BASE_DIR"
+          --out_dir "$OUTPUT_BASE_DIR" \
+          \
+          `# --- ADDED CLUSTER-TREE PARAMETERS ---` \
+          --depth "$DEPTH" \
+          --num_clusters "$NUM_CLUSTERS" \
+          --nodes_per_cluster "$NODES_PER_CLUSTER" \
+          --cluster_radius "$CLUSTER_RADIUS" \
+          --node_radius "$NODE_RADIUS"
 
         # Stop the entire sweep if a single run fails
         if [ $? -ne 0 ]; then

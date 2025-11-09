@@ -17,6 +17,10 @@ class TARPParameters:
     ENTRY_EXPIRATION_TIME = 600  # 90
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
+  
+    INITIAL_REPORT_MAX_JITTER : float = 0.4
+    INITIAL_REPORT_BASE_DELAY: float = 5.0 # Base delay for the depth-staggered initial report (T_R_first = 5/hops + jitter)
+
     RSSI_LOW_THR = -85
     RSSI_HIGH_REF = -35
     DELTA_ETX_MIN = 0.3
@@ -24,4 +28,4 @@ class TARPParameters:
 
     # NullRDC mode constants  and delays
     ALPHA = 0.9
-    TREE_BEACON_FORWARD_DELAY = 1 / 10
+    TREE_BEACON_FORWARD_DELAY = 1 / 8

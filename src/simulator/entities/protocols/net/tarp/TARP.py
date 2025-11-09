@@ -102,7 +102,7 @@ class TARPProtocol(Layer, Entity):
         """
         base_delay = TARPParameters.TREE_BEACON_FORWARD_DELAY
         jitter = self.rng.uniform(low=0, high=base_delay)
-        return base_delay + jitter
+        return jitter
 
     def _get_next_report_interval(self) -> float:
         """
@@ -115,7 +115,8 @@ class TARPProtocol(Layer, Entity):
         base_interval = TARPParameters.SUBTREE_REPORT_OFFEST * (1.0 + (1.0 / self.hops))
 
         # Random jitter up to half of the base report interval
-        max_jitter = TARPParameters.SUBTREE_REPORT_OFFEST / 2
+        #max_jitter = TARPParameters.SUBTREE_REPORT_OFFEST / 2
+        max_jitter = 0.2
         jitter = self.rng.uniform(low=0, high=max_jitter)
 
         return base_interval + jitter
@@ -480,7 +481,7 @@ class TARPProtocol(Layer, Entity):
             self.seqn = header.epoch
 
             signal = TARPParentChangeSignal(
-                descriptor=f"TARP parent change: changing parent from {(old_parent if old_parent else b'').hex()} to {self.parent.hex()}.",
+                descriptor=f"TARP parent change: changing parent from {(old_parent if old_parent else b'').hex()} to {self.parent.hex()}. New metric {self.metric}.",
                 timestamp=current_time,
                 old_parent=old_parent if old_parent else b"",
                 new_parent=self.parent,
@@ -496,6 +497,7 @@ class TARPProtocol(Layer, Entity):
             )
             self.host.context.scheduler.schedule(self._beacon_timer)
 
+            '''
             # Schedule the first topology report with jitter
             # This is now correctly scheduled even if the parent is the same
             # as the previous epoch, because the reset forced re-selection.
@@ -506,7 +508,29 @@ class TARPProtocol(Layer, Entity):
                 time=first_report_time, blame=self, callback=self._subtree_report_cb
             )
             self.host.context.scheduler.schedule(self._report_timer)
+            '''
 
+            # Schedule the first topology report immediately with jitter
+            # This is critical for fast network convergence after an epoch change.
+            # The periodic report will be scheduled by _subtree_report_cb itself.
+            if self._report_timer and not self._report_timer._cancelled:
+                self.host.context.scheduler.unschedule(self._report_timer)
+            
+            
+            if self.hops > 0:
+                base_delay = TARPParameters.INITIAL_REPORT_BASE_DELAY / self.hops
+            else:
+                base_delay = 0.0 # Should not happen for non-sink, but safe guard
+
+            jitter = self.rng.uniform(low=0, high=TARPParameters.INITIAL_REPORT_MAX_JITTER)
+            immediate_report_time = current_time + base_delay + jitter
+
+            self._report_timer = NetTopologyReportSendEvent(
+                time=immediate_report_time, blame=self, callback=self._subtree_report_cb
+            )
+            self.host.context.scheduler.schedule(self._report_timer)
+
+            
         else:  # Not preferred, just check if it's a child
             if header.parent == self.host.linkaddr:
                 if tx_entry.type != self.NodeType.NODE_CHILD:

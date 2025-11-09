@@ -58,14 +58,40 @@ def get_channel_params(channel_name: str) -> dict:
         {"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 3.8, "fading_shape": 1.5}
     )
 
+    # Lossy_low_pl: like lossy but low pl
+    # Lossy: Medium path loss, medium shadowing, medium coherence distance
+    lossy_low_pl = base_params.copy()
+    lossy_low_pl.update(
+        {"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 2.0, "fading_shape": 1.5}
+    )
+
     # Unstable: High path loss, high shadowing, low coherence distance
     unstable = base_params.copy()
     unstable.update(
         {"coh_d": 10, "shadow_dev": 6.0, "pl_exponent": 4.0, "fading_shape": 0.75}
     )
 
-    params_map = {"stable": stable, "lossy": lossy, "unstable": unstable}
-    return params_map.get(channel_name, lossy)
+    # High_pl: like stable channel but higher path loss
+    high_pl = base_params.copy()
+    high_pl.update(
+        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 3.5, "fading_shape": 3.0}
+    )
+
+    # No shadowing, minimal fading, minimal path loss, very stable
+    ideal = base_params.copy()
+    ideal.update(
+        {"coh_d": 1000.0, "shadow_dev": 0.0, "pl_exponent": 2.0, "fading_shape": 50.0}
+    )
+
+    params_map = {
+        "stable": stable, 
+        "lossy": lossy, 
+        "unstable": unstable, 
+        "high_pl" : high_pl, 
+        "lossy_low_pl" : lossy_low_pl,
+        "ideal": ideal
+    }
+    return params_map.get(channel_name, ideal)
 
 
 def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0) -> int:
@@ -118,7 +144,7 @@ def setup_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--channel",
-        choices=["stable", "lossy", "unstable"],
+        choices=["stable", "lossy", "lossy_low_pl", "unstable", "high_pl", "ideal"],
         default="lossy",
         help="Channel model",
     )
@@ -132,6 +158,41 @@ def setup_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--seed", type=int, default=123, help="Root seed for this replication"
     )
+    
+    # --- Topology Parameters ---
+    #
+    parser.add_argument(
+        "--depth",
+        type=int,
+        default=2,
+        help="Depth of the cluster-tree topology (default: 2)",
+    )
+    parser.add_argument(
+        "--num_clusters",
+        type=int,
+        default=3,
+        help="Number of L1 clusters for cluster-tree (default: 3)",
+    )
+    parser.add_argument(
+        "--nodes_per_cluster",
+        type=int,
+        default=5,
+        help="Nodes per cluster (branching factor) for L2+ (default: 5)",
+    )
+    parser.add_argument(
+        "--cluster_radius",
+        type=float,
+        default=100.0,
+        help="Radius for L1 cluster head placement (default: 100.0)",
+    )
+    parser.add_argument(
+        "--node_radius",
+        type=float,
+        default=20.0,
+        help="Radius for L2+ node placement (default: 20.0)",
+    )
+    # --- End Topology Parameters ---
+    
     parser.add_argument(
         "--app_delay", type=float, default=60.0, help="Delay before applications start"
     )
@@ -158,7 +219,16 @@ def setup_arguments() -> argparse.Namespace:
 
 def setup_environment(args: argparse.Namespace) -> str:
     """Creates the unique output directory for this specific run."""
-    topo_folder_name = f"{args.topology}_{args.num_nodes}nodes"
+    
+    # --- MODIFIED: Use num_nodes for non-cluster topologies only ---
+    if args.topology == "cluster-tree":
+        # Name the folder based on the cluster parameters
+        # Note: This doesn't calculate the exact node count, but it's descriptive
+        topo_folder_name = f"{args.topology}_d{args.depth}_c{args.num_clusters}_n{args.nodes_per_cluster}"
+    else:
+        # Original behavior for other topologies
+        topo_folder_name = f"{args.topology}_{args.num_nodes}nodes"
+    # --- END MODIFICATION ---
 
     # Create the final, seed-specific directory
     # NEW STRUCTURE: <out_dir>/<app>/<topo_nodes>/<channel>/<seed>/
@@ -181,10 +251,30 @@ def create_topology(args: argparse.Namespace) -> Tuple[List[CartesianCoordinate]
     np_rng = np.random.default_rng(int(np_rng_seed))
 
     factory = TopologyFactory()
-    # TODO: Expose more topology params (distance, radius, etc.) as arguments
-    topo_params = {"rng": np_rng}
+    
+    # --- MODIFIED: Pass all topology params from args to the factory ---
+    #
+    topo_params = {
+        "rng": np_rng,
+        "num_nodes": args.num_nodes, # Used by linear, grid, random
+        "depth": args.depth, # Used by cluster-tree
+        "num_clusters": args.num_clusters, # Used by cluster-tree
+        "nodes_per_cluster": args.nodes_per_cluster, # Used by cluster-tree
+        "cluster_radius": args.cluster_radius, # Used by cluster-tree
+        "node_radius": args.node_radius, # Used by cluster-tree
+    }
+    # --- END MODIFICATION ---
+    
     node_positions = factory.create_topology(args.topology, **topo_params)
     actual_num_nodes = len(node_positions)
+    
+    # --- NEW: Update num_nodes arg if it was auto-calculated ---
+    # This ensures DSpace calculation uses the *actual* node count
+    if args.topology == "cluster-tree":
+        print(f"Cluster-tree topology generated {actual_num_nodes} nodes.")
+        args.num_nodes = actual_num_nodes
+    # --- END NEW ---
+    
     return node_positions, actual_num_nodes
 
 
@@ -268,12 +358,13 @@ def create_nodes_and_app(
 
 def attach_monitors(kernel: Kernel) -> List[Monitor]:
     """Creates and attaches simulation monitors to all nodes."""
+ 
     app_mon = ApplicationMonitor(monitor_name="app", verbose=True)
     lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=True)
     pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=True)
     tarp_mon = TARPMonitor(monitor_name="tarp", verbose=True)
-
-    monitors = [app_mon, lat_monitor, pdr_monitor, tarp_mon]
+    
+    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon] 
 
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
@@ -350,8 +441,40 @@ def main():
     )
 
     monitors = attach_monitors(kernel)
-    run_simulation(kernel, args)
 
+    # --- NEW: Redirect stdout if any monitor is verbose ---
+    log_file_path = os.path.join(run_output_dir, "monitor_log.txt")
+    original_stdout = sys.stdout
+    is_verbose = any(m.verbose for m in monitors)
+    log_file_handle = None
+
+    if is_verbose:
+        # We print this message to the *original* stdout (console)
+        # before redirecting.
+        print(f"Verbose monitor output will be redirected to: {log_file_path}")
+        try:
+            log_file_handle = open(log_file_path, 'w')
+            # Redirect stdout to the log file
+            sys.stdout = log_file_handle
+            
+            # Now, run the simulation. All monitor prints
+            # (and other prints) will go to the file.
+            run_simulation(kernel, args)
+
+        finally:
+            # *Always* restore stdout, even if the simulation crashes
+            sys.stdout = original_stdout
+            if log_file_handle:
+                log_file_handle.close()
+            # Print to console to confirm restoration
+            print("Verbose logging finished. Restored stdout.")
+    else:
+        # If no monitor is verbose, run the simulation normally.
+        # All prints will go to the console.
+        run_simulation(kernel, args)
+    # --- END OF NEW LOGGING BLOCK ---
+
+    # This 'save_results' print will go to the console (stdout restored)
     save_results(monitors, run_output_dir, base_filename)
 
     # Plot
@@ -372,6 +495,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
+        # This print will go to the console (stdout should be restored)
         print(f"\n--- SIMULATION CRASHED ---")
         traceback.print_exc()
         sys.exit(1)  # Exit with an error code
