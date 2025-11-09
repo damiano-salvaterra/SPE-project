@@ -35,7 +35,7 @@ from evaluation.evaluation_monitors.PDRMonitor import PDRMonitor
 # ======================================================================================
 # Set to True to generate and save the scenario plot at the end of the run.
 # Set to False to skip plotting (e.g., for faster batch runs).
-ENABLE_PLOTTING = True
+ENABLE_PLOTTING = False
 
 # ======================================================================================
 # Helper Functions

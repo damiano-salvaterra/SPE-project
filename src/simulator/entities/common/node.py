@@ -27,6 +27,18 @@ class NetworkNode(Entity):
         ...
 
     @property
-    def mac(self):
-        """MAC layer reference"""
+    def phy(self) -> Entity:
+        ...
+
+    @property
+    def rdc(self) -> Entity:
+        ...
+    @property
+    def mac(self) -> Entity:
+        ...
+    @property
+    def net(self) -> Entity:
+        ...
+    @property
+    def app(self) -> Entity:
         ...

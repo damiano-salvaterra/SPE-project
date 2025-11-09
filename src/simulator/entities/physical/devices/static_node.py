@@ -31,15 +31,11 @@ class StaticNode(NetworkNode):
         self._linkaddr = linkaddr
         self.position = position
         self._context = context
-        self.phy = SimplePhyLayer(self)
-        self.rdc = NullRDC(self)
+        self._phy = SimplePhyLayer(self)
+        self._rdc = NullRDC(self)
         self._mac = ContikiOS_MAC_802154_Unslotted(self)
-        self.net = TARPProtocol(self, sink=is_sink)
-        self.app = application
-
-    @property
-    def mac(self):
-        return self._mac
+        self._net = TARPProtocol(self, sink=is_sink)
+        self._app = application
 
     @property
     def id(self) -> str:
@@ -52,3 +48,23 @@ class StaticNode(NetworkNode):
     @property
     def context(self) -> SimulationContext:
         return self._context
+
+    @property
+    def phy(self) -> SimplePhyLayer:
+        return self._phy
+
+    @property
+    def rdc(self) -> NullRDC:
+        return self._rdc
+
+    @property
+    def mac(self) -> ContikiOS_MAC_802154_Unslotted:
+        return self._mac
+
+    @property
+    def net(self) -> TARPProtocol:
+        return self._net
+
+    @property
+    def app(self) -> Application:
+        return self._app

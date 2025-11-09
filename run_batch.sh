@@ -11,7 +11,7 @@
 # --- 1. Parameter Sweep Definitions ---
 # Define the parameters you want to sweep in these arrays.
 
-REPLICATIONS=50       # Total replications *per* parameter combination
+REPLICATIONS=100       # Total replications *per* parameter combination
 BASE_SEED=12345       # Starting seed. Run 'i' will use (BASE_SEED + i)
 
 APPS=(
@@ -27,7 +27,7 @@ TOPOLOGIES=(
     #"cluster-tree"
 )
 CHANNELS=( #TODO: try to change the shadowing model and use shadowing at the receiver
-    #"ideal"
+    "ideal"
     "stable"
     #"lossy"
     #"unstable"

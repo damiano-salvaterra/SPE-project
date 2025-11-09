@@ -1,4 +1,5 @@
 from simulator.entities.protocols.net.tarp.tarp_structures import TARPRoute
+from typing import Optional
 
 
 def _etx_est_rssi(rssi: float, rssi_high_ref: float, rssi_low_thr: float) -> float:
@@ -37,14 +38,17 @@ def _etx_update(
     num_tx: int,
     num_ack: int,
     o_etx: float,
-    rssi: float,
+    rssi: Optional[float],
     alpha: float,
     rssi_high_ref: float,
     rssi_low_thr: float,
 ) -> float:
     n_etx = 0.0
     if num_ack == 0 or alpha == 1:
-        n_etx = _etx_est_rssi(rssi, rssi_high_ref, rssi_low_thr)
+        effective_rssi = rssi
+        if rssi is None:
+            effective_rssi = rssi_low_thr - 1.0
+        n_etx = _etx_est_rssi(effective_rssi, rssi_high_ref, rssi_low_thr)
     else:
         # EWMA filtering
         n_etx = num_tx / num_ack

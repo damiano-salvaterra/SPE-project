@@ -14,9 +14,12 @@ class TARPParameters:
     ALWAYS_VALID_AGE = float("inf")
     ALWAYS_INVALID_AGE = -1  # time 0. Route having this age are always invalid.
     # In the C implementation it has value zero, but in the DES the time 0 actually exists so we need a smaller value
-    ENTRY_EXPIRATION_TIME = 600  # 90
+    ENTRY_EXPIRATION_TIME = 90 
     TREE_BEACON_INTERVAL = 60
     SUBTREE_REPORT_OFFEST = TREE_BEACON_INTERVAL / 3
+
+    SUBTREE_REPORT_DELAY: float = 0.1
+    SUBTREE_REPORT_MAX_JITTER = 0.1
   
     INITIAL_REPORT_MAX_JITTER : float = 0.4
     INITIAL_REPORT_BASE_DELAY: float = 5.0 # Base delay for the depth-staggered initial report (T_R_first = 5/hops + jitter)
@@ -28,4 +31,5 @@ class TARPParameters:
 
     # NullRDC mode constants  and delays
     ALPHA = 0.9
-    TREE_BEACON_FORWARD_DELAY = 1 / 8
+    TREE_BEACON_FORWARD_MAX_JITTER = 1 / 8
+    TREE_BEACON_FORWARD_BASE_DELAY = 0.1
