@@ -269,3 +269,56 @@ class NarrowbandChannelModel:
 
     def dBm_to_watts(self, p_dBm: float) -> float:
         return 10 ** ((p_dBm - 30.0) / 10.0)
+
+
+
+#HELPER
+def get_channel_params(channel_name: str) -> dict:
+    """returns a dict of channel parameters from presets"""
+    base_params = {"freq": 2.4e9, "filter_bandwidth": 2e6, "d0": 1.0}
+
+
+     # No shadowing, minimal fading, minimal path loss, very stable
+    ideal = base_params.copy()
+    ideal.update(
+        {"coh_d": 1000.0, "shadow_dev": 0.0, "pl_exponent": 2.0, "fading_shape": 50.0}
+    )
+
+    # Stable: Low path loss, low shadowing, high coherence distance
+    stable = base_params.copy()
+    stable.update(
+        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 2.0, "fading_shape": 3.0}
+    )
+
+    stable_mid_pl = base_params.copy()
+    stable_mid_pl.update(
+        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 2.5, "fading_shape": 3.0}
+    )
+
+    stable_high_pl = base_params.copy()
+    stable_high_pl.update(
+        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 3.0, "fading_shape": 3.0}
+    )
+
+    # Lossy: Medium path loss, medium shadowing, medium coherence distance
+    lossy = base_params.copy()
+    lossy.update(
+        {"coh_d": 20, "shadow_dev": 3.0, "pl_exponent": 2.5, "fading_shape": 1.5}
+    )
+
+    # Unstable: High path loss, high shadowing, low coherence distance
+    unstable = base_params.copy()
+    unstable.update(
+        {"coh_d": 10, "shadow_dev": 3.5, "pl_exponent": 3.0, "fading_shape": 0.75}
+    )
+
+
+    params_map = {
+        "ideal": ideal,
+        "stable": stable, 
+        "stable_mid_pl" : stable_mid_pl,
+        "stable_high_pl" : stable_high_pl,
+        "lossy": lossy, 
+        "unstable": unstable, 
+    }
+    return params_map.get(channel_name, ideal)

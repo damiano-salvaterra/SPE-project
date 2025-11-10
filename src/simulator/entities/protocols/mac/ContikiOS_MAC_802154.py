@@ -120,10 +120,10 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         
         # Only trigger a new send attempt if the MAC is IDLE.
         # If it's not IDLE (e.g., IN_BACKOFF), the function that
-        # transitions *back* to IDLE is responsible for
+        # transitions back to IDLE is responsible for
         # scheduling the next send attempt.
         if self.state == MACState.IDLE:
-            # Use a near-zero delay to run *after* the current event finishes
+            # Use a near-zero delay to run after the current event finishes
             self._schedule_try_send_next(delay=1e-9) 
 
         return True  # Always accept the packet
@@ -133,30 +133,31 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         Central control function for sending.
         Checks MAC state, RDC state, and tx_queue.
         """
-        # We are now running, so clear the flag
-        self._try_send_next_scheduled = False
         
-        # 1. Check if MAC is available
+        self._try_send_next_scheduled = False # we are now running, so clear the flag
+        
+        # Check if MAC is available
         if self.state != MACState.IDLE:
             # Not IDLE. The current operation (e.g., AWAITING_ACK)
-            # will schedule a new attempt when it is done.
+            # will schedule a new attempt when it is done, i.e., when it goes back to IDLE.
             return
 
-        # 2. Check if Radio is busy (e.g., currently receiving a packet)
+        # Check if Radio is busy (e.g., currently receiving a packet)
         if self.host.rdc.is_radio_busy():
             # Radio is busy. We cannot start a send operation.
-            # Reschedule this check for a *later* time.
-            # This is the fix for the polling livelock.
+            # Reschedule this check for a later time.
+            # (the fix for the polling livelock)
             self._schedule_try_send_next(delay=self.radio_busy_retry_delay)
             return
 
-        # 3. If we are here, MAC is IDLE and Radio is FREE. Check queue.
+        # If we are here, MAC is IDLE and Radio is FREE, so we can check the queue and transmit
         if not self.tx_queue:
-            return  # Queue is empty, nothing to do.
+            return  # Queue is empty, nothing to do
 
-        # 4. Dequeue packet and prepare for transmission
+        # Dequeue packet and prepare for transmission
         self.current_output_frame = self.tx_queue.popleft()
-        self.seqn = (self.seqn + 1) % 256
+        self.seqn = (self.seqn + 1) % 65536 #NOTE: this means that the seqnum should be 8 bytes which doe snot make sense for 802.15.4. Is a temporary fix 
+                                            #to make the PDR counters work and not overstimate PDR matching 2 packets with same seqnum but 2 different modulo rounds. 
         self.current_output_frame.seqn = self.seqn
 
         if self.current_output_frame.rx_addr == Frame_802_15_4.broadcast_linkaddr:
@@ -173,7 +174,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
         if self.current_output_frame is None:
             return
 
-        # self.state = MACState.IN_BACKOFF # <-- State is set in _try_send_next
+        # self.state = MACState.IN_BACKOFF # State is set in _try_send_next
 
         if is_retry:
             if self.retry_count > self.macMaxFrameRetries:
@@ -260,12 +261,12 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
                 payload=payload.NPDU, sender_addr=sender_addr, rssi=rssi
             )
 
-            # NOTE: We do NOT schedule _try_send_next here.
-            # If net.receive() calls self.send(), the new logic
-            # in self.send() will handle it.
+            # NOTE: We do not schedule _try_send_next here.
+            # If net.receive() calls self.send(), the logic
+            # in self.send() will handle it with the delay.
             # If we sent an ACK, on_RDCSent(ACK) will handle it.
             # If we did not send an ACK, we remain IDLE, and
-            # self.send() will work if called.
+            # self.send() will work normally if called
 
         elif isinstance(payload, Ack_802_15_4):
             # Received an ACK

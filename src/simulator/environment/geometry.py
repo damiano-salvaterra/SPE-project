@@ -72,32 +72,30 @@ class DSpace:
         """
         return np.sqrt((P2.x - P1.x) ** 2 + (P2.y - P1.y) ** 2)
 
-    # def find_nearest_grid_index(self, P: CartesianCoordinate) -> Tuple[int, int]:
-    #    '''
-    #    Returns the indices of the nearest grid point
-    #    on the shadowing map. P is a tuple containing the (x,y) real-world coordinates
-    #    '''
-    #    # Convert real-world coordinates to grid indices
-    #    x = P.x
-    #    y = P.y
-    #    i = round((y + self._size / 2) / self.step)
-    #    j = round((x + self._size / 2) / self.step)
 
-    #    # Ensure indices are within bounds
-    #    i = np.clip(i, 0, self.npt - 1)
-    #    j = np.clip(j, 0, self.npt - 1)
+#HELPER
 
-    #    return i, j
-    # def to_cartesian_coordinates(self, i: int, j: int) -> CartesianCoordinate:
-    #    '''
-    #    Given grid indices (i, j), returns the corresponding real-world Cartesian coordinates (x, y)
-    #    '''
-    #    # Ensure indices are within bounds
-    #    i = np.clip(i, 0, self.npt - 1)
-    #    j = np.clip(j, 0, self.npt - 1)
+def calculate_bounds_and_params(node_positions, padding=50, dspace_step=1.0) -> int:
+    """Compute the DSpace 'npt' parameter required to contain the topology."""
+    if not node_positions:
+        return 200  # Fallback
+    min_x = min(p.x for p in node_positions)
+    max_x = max(p.x for p in node_positions)
+    min_y = min(p.y for p in node_positions)
+    max_y = max(p.y for p in node_positions)
+    max_abs_coord = max(
+        abs(min_x - padding),
+        abs(max_x + padding),
+        abs(min_y - padding),
+        abs(max_y + padding),
+    )
+    half_n = int(np.ceil(max_abs_coord / dspace_step)) + 2
+    dspace_npt = half_n * 2
 
-    #    # Convert grid indices to real-world coordinates
-    #    x = j * self.step - self._size / 2
-    #    y = i * self.step - self._size / 2
-
-    #    return CartesianCoordinate(x,y)
+    print(
+        f"Topology bounds: X=[{min_x:.1f}, {max_x:.1f}], Y=[{min_y:.1f}, {max_y:.1f}]"
+    )
+    print(
+        f"DSpace params: step={dspace_step}, npt={dspace_npt} (Grid span approx. [{-half_n*dspace_step:.1f}, {half_n*dspace_step-dspace_step:.1f}])"
+    )
+    return dspace_npt

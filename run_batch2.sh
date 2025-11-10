@@ -24,13 +24,15 @@ TOPOLOGIES=(
     "grid"
     "random"
     "star"
-    "cluster-tree"
+    #"cluster-tree"
 )
 CHANNELS=( #TODO: try to change the shadowing model and use shadowing at the receiver
-    "ideal"
-    "stable"
-    "lossy"
-    "unstable"
+    #"ideal"
+    #"stable"
+    #"lossy"
+    #"unstable"
+    stable_mid_pl
+    stable_high_pl
 )
 
 # --- 2. Static Simulation Parameters ---
@@ -122,7 +124,7 @@ for app in "${APPS[@]}"; do
         # Call the Python script for a SINGLE run
         # Pass the BATCH BASE directory. The Python script
         # will create the app/topology/channel subdirectories itself.
-        python -m evaluation.run_simulation \
+        python -m evaluation.run_simulation_refactor \
           --app "$app" \
           --topology "$topo" \
           --channel "$chan" \
@@ -134,13 +136,6 @@ for app in "${APPS[@]}"; do
           --mean_interarrival "$MEAN_INTERARRIVAL" \
           --dspace_step "$DSPACE_STEP" \
           --out_dir "$OUTPUT_BASE_DIR" \
-          \
-          `# --- ADDED CLUSTER-TREE PARAMETERS ---` \
-          --depth "$DEPTH" \
-          --num_clusters "$NUM_CLUSTERS" \
-          --nodes_per_cluster "$NODES_PER_CLUSTER" \
-          --cluster_radius "$CLUSTER_RADIUS" \
-          --node_radius "$NODE_RADIUS"
 
         # Stop the entire sweep if a single run fails
         if [ $? -ne 0 ]; then

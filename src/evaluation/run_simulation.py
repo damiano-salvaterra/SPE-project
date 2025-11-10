@@ -1,10 +1,10 @@
-# src/evaluation/run_simulation.py
 import sys
 import os
 import argparse
 import numpy as np
 import traceback
 from typing import List, Dict, Any, Tuple
+from datetime import datetime
 
 # --- Python Path Setup ---
 # This ensures we can import the simulator modules from the 'src' directory
@@ -13,7 +13,6 @@ SRC_ROOT = os.path.join(PROJECT_ROOT, "src")
 if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
-# --- Simulator Imports ---
 from simulator.engine.Kernel import Kernel
 from simulator.engine.random import RandomManager, RandomGenerator
 from simulator.engine.common.Monitor import Monitor
@@ -46,6 +45,13 @@ def get_channel_params(channel_name: str) -> dict:
     """returns a dict of channel parameters from presets"""
     base_params = {"freq": 2.4e9, "filter_bandwidth": 2e6, "d0": 1.0}
 
+
+     # No shadowing, minimal fading, minimal path loss, very stable
+    ideal = base_params.copy()
+    ideal.update(
+        {"coh_d": 1000.0, "shadow_dev": 0.0, "pl_exponent": 2.0, "fading_shape": 50.0}
+    )
+
     # Stable: Low path loss, low shadowing, high coherence distance
     stable = base_params.copy()
     stable.update(
@@ -55,41 +61,21 @@ def get_channel_params(channel_name: str) -> dict:
     # Lossy: Medium path loss, medium shadowing, medium coherence distance
     lossy = base_params.copy()
     lossy.update(
-        {"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 3.8, "fading_shape": 1.5}
-    )
-
-    # Lossy_low_pl: like lossy but low pl
-    # Lossy: Medium path loss, medium shadowing, medium coherence distance
-    lossy_low_pl = base_params.copy()
-    lossy_low_pl.update(
-        {"coh_d": 20, "shadow_dev": 5.0, "pl_exponent": 2.0, "fading_shape": 1.5}
+        {"coh_d": 20, "shadow_dev": 3.0, "pl_exponent": 2.5, "fading_shape": 1.5}
     )
 
     # Unstable: High path loss, high shadowing, low coherence distance
     unstable = base_params.copy()
     unstable.update(
-        {"coh_d": 10, "shadow_dev": 6.0, "pl_exponent": 4.0, "fading_shape": 0.75}
+        {"coh_d": 10, "shadow_dev": 3.5, "pl_exponent": 3.0, "fading_shape": 0.75}
     )
 
-    # High_pl: like stable channel but higher path loss
-    high_pl = base_params.copy()
-    high_pl.update(
-        {"coh_d": 50, "shadow_dev": 2.0, "pl_exponent": 3.5, "fading_shape": 3.0}
-    )
-
-    # No shadowing, minimal fading, minimal path loss, very stable
-    ideal = base_params.copy()
-    ideal.update(
-        {"coh_d": 1000.0, "shadow_dev": 0.0, "pl_exponent": 2.0, "fading_shape": 50.0}
-    )
 
     params_map = {
+        "ideal": ideal,
         "stable": stable, 
         "lossy": lossy, 
         "unstable": unstable, 
-        "high_pl" : high_pl, 
-        "lossy_low_pl" : lossy_low_pl,
-        "ideal": ideal
     }
     return params_map.get(channel_name, ideal)
 
@@ -144,7 +130,7 @@ def setup_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--channel",
-        choices=["stable", "lossy", "lossy_low_pl", "unstable", "high_pl", "ideal"],
+        choices=["stable", "lossy", "unstable", "ideal"],
         default="lossy",
         help="Channel model",
     )
@@ -220,7 +206,7 @@ def setup_arguments() -> argparse.Namespace:
 def setup_environment(args: argparse.Namespace) -> str:
     """Creates the unique output directory for this specific run."""
     
-    # --- MODIFIED: Use num_nodes for non-cluster topologies only ---
+    #Use num_nodes for non-cluster topologies only
     if args.topology == "cluster-tree":
         # Name the folder based on the cluster parameters
         # Note: This doesn't calculate the exact node count, but it's descriptive
@@ -280,18 +266,22 @@ def create_topology(args: argparse.Namespace) -> Tuple[List[CartesianCoordinate]
 
 def bootstrap_kernel(
     args: argparse.Namespace, node_positions: List[CartesianCoordinate]
-) -> Kernel:
+) -> Tuple[Kernel, Dict[str, Any], int]: # <-- MODIFICATO: restituisce i parametri
     """Initializes and bootstraps the simulation kernel."""
     kernel = Kernel(root_seed=args.seed, antithetic=False)
     dspace_npt = calculate_bounds_and_params(
         node_positions, dspace_step=args.dspace_step
     )
     bootstrap_params = get_channel_params(args.channel)
+    
+    # Aggiorna bootstrap_params con i valori calcolati e dagli args
     bootstrap_params.update(
         {"seed": args.seed, "dspace_npt": dspace_npt, "dspace_step": args.dspace_step}
     )
+    
     kernel.bootstrap(**bootstrap_params)
-    return kernel
+    # Restituisce i parametri usati per il bootstrap
+    return kernel, bootstrap_params, dspace_npt
 
 
 def create_nodes_and_app(
@@ -396,6 +386,47 @@ def save_results(
         monitor.save_to_csv(base_path)  # Creates .../run_<monitor_name>.csv
     print(f"Data saved to {run_output_dir}/{base_filename}_*.csv")
 
+# --- NUOVA FUNZIONE ---
+def save_parameters_log(
+    args: argparse.Namespace,
+    bootstrap_params: Dict[str, Any],
+    dspace_npt: int,
+    actual_num_nodes: int,
+    run_output_dir: str,
+    base_filename: str,
+):
+    """Saves all simulation parameters to a text file for reproducibility."""
+    params_log_path = os.path.join(run_output_dir, f"{base_filename}_parameters.txt")
+
+    try:
+        with open(params_log_path, 'w') as f:
+            f.write("--- Simulation Parameters ---\n")
+            f.write(f"Run Start Time: {datetime.now().isoformat()}\n")
+            
+            f.write("\n[Command Line Arguments]\n")
+            # Converte l'oggetto args in un dizionario per un logging pulito
+            for key, value in sorted(vars(args).items()):
+                f.write(f"{key}: {value}\n")
+            
+            f.write("\n[Topology & DSpace]\n")
+            f.write(f"actual_num_nodes: {actual_num_nodes}\n")
+            f.write(f"dspace_npt: {dspace_npt}\n")
+            
+            f.write("\n[Channel Model Parameters (from bootstrap)]\n")
+            # bootstrap_params ora contiene tutti i parametri del canale
+            for key, value in sorted(bootstrap_params.items()):
+                # Escludi 'seed' e 'dspace' che sono già negli args
+                if key not in ["seed", "dspace_npt", "dspace_step"]:
+                    f.write(f"{key}: {value}\n")
+        
+        # Stampa questo sul console (stdout originale)
+        print(f"Simulation parameters saved to: {params_log_path}")
+    except Exception as e:
+        # Stampa l'errore sul console
+        print(f"--- ERROR: Failed to write parameters log to {params_log_path} ---", file=sys.stderr)
+        print(f"{e}", file=sys.stderr)
+# --- FINE NUOVA FUNZIONE ---
+
 
 def plot_results(
     args: argparse.Namespace,
@@ -433,7 +464,8 @@ def main():
 
     node_positions, actual_num_nodes = create_topology(args)
 
-    kernel = bootstrap_kernel(args, node_positions)
+    # --- MODIFICATO: Cattura i parametri di bootstrap ---
+    kernel, bootstrap_params, dspace_npt = bootstrap_kernel(args, node_positions)
 
     # Nodes and Applications
     node_info_for_plot = create_nodes_and_app(
@@ -442,39 +474,50 @@ def main():
 
     monitors = attach_monitors(kernel)
 
-    # --- NEW: Redirect stdout if any monitor is verbose ---
-    log_file_path = os.path.join(run_output_dir, "monitor_log.txt")
+    # --- NUOVO BLOCCO: Salva i parametri ---
+    # (Questo viene stampato sulla console prima del reindirizzamento di stdout)
+    save_parameters_log(
+        args,
+        bootstrap_params,
+        dspace_npt,
+        actual_num_nodes,
+        run_output_dir,
+        base_filename,
+    )
+    # --- FINE NUOVO BLOCCO ---
+
+    # --- MODIFICATO: Rinomina il file di log dei monitor ---
+    log_file_path = os.path.join(run_output_dir, "monitors_log.txt")
     original_stdout = sys.stdout
     is_verbose = any(m.verbose for m in monitors)
     log_file_handle = None
 
     if is_verbose:
-        # We print this message to the *original* stdout (console)
-        # before redirecting.
-        print(f"Verbose monitor output will be redirected to: {log_file_path}")
+        # Messaggio stampato sulla console originale
+        print(f"Verbose monitor output will be redirected to: {log_file_path}") # <-- MODIFICATO
         try:
             log_file_handle = open(log_file_path, 'w')
-            # Redirect stdout to the log file
+            # Redireziona stdout al file di log
             sys.stdout = log_file_handle
             
-            # Now, run the simulation. All monitor prints
-            # (and other prints) will go to the file.
+            # Ora, esegui la simulazione. Tutte le stampe dei monitor
+            # (e altre stampe) andranno sul file.
             run_simulation(kernel, args)
 
         finally:
-            # *Always* restore stdout, even if the simulation crashes
+            # *Sempre* ripristina stdout, anche se la simulazione crasha
             sys.stdout = original_stdout
             if log_file_handle:
                 log_file_handle.close()
-            # Print to console to confirm restoration
+            # Stampa sul console per confermare il ripristino
             print("Verbose logging finished. Restored stdout.")
     else:
-        # If no monitor is verbose, run the simulation normally.
-        # All prints will go to the console.
+        # Se nessun monitor è verbose, esegui la simulazione normalmente.
+        # Tutte le stampe andranno sulla console.
         run_simulation(kernel, args)
-    # --- END OF NEW LOGGING BLOCK ---
+    # --- FINE BLOCCO LOGGING MODIFICATO ---
 
-    # This 'save_results' print will go to the console (stdout restored)
+    # Questo 'save_results' stampa sul console (stdout ripristinato)
     save_results(monitors, run_output_dir, base_filename)
 
     # Plot
@@ -495,7 +538,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        # This print will go to the console (stdout should be restored)
+        # Questo print andrà sul console (stdout dovrebbe essere ripristinato)
         print(f"\n--- SIMULATION CRASHED ---")
         traceback.print_exc()
-        sys.exit(1)  # Exit with an error code
+        sys.exit(1)  # Esci con un codice di errore
