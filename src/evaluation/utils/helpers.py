@@ -55,9 +55,10 @@ def save_results(
     monitors: List[Monitor],
     run_output_dir: str,
 ):
+    base_path = os.path.join(run_output_dir, "log")
     for monitor in monitors:
-        monitor.save_to_csv(run_output_dir)
-    print(f"Data saved to {run_output_dir}/*.csv")
+        monitor.save_to_csv(base_path)
+    print(f"Data saved to {run_output_dir}/log_*.csv")
 
 
 
