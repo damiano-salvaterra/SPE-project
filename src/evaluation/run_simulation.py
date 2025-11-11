@@ -539,6 +539,6 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         # Questo print andrà sul console (stdout dovrebbe essere ripristinato)
-        print(f"\n--- SIMULATION CRASHED ---")
+        print(f"\n--- SIMULATION CRASHED ---\nError: {e}\n")
         traceback.print_exc()
         sys.exit(1)  # Esci con un codice di errore
