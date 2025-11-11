@@ -13,6 +13,7 @@
 
 REPLICATIONS=100       # Total replications *per* parameter combination
 BASE_SEED=12345       # Starting seed. Run 'i' will use (BASE_SEED + i)
+ANTITHETIC=1
 
 APPS=(
     "poisson_traffic"
@@ -148,6 +149,45 @@ for app in "${APPS[@]}"; do
         fi
         
         TOTAL_JOBS=$((TOTAL_JOBS + 1))
+
+		if [ "$ANTITHETIC" -eq 1 ]; then
+			echo
+			echo "===================================================================================================================="
+			echo "  -> Starting Replication $((i+1))/$REPLICATIONS (Seed: $CURRENT_SEED) - Antithetic Run ..."
+			echo "===================================================================================================================="
+			echo
+
+			# Call the Python script for a SINGLE run
+			# Pass the BATCH BASE directory. The Python script
+			# will create the app/topology/channel subdirectories itself.
+			python -m evaluation.run_simulation_refactor \
+			--app "$app" \
+			--topology "$topo" \
+			--channel "$chan" \
+			--num_nodes "$NUM_NODES" \
+			--tx_power "$TX_POWER" \
+			--sim_time "$SIM_TIME" \
+			--seed "$CURRENT_SEED" \
+			--app_delay "$APP_DELAY" \
+			--mean_interarrival "$MEAN_INTERARRIVAL" \
+			--dspace_step "$DSPACE_STEP" \
+			--out_dir "$OUTPUT_BASE_DIR" \
+			--antithetic
+		  
+			# Stop the entire sweep if a single run fails
+			if [ $? -ne 0 ]; then
+				echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+				echo "ERROR: Python script failed for Seed $CURRENT_SEED!"
+				echo "Config: App=$app, Topo=$topo, Chan=$chan"
+				echo "Stopping batch script."
+				echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+				exit 1 # Exit script with an error code
+			fi
+
+		 	TOTAL_JOBS=$((TOTAL_JOBS + 1))
+		fi
+
+
       done # --- End Replication Loop ---
 
       CURRENT_CONFIG=$((CURRENT_CONFIG + 1))
