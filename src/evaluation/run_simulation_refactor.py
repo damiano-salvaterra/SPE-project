@@ -17,7 +17,10 @@ from simulator.engine.Kernel import Kernel
 from simulator.engine.random import RandomManager, RandomGenerator
 from simulator.engine.common.Monitor import Monitor
 from simulator.environment.topology_factory import TopologyFactory
-from simulator.environment.geometry import CartesianCoordinate, calculate_bounds_and_params
+from simulator.environment.geometry import (
+    CartesianCoordinate,
+    calculate_bounds_and_params,
+)
 from simulator.environment.propagation.narrowband import get_channel_params
 from simulator.entities.applications.PingPongApplication import PingPongApp
 from simulator.entities.applications.PoissonTrafficApplication import (
@@ -35,16 +38,16 @@ def bootstrap_kernel(
     args: argparse.Namespace, node_positions: List[CartesianCoordinate]
 ) -> Tuple[Kernel, Dict[str, Any], int]:
     """Initializes and bootstraps the simulation kernel."""
-    kernel = Kernel(root_seed=args.seed, antithetic=False)
+    kernel = Kernel(root_seed=args.seed, antithetic=args.antithetic)
     dspace_npt = calculate_bounds_and_params(
         node_positions, dspace_step=args.dspace_step
     )
     bootstrap_params = get_channel_params(args.channel)
-    
+
     bootstrap_params.update(
         {"seed": args.seed, "dspace_npt": dspace_npt, "dspace_step": args.dspace_step}
     )
-    
+
     kernel.bootstrap(**bootstrap_params)
     return kernel, bootstrap_params, dspace_npt
 
@@ -111,16 +114,15 @@ def create_nodes_and_app(
     return node_info_for_plot
 
 
-
 def attach_monitors(kernel: Kernel) -> List[Monitor]:
     """Creates and attaches simulation monitors to all nodes."""
- 
+
     app_mon = ApplicationMonitor(monitor_name="app", verbose=True)
     lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=True)
     pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=True)
     tarp_mon = TARPMonitor(monitor_name="tarp", verbose=True)
-    
-    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon] 
+
+    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon]
 
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
@@ -142,8 +144,6 @@ def run_simulation(kernel: Kernel, args: argparse.Namespace):
     print(f"--- Simulation finished at {kernel.context.scheduler.now():.6f}s ---")
 
 
-
-
 # ======================================================================================
 # MAIN ORCHESTRATOR
 # ======================================================================================
@@ -154,7 +154,7 @@ def main(plot_topologies: bool):
 
     # Setup
     args = setup_arguments()
-    run_output_dir = setup_working_environment(args) #folder for this run
+    run_output_dir = setup_working_environment(args)  # folder for this run
 
     node_positions = create_topology(args.topology, args.num_nodes, args.seed)
     num_nodes = args.num_nodes
@@ -162,9 +162,7 @@ def main(plot_topologies: bool):
     kernel, bootstrap_params, dspace_npt = bootstrap_kernel(args, node_positions)
 
     # create nodes and apps
-    node_info_for_plot = create_nodes_and_app(
-        args, kernel, node_positions, num_nodes
-    )
+    node_info_for_plot = create_nodes_and_app(args, kernel, node_positions, num_nodes)
 
     monitors = attach_monitors(kernel)
 
@@ -184,11 +182,11 @@ def main(plot_topologies: bool):
     if is_verbose:
         print(f"Verbose monitors output will be redirected to: {log_file_path}")
         try:
-            #redirect monitors output on the file
-            log_file_handle = open(log_file_path, 'w')
+            # redirect monitors output on the file
+            log_file_handle = open(log_file_path, "w")
             sys.stdout = log_file_handle
-            
-            #run simulation
+
+            # run simulation
             run_simulation(kernel, args)
 
         finally:
@@ -198,7 +196,7 @@ def main(plot_topologies: bool):
                 log_file_handle.close()
             print("Verbose logging finished. Restored stdout.")
     else:
-        #if no monitor is verbose, just run
+        # if no monitor is verbose, just run
         run_simulation(kernel, args)
 
     save_results(monitors, run_output_dir)

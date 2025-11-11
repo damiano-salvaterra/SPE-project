@@ -21,7 +21,11 @@ def setup_working_environment(args: argparse.Namespace) -> str:
 
     # Create seed-specific directory
     run_output_dir = os.path.join(
-        args.out_dir, args.app, topo_folder_name, args.channel, str(args.seed)
+        args.out_dir,
+        args.app,
+        topo_folder_name,
+        args.channel,
+        f"{args.seed}_antithetic" if args.antithetic else str(args.seed),
     )
     os.makedirs(run_output_dir, exist_ok=True)
 
