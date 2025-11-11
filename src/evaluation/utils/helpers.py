@@ -3,6 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 import sys
+import json
 from typing import Tuple, List, Dict, Any
 from evaluation.utils.plotting import plot_scenario
 from simulator.engine.Kernel import Kernel
@@ -12,9 +13,10 @@ from simulator.engine.common.Monitor import Monitor
 from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate
 
+
 def setup_working_environment(args: argparse.Namespace) -> str:
     """Creates the unique output directory for this specific run."""
-    
+
     topo_folder_name = f"{args.topology}_{args.num_nodes}N"
 
     # Create seed-specific directory
@@ -28,7 +30,9 @@ def setup_working_environment(args: argparse.Namespace) -> str:
     return run_output_dir
 
 
-def create_topology(topology: str, num_nodes: int, seed: int) -> Tuple[List[CartesianCoordinate], int]:
+def create_topology(
+    topology: str, num_nodes: int, seed: int
+) -> Tuple[List[CartesianCoordinate], int]:
     """Generates the node positions using a dedicated RNG stream."""
 
     # create a dedicated RNG stream for topology generation for reproducibility
@@ -38,16 +42,15 @@ def create_topology(topology: str, num_nodes: int, seed: int) -> Tuple[List[Cart
     np_rng = np.random.default_rng(int(np_rng_seed))
 
     factory = TopologyFactory()
-    
+
     #
     topo_params = {
         "rng": np_rng,
-        "num_nodes": num_nodes, # Used by linear, grid, random
+        "num_nodes": num_nodes,  # Used by linear, grid, random
     }
-    
+
     node_positions = factory.create_topology(topology, **topo_params)
-    
-    
+
     return node_positions
 
 
@@ -61,7 +64,6 @@ def save_results(
     print(f"Data saved to {run_output_dir}/log_*.csv")
 
 
-
 def save_parameters_log(
     args: argparse.Namespace,
     bootstrap_params: Dict[str, Any],
@@ -69,30 +71,49 @@ def save_parameters_log(
     num_nodes: int,
     run_output_dir: str,
 ):
-    """Saves all simulation parameters to a text file for reproducibility."""
-    params_log_path = os.path.join(run_output_dir, "parameters.txt")
+    """Saves all simulation parameters to a JSON file for reproducibility."""
+    params_log_path = os.path.join(run_output_dir, "parameters.json")
 
+    # Build a JSON-serializable structure
     try:
-        with open(params_log_path, 'w') as f:
-            f.write("--- Simulation Parameters ---\n")
-            f.write(f"Run Start Time: {datetime.now().isoformat()}\n")
-            
-            f.write("\n[Command Line Arguments]\n")
-            for key, value in sorted(vars(args).items()):
-                f.write(f"{key}: {value}\n")
-            
-            f.write("\n[Topology & DSpace]\n")
-            f.write(f"actual_num_nodes: {num_nodes}\n")
-            f.write(f"dspace_npt: {dspace_npt}\n")
-            
-            f.write("\n[Channel Model Parameters (from bootstrap)]\n")
-            for key, value in sorted(bootstrap_params.items()):
-                if key not in ["seed", "dspace_npt", "dspace_step"]: #already in args
-                    f.write(f"{key}: {value}\n")
-        
+        params = {
+            "run_start_time": datetime.now().isoformat(),
+            "command_line_arguments": {},
+            "topology_and_dspace": {
+                "actual_num_nodes": int(num_nodes),
+                "dspace_npt": int(dspace_npt),
+            },
+            "channel_model_parameters": {},
+        }
+
+        # Command line args: convert Namespace to dict
+        for key, value in sorted(vars(args).items()):
+            # Ensure basic JSON serialization by converting unknown types to string
+            try:
+                json.dumps({key: value})
+                params["command_line_arguments"][key] = value
+            except (TypeError, OverflowError):
+                params["command_line_arguments"][key] = str(value)
+
+        # Bootstrap params: exclude items already in args
+        for key, value in sorted(bootstrap_params.items()):
+            if key in ["seed", "dspace_npt", "dspace_step"]:
+                continue
+            try:
+                json.dumps({key: value})
+                params["channel_model_parameters"][key] = value
+            except (TypeError, OverflowError):
+                params["channel_model_parameters"][key] = str(value)
+
+        with open(params_log_path, "w") as f:
+            json.dump(params, f, indent=2)
+
         print(f"Simulation parameters saved to: {params_log_path}")
     except Exception as e:
-        print(f"--- ERROR: Failed to write parameters log to {params_log_path} ---", file=sys.stderr)
+        print(
+            f"--- ERROR: Failed to write parameters log to {params_log_path} ---",
+            file=sys.stderr,
+        )
         print(f"{e}", file=sys.stderr)
 
 
