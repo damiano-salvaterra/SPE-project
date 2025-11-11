@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from repetition import RepetitionResults
+from .repetition import RepetitionResults
 
 
 class SimulationResults:
