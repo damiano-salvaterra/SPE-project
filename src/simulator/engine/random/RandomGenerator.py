@@ -1,7 +1,6 @@
 from simulator.engine.random import RandomManager
 import scipy.stats as stats
 from scipy.stats import expon
-import numpy as np
 from typing import Any
 
 
