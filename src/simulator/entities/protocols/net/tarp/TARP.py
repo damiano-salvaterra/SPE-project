@@ -74,10 +74,8 @@ class TARPProtocol(Layer, Entity):
 
         # Random Number Generator for this protocol instance
         rng_id = f"NODE:{self.host.id}/NET_TARP"
-        self.rng = RandomGenerator(
-            random_manager=self.host.context.random_manager,
-            stream_key=rng_id,
-        )
+        self.host.context.random_manager.create_stream(key=rng_id)
+        self.rng = self.host.context.random_manager.get_stream(key=rng_id)
 
         self._bootstrap_TARP()
 

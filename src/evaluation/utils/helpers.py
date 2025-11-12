@@ -49,7 +49,8 @@ def create_topology(topology: str, num_nodes: int, seed: int) -> List[CartesianC
     
     # create a dedicated RNG stream for topology generation for reproducibility
     topo_rng_manager = RandomManager(root_seed=seed)
-    topo_rng = RandomGenerator(topo_rng_manager, "TOPOLOGY_STREAM")
+    topo_rng_manager.create_stream(key = "TOPOLOGY_STREAM")
+    topo_rng = topo_rng_manager.get_stream(key = "TOPOLOGY_STREAM")
     np_rng_seed = topo_rng.uniform(0, 2**32 - 1)
     np_rng = np.random.default_rng(int(np_rng_seed))
 

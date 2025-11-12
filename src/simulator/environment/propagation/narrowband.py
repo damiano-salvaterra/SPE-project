@@ -27,10 +27,10 @@ class NarrowbandChannelModel:
         d0: float,
         fading_shape: float,
     ) -> None:
-        self.random_manager = random_manager
-        self._shadowing_rng = RandomGenerator(
-            random_manager, "NBMODEL/SHADOWING"
-        )  # Random number generator for the shadowing
+        self.random_manager = random_manager #keep rnadom manager for creating rngs for links
+        rng_id = "NARROWBAND_CHANNEL/SHADOWING"
+        self.random_manager.create_stream(key = rng_id)
+        self._shadowing_rng = random_manager.get_stream(key = rng_id)
 
         # NOTE: previously there was a single fading RNG shared across all links.
         # Now we keep a dictionary of RNGs per link, initialized lazily at runtime.
@@ -215,9 +215,9 @@ class NarrowbandChannelModel:
         link_id = tuple(sorted(((A.x, A.y), (B.x, B.y))))
 
         if link_id not in self._fading_rngs:
-            self._fading_rngs[link_id] = RandomGenerator(
-                self.random_manager, f"NBMODEL/FADING/{link_id}"
-            )
+            rng_id = f"NBMODEL/FADING/{link_id}"
+            self.random_manager.create_stream(key = rng_id)
+            self._fading_rngs[link_id] = self.random_manager.get_stream(key= rng_id)
 
         return self._fading_rngs[link_id]
 
