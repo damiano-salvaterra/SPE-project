@@ -14,7 +14,14 @@ def setup_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--channel",
-        choices=["stable", "stable_mid_pl", "stable_high_pl", "lossy", "unstable", "ideal"],
+        choices=[
+            "stable",
+            "stable_mid_pl",
+            "stable_high_pl",
+            "lossy",
+            "unstable",
+            "ideal",
+        ],
         default="lossy",
         help="Channel model",
     )
@@ -38,7 +45,7 @@ def setup_arguments() -> argparse.Namespace:
         default=42, 
         help="Root seed for topology generation (used if topology='random')"
     )
-     
+
     parser.add_argument(
         "--app_delay", type=float, default=60.0, help="Delay before applications start"
     )
@@ -59,5 +66,10 @@ def setup_arguments() -> argparse.Namespace:
         type=str,
         default="results/run",
         help="Base output directory for the batch",
+    )
+    parser.add_argument(
+        "--antithetic",
+        action="store_true",
+        help="Make this run antithetic to the seed",
     )
     return parser.parse_args()

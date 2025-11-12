@@ -2,6 +2,7 @@ import os
 import numpy as np
 from datetime import datetime
 import sys
+import json
 from typing import Tuple, List, Dict, Any
 from evaluation.utils.plotting import plot_scenario
 from simulator.engine.Kernel import Kernel
@@ -10,6 +11,7 @@ from simulator.engine.random.RandomManager import RandomManager
 from simulator.engine.common.Monitor import Monitor
 from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate
+
 
 def setup_working_environment(
     out_dir: str, topology: str, num_nodes: int, channel: str, seed: int
@@ -41,12 +43,11 @@ def create_topology(topology: str, num_nodes: int, seed: int) -> List[CartesianC
     
     topo_params = {
         "rng": np_rng,
-        "num_nodes": num_nodes, # Used by linear, grid, random
+        "num_nodes": num_nodes,  # Used by linear, grid, random
     }
-    
+
     node_positions = factory.create_topology(topology, **topo_params)
-    
-    
+
     return node_positions
 
 
@@ -58,7 +59,6 @@ def save_results(
     for monitor in monitors:
         monitor.save_to_csv(base_path)
     print(f"Data saved to {run_output_dir}/log_*.csv")
-
 
 
 def save_parameters_log(
@@ -91,7 +91,10 @@ def save_parameters_log(
         
         print(f"Simulation parameters saved to: {params_log_path}")
     except Exception as e:
-        print(f"--- ERROR: Failed to write parameters log to {params_log_path} ---", file=sys.stderr)
+        print(
+            f"--- ERROR: Failed to write parameters log to {params_log_path} ---",
+            file=sys.stderr,
+        )
         print(f"{e}", file=sys.stderr)
 
 

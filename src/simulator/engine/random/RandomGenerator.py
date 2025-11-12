@@ -1,8 +1,8 @@
-from simulator.engine.random import RandomManager
-import scipy.stats as stats
-from scipy.stats import expon
-import numpy as np
 from typing import Any
+
+import scipy.stats as stats
+
+from simulator.engine.random import RandomManager
 
 
 class RandomGenerator:
@@ -59,9 +59,9 @@ class RandomGenerator:
             size: The number of variates to generate.
         """
         if size is None:
-            return expon.ppf(self.uniform(), scale=scale)
+            return stats.expon.ppf(self.uniform(), scale=scale)
         else:
-            return expon.ppf(self.uniform(size=size), scale=scale)
+            return stats.expon.ppf(self.uniform(size=size), scale=scale)
 
     def integers(self, low: int, high: int) -> int:
         """

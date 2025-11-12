@@ -3,7 +3,7 @@ if __name__ == "__main__":
     import sys
 
     # --- Python Path Setup ---
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 
@@ -33,9 +33,9 @@ if __name__ == "__main__":
     dummy_metric_antithetic = []
 
     for _ in range(n_samples):
-        dummy_metric.append(rg1.uniform() + rg2.nakagami(2.0) + rg3.normal())
+        dummy_metric.append(rg1.exponential() + rg2.nakagami(2.0) + rg3.normal())
         dummy_metric_antithetic.append(
-            rg1_antithetic.uniform()
+            rg1_antithetic.exponential()
             + rg2_antithetic.nakagami(2.0)
             + rg3_antithetic.normal()
         )

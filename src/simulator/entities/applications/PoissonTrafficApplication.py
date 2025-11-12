@@ -1,6 +1,6 @@
 # src/simulator/applications/PoissonTrafficApplication.py
 import sys
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List
 
 from simulator.entities.applications.Application import Application
 from simulator.entities.common import NetworkNode
@@ -56,7 +56,7 @@ class PoissonTrafficApplication(Application):
         ]
 
         signal = AppStartSignal(
-            descriptor=f"RandomTrafficApp started.",
+            descriptor="RandomTrafficApp started.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)
