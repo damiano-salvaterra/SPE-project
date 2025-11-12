@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 import sys
 import json
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Optional
 from evaluation.utils.plotting import plot_scenario
 from simulator.engine.Kernel import Kernel
 from simulator.engine.random.RandomGenerator import RandomGenerator
@@ -14,19 +14,33 @@ from simulator.environment.geometry import CartesianCoordinate
 
 
 def setup_working_environment(
-    out_dir: str, topology: str, num_nodes: int, channel: str, seed: int
+    out_dir: str, 
+    topology: str, 
+    num_nodes: int, 
+    channel: str, 
+    seed: int,
+    suffix: Optional[str] = None
 ) -> str:
-    """Creates the output directory for the run"""
+    """
+    Creates the output directory for a single simulation run.
+    An optional suffix can be added to the final run folder name (for antithetic generation, for example)
+    """
     
     topo_folder_name = f"{topology}_{num_nodes}N"
 
+    run_folder_name = str(seed)
+    if suffix:
+        run_folder_name = f"{run_folder_name}_{suffix}"
+
     run_output_dir = os.path.join(
-        out_dir, topo_folder_name, channel, str(seed)
+        out_dir, topo_folder_name, channel, run_folder_name
     )
     os.makedirs(run_output_dir, exist_ok=True)
 
-    print(f"--- Starting Run (Seed: {seed}) ---")
+    run_id = f"Seed: {seed}" + (f" ({suffix})" if suffix else "")
+    print(f"--- Starting Run ({run_id}) ---")
     print(f"--- Output Directory: {run_output_dir} ---")
+    
     return run_output_dir
 
 

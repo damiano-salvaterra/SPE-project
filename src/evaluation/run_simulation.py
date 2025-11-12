@@ -33,13 +33,14 @@ from evaluation.evaluation_monitors.PDRMonitor import PDRMonitor
 
 def bootstrap_kernel(
     sim_seed: int,
+    antithetic: bool,
     dspace_step: float,
     channel: str,
     node_positions: List[CartesianCoordinate],
 ) -> Tuple[Kernel, Dict[str, Any], int]:
     """Initializes and bootstraps the simulation kernel."""
 
-    kernel = Kernel(root_seed=sim_seed, antithetic=False)
+    kernel = Kernel(root_seed=sim_seed, antithetic=antithetic)
     dspace_npt = calculate_bounds_and_params(
         node_positions, dspace_step=dspace_step
     )
@@ -136,6 +137,7 @@ def run_single_simulation(
     tx_power: float,
     sim_time: float,
     sim_seed: int,
+    antithetic: bool,
     topo_seed: int,
     app_delay: float,
     mean_interarrival: float,
@@ -148,14 +150,15 @@ def run_single_simulation(
     """
 
     run_output_dir = setup_working_environment(
-        out_dir, topology, num_nodes, channel, sim_seed
+        out_dir, topology, num_nodes, channel, sim_seed,
+        "antithetic" if antithetic else None
     )
 
     node_positions = create_topology(topology, num_nodes, topo_seed)
     actual_num_nodes = len(node_positions)
 
     kernel, bootstrap_params, dspace_npt = bootstrap_kernel(
-        sim_seed, dspace_step, channel, node_positions
+        sim_seed, antithetic, dspace_step, channel, node_positions
     )
 
     node_info_for_plot = create_nodes_and_app(
@@ -171,7 +174,7 @@ def run_single_simulation(
 
     args_dict = {
         "topology": topology, "channel": channel, "num_nodes": num_nodes,
-        "tx_power": tx_power, "sim_time": sim_time, "sim_seed": sim_seed,
+        "tx_power": tx_power, "sim_time": sim_time, "sim_seed": sim_seed, "antithetic": antithetic,
         "topo_seed": topo_seed, "app_delay": app_delay,
         "mean_interarrival": mean_interarrival, "dspace_step": dspace_step,
         "out_dir": out_dir
@@ -240,6 +243,7 @@ def main_standalone():
             sim_time=args.sim_time,
             sim_seed=args.sim_seed,  
             topo_seed=args.topo_seed,
+            antithetic=args.antithetic,
             app_delay=args.app_delay,
             mean_interarrival=args.mean_interarrival,
             dspace_step=args.dspace_step,

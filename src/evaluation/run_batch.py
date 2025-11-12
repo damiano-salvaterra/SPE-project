@@ -14,10 +14,10 @@ from tqdm import tqdm
 
 TOPOLOGIES = [
     "linear",
-    "ring",
+    #"ring",
     "grid",
     "random",
-    "star"
+    #"star"
 ]
 CHANNELS = [
     "ideal",
@@ -58,6 +58,9 @@ def run_job_worker(job_params: dict) -> Tuple[dict, bool, str]:
         "--dspace_step", str(job_params["dspace_step"]),
         "--out_dir", job_params["out_dir"]
     ]
+
+    if job_params["antithetic"]:
+        command.append("--antithetic")
     
     try:
         result = subprocess.run(
@@ -112,6 +115,12 @@ def main_orchestrator():
         default=42,
         help="*Single* seed used for all stochastic topologies"
     )
+
+    parser.add_argument(
+        "--antithetic",
+        action="store_true",
+        help="Run N replications as N/2 antithetic pairs"
+    )
     
     args = parser.parse_args()
 
@@ -125,26 +134,58 @@ def main_orchestrator():
     param_sweep = list(itertools.product(TOPOLOGIES, CHANNELS))
 
     print("Generating job list...")
-    for (topo, chan) in param_sweep:
-        for i in range(args.replications):
-            
-            # Simulation seed: unique for each replication
-            current_sim_seed = args.base_sim_seed + i
-            
-            job = {
-                "topology": topo,
-                "channel": chan,
-                "num_nodes": NUM_NODES,
-                "tx_power": TX_POWER,
-                "sim_time": SIM_TIME,
-                "app_delay": APP_DELAY,
-                "mean_interarrival": MEAN_INTERARRIVAL,
-                "dspace_step": DSPACE_STEP,
-                "sim_seed": current_sim_seed,
-                "topo_seed": args.topo_seed,
-                "out_dir": str(OUTPUT_BASE_DIR)
-            }
-            all_jobs.append(job)
+    
+    if args.antithetic:
+        if args.replications % 2 != 0:
+            print(f"ERROR: Antithetic mode requires an even number of replications (got {args.replications}).", file=sys.stderr)
+            print("Please use -n 100 (for 50 pairs), -n 20 (for 10 pairs), etc.", file=sys.stderr)
+            sys.exit(1)
+        
+        num_pairs = args.replications // 2
+        print(f"Antithetic mode enabled. Generating {num_pairs} pairs ({args.replications} total runs)...")
+        
+        for (topo, chan) in param_sweep:
+            for i in range(num_pairs):
+                # shared seed for the antithetic pair
+                pair_seed = args.base_sim_seed + i
+                
+                # Job 1: standard (U)
+                job_std = {
+                    "sim_seed": pair_seed,
+                    "antithetic": False,
+                    "topology": topo, "channel": chan, "num_nodes": NUM_NODES,
+                    "tx_power": TX_POWER, "sim_time": SIM_TIME, "app_delay": APP_DELAY,
+                    "mean_interarrival": MEAN_INTERARRIVAL, "dspace_step": DSPACE_STEP,
+                    "topo_seed": args.topo_seed, "out_dir": str(OUTPUT_BASE_DIR)
+                }
+                all_jobs.append(job_std)
+                
+                # Job 2: antithetic (1-U)
+                job_anti = {
+                    "sim_seed": pair_seed, # SAME SEED
+                    "antithetic": True,
+                    "topology": topo, "channel": chan, "num_nodes": NUM_NODES,
+                    "tx_power": TX_POWER, "sim_time": SIM_TIME, "app_delay": APP_DELAY,
+                    "mean_interarrival": MEAN_INTERARRIVAL, "dspace_step": DSPACE_STEP,
+                    "topo_seed": args.topo_seed, "out_dir": str(OUTPUT_BASE_DIR)
+                }
+                all_jobs.append(job_anti)
+
+    else:
+        # standard Monte Carlo simulations
+        print(f"Standard mode. Generating {args.replications} independent replications...")
+        for (topo, chan) in param_sweep:
+            for i in range(args.replications):
+                current_sim_seed = args.base_sim_seed + i
+                job = {
+                    "sim_seed": current_sim_seed,
+                    "antithetic": False,
+                    "topology": topo, "channel": chan, "num_nodes": NUM_NODES,
+                    "tx_power": TX_POWER, "sim_time": SIM_TIME, "app_delay": APP_DELAY,
+                    "mean_interarrival": MEAN_INTERARRIVAL, "dspace_step": DSPACE_STEP,
+                    "topo_seed": args.topo_seed, "out_dir": str(OUTPUT_BASE_DIR)
+                }
+                all_jobs.append(job)
 
     # --- Parallel Execution ---
     num_jobs = len(all_jobs)

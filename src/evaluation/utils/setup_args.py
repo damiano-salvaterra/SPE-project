@@ -70,6 +70,6 @@ def setup_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--antithetic",
         action="store_true",
-        help="Make this run antithetic to the seed",
+        help="Run the simulation using antithetic variates",
     )
     return parser.parse_args()
