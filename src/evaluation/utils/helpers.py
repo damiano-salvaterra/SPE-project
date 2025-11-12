@@ -1,4 +1,3 @@
-import argparse
 import os
 import numpy as np
 from datetime import datetime
@@ -12,25 +11,26 @@ from simulator.engine.common.Monitor import Monitor
 from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate
 
-def setup_working_environment(args: argparse.Namespace) -> str:
-    """Creates the unique output directory for this specific run."""
+def setup_working_environment(
+    out_dir: str, topology: str, num_nodes: int, channel: str, seed: int
+) -> str:
+    """Creates the output directory for the run"""
     
-    topo_folder_name = f"{args.topology}_{args.num_nodes}N"
+    topo_folder_name = f"{topology}_{num_nodes}N"
 
-    # Create seed-specific directory
     run_output_dir = os.path.join(
-        args.out_dir, args.app, topo_folder_name, args.channel, str(args.seed)
+        out_dir, topo_folder_name, channel, str(seed)
     )
     os.makedirs(run_output_dir, exist_ok=True)
 
-    print(f"--- Starting Run (Seed: {args.seed}) ---")
+    print(f"--- Starting Run (Seed: {seed}) ---")
     print(f"--- Output Directory: {run_output_dir} ---")
     return run_output_dir
 
 
-def create_topology(topology: str, num_nodes: int, seed: int) -> Tuple[List[CartesianCoordinate], int]:
+def create_topology(topology: str, num_nodes: int, seed: int) -> List[CartesianCoordinate]:
     """Generates the node positions using a dedicated RNG stream."""
-
+    
     # create a dedicated RNG stream for topology generation for reproducibility
     topo_rng_manager = RandomManager(root_seed=seed)
     topo_rng = RandomGenerator(topo_rng_manager, "TOPOLOGY_STREAM")
@@ -39,7 +39,6 @@ def create_topology(topology: str, num_nodes: int, seed: int) -> Tuple[List[Cart
 
     factory = TopologyFactory()
     
-    #
     topo_params = {
         "rng": np_rng,
         "num_nodes": num_nodes, # Used by linear, grid, random
@@ -63,7 +62,7 @@ def save_results(
 
 
 def save_parameters_log(
-    args: argparse.Namespace,
+    all_args_dict: Dict[str, Any],
     bootstrap_params: Dict[str, Any],
     dspace_npt: int,
     num_nodes: int,
@@ -78,7 +77,7 @@ def save_parameters_log(
             f.write(f"Run Start Time: {datetime.now().isoformat()}\n")
             
             f.write("\n[Command Line Arguments]\n")
-            for key, value in sorted(vars(args).items()):
+            for key, value in sorted(all_args_dict.items()):
                 f.write(f"{key}: {value}\n")
             
             f.write("\n[Topology & DSpace]\n")
@@ -97,7 +96,9 @@ def save_parameters_log(
 
 
 def plot_results(
-    args: argparse.Namespace,
+    topology: str,
+    channel: str,
+    seed: int,
     kernel: Kernel,
     node_info: Dict[str, Dict[str, Any]],
     run_output_dir: str,
@@ -106,9 +107,11 @@ def plot_results(
     """Generates and saves the scenario plot."""
     # plot_path will be, e.g., ".../seed/run_scenario.png"
     plot_path = os.path.join(run_output_dir, "scenario.png")
+    
     plot_title = (
-        f"Scenario:{args.topology.capitalize()} Topology, {args.channel.capitalize()} Channel ({num_nodes} Nodes)\n"
-        f"Seed: {args.seed}, App: {args.app.capitalize()}"
+        f"Scenario:{topology.capitalize()} Topology, {channel.capitalize()} Channel ({num_nodes} Nodes)\n"
+        f"Seed: {seed}"
     )
+
     plot_scenario(kernel, node_info, plot_title, plot_path, figsize=(12, 10))
     print(f"Plot saved to {plot_path}")

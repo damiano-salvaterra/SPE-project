@@ -1,18 +1,11 @@
 import argparse
 
-
-
 def setup_arguments() -> argparse.Namespace:
     """Configures and parses command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Run a single network simulation replicate."
     )
-    parser.add_argument(
-        "--app",
-        choices=["pingpong", "poisson_traffic"],
-        default="pingpong",
-        help="Application to run",
-    )
+
     parser.add_argument(
         "--topology",
         type=str,
@@ -26,14 +19,24 @@ def setup_arguments() -> argparse.Namespace:
         help="Channel model",
     )
     parser.add_argument(
-        "--tx_power", type=int, default=0, help="Nodes' transmission power in dBm"
+        "--tx_power", type=float, default=0, help="Nodes' transmission power in dBm"
     )
     parser.add_argument("--num_nodes", type=int, default=10, help="Number of nodes")
     parser.add_argument(
         "--sim_time", type=float, default=300.0, help="Simulation time in seconds"
     )
+
     parser.add_argument(
-        "--seed", type=int, default=123, help="Root seed for this replication"
+        "--sim_seed", 
+        type=int, 
+        default=123, 
+        help="Root seed for simulation events (traffic, channel, etc.)"
+    )
+    parser.add_argument(
+        "--topo_seed", 
+        type=int, 
+        default=42, 
+        help="Root seed for topology generation (used if topology='random')"
     )
      
     parser.add_argument(
