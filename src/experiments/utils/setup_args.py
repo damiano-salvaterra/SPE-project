@@ -7,6 +7,12 @@ def setup_arguments() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose monitor output (default: False)",
+    )
+
+    parser.add_argument(
         "--topology",
         type=str,
         default="linear",

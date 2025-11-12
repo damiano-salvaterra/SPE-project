@@ -3,7 +3,7 @@
 # This script is the main entry point for running simulation batches.
 # 1. It activates the Python virtual environment.
 # 2. It executes the Python batch orchestrator script
-#    (src.evaluation.run_batch) as a module.
+#    (src.experiments.run_batch) as a module.
 # 3. It passes all command-line arguments (e.g., --workers, --replications)
 #    directly to the Python script using "$@".
 # =============================================================================
@@ -26,6 +26,6 @@ fi
 # --- 2. Run Orchestrator ---
 # Run the batch script as a module from the src directory.
 # This ensures all Python imports work correctly.
-echo "Starting Python batch orchestrator (src.evaluation.run_batch)..."
+echo "Starting Python batch orchestrator (src.experiments.run_batch)..."
 echo "Passing arguments: $@"
-python3 -m src.evaluation.run_batch "$@"
+python3 -m src.experiments.run_batch "$@"

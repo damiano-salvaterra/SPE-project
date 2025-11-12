@@ -3,7 +3,7 @@
 # This script is an entry point for running a *SINGLE* simulation.
 # 1. It activates the Python virtual environment.
 # 2. It executes the Python single simulation script
-#    (src.evaluation.run_simulation) as a module.
+#    (src.experimetns.run_simulation) as a module.
 # 3. It passes all command-line arguments (e.g., --topology, --sim_seed)
 #    directly to the Python script using "$@".
 # =============================================================================
@@ -24,7 +24,7 @@ else
 fi
 
 # --- 2. Run Single Simulation ---
-# Run the simulation script as a module from the src directory.
-echo "Starting Python single simulation (src.evaluation.run_simulation)..."
+# Run the simulation script as a module from the src direcstory.
+echo "Starting Python single simulation (src.experiments.run_simulation)..."
 echo "Passing arguments: $@"
-python3 -m src.evaluation.run_simulation "$@"
+python3 -m src.experiments.run_simulation "$@"

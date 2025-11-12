@@ -13,16 +13,16 @@ from tqdm import tqdm
 # can be overridden by command-line arguments
 
 TOPOLOGIES = [
-    "linear",
+    #"linear",
     #"ring",
-    "grid",
+    #"grid",
     "random",
     #"star"
 ]
 CHANNELS = [
-    "ideal",
+    #"ideal",
     "stable",
-    "lossy"
+    #"lossy"
 ]
 NUM_NODES = 20
 TX_POWER = 5.0        # in dBm
@@ -33,7 +33,7 @@ DSPACE_STEP = 1.0
 
 # --- Environment Setup ---
 PYTHON_EXE = sys.executable  # Use the same Python interpreter running this script (for venv activation)
-SIMULATION_MODULE = "src.evaluation.run_simulation"
+SIMULATION_MODULE = "src.experiments.run_simulation"
 
 
 def run_job_worker(job_params: dict) -> Tuple[dict, bool, str]:
@@ -61,6 +61,9 @@ def run_job_worker(job_params: dict) -> Tuple[dict, bool, str]:
 
     if job_params["antithetic"]:
         command.append("--antithetic")
+
+    if job_params["verbose"]:
+        command.append("--verbose")
     
     try:
         result = subprocess.run(
@@ -91,6 +94,13 @@ def main_orchestrator():
     
     # --- command-line args for the orchestrator ---
     parser = argparse.ArgumentParser(description="Parallel Batch Orchestrator")
+
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Enable verbose monitor output for all sub-runs (default: False)"
+    )
+
     parser.add_argument(
         "-w", "--workers",
         type=int,
@@ -151,6 +161,7 @@ def main_orchestrator():
                 
                 # Job 1: standard (U)
                 job_std = {
+                    "verbose": args.verbose,
                     "sim_seed": pair_seed,
                     "antithetic": False,
                     "topology": topo, "channel": chan, "num_nodes": NUM_NODES,
@@ -162,6 +173,7 @@ def main_orchestrator():
                 
                 # Job 2: antithetic (1-U)
                 job_anti = {
+                    "verbose": args.verbose,
                     "sim_seed": pair_seed, # SAME SEED
                     "antithetic": True,
                     "topology": topo, "channel": chan, "num_nodes": NUM_NODES,
@@ -178,6 +190,7 @@ def main_orchestrator():
             for i in range(args.replications):
                 current_sim_seed = args.base_sim_seed + i
                 job = {
+                    "verbose": args.verbose,
                     "sim_seed": current_sim_seed,
                     "antithetic": False,
                     "topology": topo, "channel": chan, "num_nodes": NUM_NODES,

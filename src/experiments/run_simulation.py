@@ -1,5 +1,3 @@
-# src/evaluation/run_simulation.py
-
 import sys
 import os
 import argparse
@@ -15,9 +13,7 @@ if SRC_ROOT not in sys.path:
     sys.path.insert(0, SRC_ROOT)
 
 from simulator.engine.Kernel import Kernel
-from simulator.engine.random import RandomManager, RandomGenerator
 from simulator.engine.common.Monitor import Monitor
-from simulator.environment.topology_factory import TopologyFactory
 from simulator.environment.geometry import CartesianCoordinate, calculate_bounds_and_params
 from simulator.environment.propagation.narrowband import get_channel_params
 from simulator.entities.applications.PoissonTrafficApplication import (
@@ -25,10 +21,15 @@ from simulator.entities.applications.PoissonTrafficApplication import (
 )
 from simulator.entities.applications.common.app_monitor import ApplicationMonitor
 from simulator.entities.protocols.net.common.tarp_monitor import TARPMonitor
-from evaluation.utils.setup_args import setup_arguments # Importato
-from evaluation.utils.helpers import *
-from evaluation.evaluation_monitors.E2ELatencyMonitor import E2ELatencyMonitor
-from evaluation.evaluation_monitors.PDRMonitor import PDRMonitor
+from experiments.utils.setup_args import setup_arguments
+from src.experiments.utils.helpers import (
+    setup_working_environment,
+    create_topology,
+    save_parameters_log,
+    save_results
+)
+from experiments.experiment_monitors.E2ELatencyMonitor import E2ELatencyMonitor
+from experiments.experiment_monitors.PDRMonitor import PDRMonitor
 
 
 def bootstrap_kernel(
@@ -69,7 +70,7 @@ def create_nodes_and_app(
     }
     all_nodes_map = {f"Node-{i+1}": addr for i, addr in node_addrs_by_index.items()}
 
-    node_info_for_plot = {}
+    node_info = {}
 
     for i in range(actual_num_nodes):
         node_id = f"Node-{i+1}"
@@ -87,21 +88,21 @@ def create_nodes_and_app(
         node = kernel.add_node(node_id, node_positions[i], app_instance, addr, is_sink)
         node.phy.transmission_power_dBm = tx_power
         app_instance.host = node
-        node_info_for_plot[node_id] = {
+        node_info[node_id] = {
             "position": node_positions[i],
             "role": role,
             "addr": addr,
         }
-    return node_info_for_plot
+    return node_info
 
 
-def attach_monitors(kernel: Kernel) -> List[Monitor]:
+def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
     """Creates and attaches simulation monitors to all nodes."""
 
-    app_mon = ApplicationMonitor(monitor_name="app", verbose=True)
-    lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=True)
-    pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=True)
-    tarp_mon = TARPMonitor(monitor_name="tarp", verbose=True)
+    app_mon = ApplicationMonitor(monitor_name="app", verbose=verbose)
+    lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=verbose)
+    pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=verbose)
+    tarp_mon = TARPMonitor(monitor_name="tarp", verbose=verbose)
     
     monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon] 
 
@@ -143,7 +144,8 @@ def run_single_simulation(
     mean_interarrival: float,
     dspace_step: float,
     out_dir: str,
-    plot_topologies: bool = False
+    verbose: bool = False,
+
 ):
     """
     Orchestrates the setup, run, and saving for a single simulation
@@ -161,7 +163,7 @@ def run_single_simulation(
         sim_seed, antithetic, dspace_step, channel, node_positions
     )
 
-    node_info_for_plot = create_nodes_and_app(
+    node_info = create_nodes_and_app(
         mean_interarrival,
         app_delay,
         tx_power,
@@ -170,7 +172,7 @@ def run_single_simulation(
         actual_num_nodes,
     )
 
-    monitors = attach_monitors(kernel)
+    monitors = attach_monitors(kernel, verbose)
 
     args_dict = {
         "topology": topology, "channel": channel, "num_nodes": num_nodes,
@@ -210,18 +212,6 @@ def run_single_simulation(
 
     save_results(monitors, run_output_dir)
 
-    if plot_topologies:
-        plot_results(
-            topology,
-            channel,
-            topo_seed,
-            kernel,
-            node_info_for_plot,
-            run_output_dir,
-            actual_num_nodes,
-        )
-    else:
-        print(f"Plotting skipped for sim_seed={sim_seed}.")
 
 
 # ======================================================================================
@@ -248,7 +238,7 @@ def main_standalone():
             mean_interarrival=args.mean_interarrival,
             dspace_step=args.dspace_step,
             out_dir=args.out_dir,
-            plot_topologies=False 
+            verbose=args.verbose
         )
     
     except Exception as e:

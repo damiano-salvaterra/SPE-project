@@ -4,7 +4,6 @@ from datetime import datetime
 import sys
 import json
 from typing import Tuple, List, Dict, Any, Optional
-from evaluation.utils.plotting import plot_scenario
 from simulator.engine.Kernel import Kernel
 from simulator.engine.random.RandomGenerator import RandomGenerator
 from simulator.engine.random.RandomManager import RandomManager
@@ -112,24 +111,3 @@ def save_parameters_log(
         )
         print(f"{e}", file=sys.stderr)
 
-
-def plot_results(
-    topology: str,
-    channel: str,
-    seed: int,
-    kernel: Kernel,
-    node_info: Dict[str, Dict[str, Any]],
-    run_output_dir: str,
-    num_nodes: int,
-):
-    """Generates and saves the scenario plot."""
-    # plot_path will be, e.g., ".../seed/run_scenario.png"
-    plot_path = os.path.join(run_output_dir, "scenario.png")
-    
-    plot_title = (
-        f"Scenario:{topology.capitalize()} Topology, {channel.capitalize()} Channel ({num_nodes} Nodes)\n"
-        f"Seed: {seed}"
-    )
-
-    plot_scenario(kernel, node_info, plot_title, plot_path, figsize=(12, 10))
-    print(f"Plot saved to {plot_path}")
