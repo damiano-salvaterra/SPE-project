@@ -50,7 +50,7 @@ class RandomManager:
         return self._engines[key]
 
     def reset(self, new_root_seed: int = 0) -> None:
-        self.__init__(new_root_seed, self._worker_id)
+        self.__init__(root_seed=new_root_seed, worker_id=self._worker_id, antithetic=self.antithetic)
 
     def is_antithetic(self) -> bool:
         return self.antithetic
