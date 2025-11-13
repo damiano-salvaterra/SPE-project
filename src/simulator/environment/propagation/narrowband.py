@@ -176,9 +176,9 @@ class NarrowbandChannelModel:
         Reference to S. Lu, J. May, R.J. Haines, "Efficient Modeling of Correlated Shadow Fading in Dense Wireless Multi-Hop Networks", IEEE WCNC 2014
         """
         # FIX: simplified shadowing model. For some reason the previous model produced shadowing losses that makes the channel too good at high distances
-        sh_B = self._shadowing_power_on_point(B)
-        return sh_B
-        '''
+        #sh_B = self._shadowing_power_on_point(B)
+        #return sh_B
+
         sh_A = self._shadowing_power_on_point(A)
         sh_B = self._shadowing_power_on_point(B)
         d_AB = self.dspace.distance(A, B)
@@ -190,7 +190,7 @@ class NarrowbandChannelModel:
         den = np.sqrt(2 * (1 + exp_term))
         shad_AB = (num / den) * shad_ext
         return shad_AB
-        '''
+    
     def total_loss_dB(self, A: CartesianCoordinate, B: CartesianCoordinate) -> float:
         """
         Compute total (positive) loss (for the average power, ie path loss + shadowing) in dB between two points A and B.
