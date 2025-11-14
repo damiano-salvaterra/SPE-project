@@ -47,7 +47,7 @@ class Monitor(ABC):
 
     def save_to_csv(self, base_path: str):
         """
-        Saves the monitor's data to a CSV file with a given path.
+        Saves the monitor's data to a CSV file with a given path
         """
         df = self.get_dataframe()
 

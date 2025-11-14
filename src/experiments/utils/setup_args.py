@@ -28,7 +28,7 @@ def setup_arguments() -> argparse.Namespace:
             "unstable",
             "ideal",
         ],
-        default="lossy",
+        default="stable",
         help="Channel model",
     )
     parser.add_argument(

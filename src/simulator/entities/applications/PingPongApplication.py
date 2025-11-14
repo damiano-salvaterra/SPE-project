@@ -3,7 +3,7 @@ from typing import Optional
 
 from simulator.entities.applications.Application import Application
 from simulator.entities.applications.common.app_signals import (
-    AppStartSignal,
+    AppBootstrapSignal,
     AppSendSignal,
     AppReceiveSignal,
     AppTimeoutSignal,
@@ -46,8 +46,8 @@ class PingPongApp(Application):
     def start(self):
         self._started = True
 
-        signal = AppStartSignal(
-            descriptor="Application started.",
+        signal = AppBootstrapSignal(
+            descriptor="Application Bootstrapped.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)

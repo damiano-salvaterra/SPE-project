@@ -2,11 +2,14 @@ from typing import Any, Dict
 from simulator.entities.common.entity_signal import EntitySignal
 
 
-class AppStartSignal(EntitySignal):
+class AppBootstrapSignal(EntitySignal):
     def __init__(self, descriptor: str, timestamp: float):
-        super().__init__(timestamp, "APP_START", descriptor)
+        super().__init__(timestamp, "APP_BOOTSTRAP", descriptor)
 
-
+class AppProcessStartSignal(EntitySignal):
+    def __init__(self, descriptor: str, timestamp: float):
+        super().__init__(timestamp, "APP_PROCESS_START", descriptor)
+        
 class AppSendSignal(EntitySignal):
     def __init__(
         self,

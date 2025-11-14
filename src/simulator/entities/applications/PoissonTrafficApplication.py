@@ -8,7 +8,8 @@ from simulator.entities.protocols.common.packets import NetPacket
 from simulator.engine.common.Event import Event
 from simulator.engine.random import RandomGenerator
 from simulator.entities.applications.common.app_signals import (
-    AppStartSignal,
+    AppBootstrapSignal,
+    AppProcessStartSignal,
     AppSendSignal,
     AppReceiveSignal,
     AppSendFailSignal,
@@ -39,6 +40,7 @@ class PoissonTrafficApplication(Application):
         )
         self.destinations: List[bytes] = []
         self.packet_counter = 0
+        self.process_started = False
 
     def start(self):
 
@@ -55,8 +57,8 @@ class PoissonTrafficApplication(Application):
             addr for node_id, addr in self._all_nodes.items() if node_id != self.host.id
         ]
 
-        signal = AppStartSignal(
-            descriptor="RandomTrafficApp started.",
+        signal = AppBootstrapSignal(
+            descriptor="PoissonTrafficApp Bootstrapped.",
             timestamp=self.host.context.scheduler.now(),
         )
         self._notify_monitors(signal)
@@ -65,7 +67,7 @@ class PoissonTrafficApplication(Application):
             # Log to stdeerr
             print(
                 f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-                f"RandomTrafficApp: No destinations to send to.",
+                f"PoissonTrafficApp: No destinations to send to.",
                 file=sys.stderr,
             )
             return
@@ -102,10 +104,18 @@ class PoissonTrafficApplication(Application):
         if not self.destinations or self.rng is None:
             print(
                 f"[{self.host.context.scheduler.now():.6f}s] [{self.host.id}] "
-                f"RandomTrafficApp: Cannot send, no destinations or RNG.",
+                f"PoissonTrafficApp: Cannot send, no destinations or RNG.",
                 file=sys.stderr,
             )
             return
+
+        if not self.process_started: #set the process flag and send signal. used for the Interarrival Time monitor time reference
+            self.process_started = True
+            signal = AppProcessStartSignal(
+                descriptor="PoissonTrafficApp: Process started.",
+                timestamp=self.host.context.scheduler.now(),
+            )
+            self._notify_monitors(signal)
 
         # select a random destination
         dest_addr = self.rng.choice(self.destinations)

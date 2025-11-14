@@ -30,6 +30,7 @@ from src.experiments.utils.helpers import (
 )
 from experiments.experiment_monitors.E2ELatencyMonitor import E2ELatencyMonitor
 from experiments.experiment_monitors.PDRMonitor import PDRMonitor
+from experiments.experiment_monitors.InterarrivalTimeMonitor import InterarrivalTimeMonitor
 
 
 def bootstrap_kernel(
@@ -103,13 +104,15 @@ def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
     lat_monitor = E2ELatencyMonitor(monitor_name="e2eLat", verbose=verbose)
     pdr_monitor = PDRMonitor(monitor_name="PDR", verbose=verbose)
     tarp_mon = TARPMonitor(monitor_name="tarp", verbose=verbose)
+    it_mon = InterarrivalTimeMonitor(monitor_name="IT", verbose=verbose)
     
-    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon] 
+    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon, it_mon] 
 
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
         node.app.attach_monitor(lat_monitor)
         node.app.attach_monitor(pdr_monitor)
+        node.app.attach_monitor(it_mon)
         node.net.attach_monitor(tarp_mon)
 
     return monitors

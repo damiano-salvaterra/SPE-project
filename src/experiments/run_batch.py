@@ -25,7 +25,7 @@ CHANNELS = [
     #"lossy"
 ]
 NUM_NODES = 20
-TX_POWER = 5.0        # in dBm
+TX_POWER = 10.0        # in dBm
 SIM_TIME = 1800.0     # 30 minutes
 APP_DELAY = 130.0
 MEAN_INTERARRIVAL = 30.0
