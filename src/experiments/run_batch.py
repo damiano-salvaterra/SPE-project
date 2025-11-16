@@ -13,22 +13,25 @@ from tqdm import tqdm
 # can be overridden by command-line arguments
 
 TOPOLOGIES = [
-    #"linear",
-    #"ring",
-    #"grid",
+    "linear",
+    "ring",
+    "grid",
     "random",
-    #"star"
+    "star"
 ]
 CHANNELS = [
-    #"ideal",
+    "ideal",
     "stable",
-    #"lossy"
+    "stable_mid_pl",
+    "stable_high_pl",
+    "lossy",
+    "unstable"
 ]
 NUM_NODES = 20
 TX_POWER = 10.0        # in dBm
 SIM_TIME = 1800.0     # 30 minutes
 APP_DELAY = 130.0
-MEAN_INTERARRIVAL = 30.0
+MEAN_INTERARRIVAL = 60.0
 DSPACE_STEP = 1.0
 
 # --- Environment Setup ---

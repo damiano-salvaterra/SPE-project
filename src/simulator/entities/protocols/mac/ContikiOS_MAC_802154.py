@@ -48,7 +48,6 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
     aTurnaroundTime = 192 * 1e-6
     next_send_delay = 5e-6  # wait 5 microseconds before sending next packet (NOTE: this time was chosen just to be small enough, it may not be the best time to choose)
     
-    # --- LIVELOCK FIX: Delay to re-check if the radio is busy ---
     # This delay is used if the radio is busy (e.g. receiving)
     # This value MUST be longer than a typical packet reception time.
     radio_busy_retry_delay = 2 * 1e-3 # 2 milliseconds
@@ -142,13 +141,13 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             # will schedule a new attempt when it is done, i.e., when it goes back to IDLE.
             return
 
-        # Check if Radio is busy (e.g., currently receiving a packet)
-        if self.host.rdc.is_radio_busy():
-            # Radio is busy. We cannot start a send operation.
-            # Reschedule this check for a later time.
-            # (the fix for the polling livelock)
-            self._schedule_try_send_next(delay=self.radio_busy_retry_delay)
-            return
+        ## Check if Radio is busy (e.g., currently receiving a packet)
+        #if self.host.rdc.is_radio_busy():
+        #    # Radio is busy. We cannot start a send operation.
+        #    # Reschedule this check for a later time.
+        #    # (the fix for the polling livelock)
+        #    self._schedule_try_send_next(delay=self.radio_busy_retry_delay)
+        #    return
 
         # If we are here, MAC is IDLE and Radio is FREE, so we can check the queue and transmit
         if not self.tx_queue:
@@ -184,7 +183,7 @@ class ContikiOS_MAC_802154_Unslotted(Layer, Entity):
             self._reset_contention_counters()
 
         if self.NB >= self.macMaxCSMABackoffs:
-            self._handle_tx_failure()
+            self._handle_tx_failure() #if too many backoffs are failed, fail the transmission
             return
 
         max_slots = (2**self.BE) - 1
