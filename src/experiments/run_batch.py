@@ -13,18 +13,18 @@ from tqdm import tqdm
 # can be overridden by command-line arguments
 
 TOPOLOGIES = [
-    "linear",
-    "ring",
-    "grid",
-    "random",
+    #"linear",
+    #"ring",
+    #"grid",
+    #"random",
     "star"
 ]
 CHANNELS = [
-    "ideal",
-    "stable",
-    "stable_mid_pl",
+    #"ideal",
+    #"stable",
+    #"stable_mid_pl",
     "stable_high_pl",
-    "lossy",
+    #"lossy",
     "unstable"
 ]
 NUM_NODES = 20

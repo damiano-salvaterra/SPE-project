@@ -68,7 +68,10 @@ class InterarrivalTimeMonitor(Monitor):
             diffs = []
             for i in range(0, len(at_vec)-1):
                 diffs.append(at_vec[i+1]-at_vec[i]) #inter-arrival times vector
-            mean_it = sum(diffs)/len(diffs) #compute mean
+            if len(diffs) > 0:
+                mean_it = sum(diffs)/len(diffs) #compute mean
+            else:
+                mean_it = 0.0
             log_row[host] = mean_it
         #create list of dict as requested by Monitor base class
         self.log = [log_row]
