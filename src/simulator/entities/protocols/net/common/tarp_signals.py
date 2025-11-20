@@ -198,10 +198,10 @@ class TARPParentChangeSignal(EntitySignal):
         new_parent: bytes,
     ):
         super().__init__(timestamp, "PARENT_CHANGE", descriptor)
-        self.old_parent = old_parent.hex() or "None"
-        self.new_parent = new_parent.hex() or "None"
+        self.old_parent = old_parent
+        self.new_parent = new_parent
 
     def get_log_data(self) -> Dict[str, Any]:
         data = super().get_log_data()
-        data.update({"old_parent": self.old_parent, "new_parent": self.new_parent})
+        data.update({"old_parent": self.old_parent.hex(), "new_parent": self.new_parent.hex()})
         return data

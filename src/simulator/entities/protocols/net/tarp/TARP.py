@@ -323,7 +323,7 @@ class TARPProtocol(Layer, Entity):
 
         if is_preferred:
             old_parent = self.parent
-            # Demote old parent (if any) to a regular neighbor
+            # Downgrade old parent to a regular neighbor
             if old_parent and old_parent in self.nbr_tbl:
                 self.nbr_tbl[old_parent].type = self.NodeType.NODE_NEIGHBOR
 
