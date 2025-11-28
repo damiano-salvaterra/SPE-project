@@ -29,7 +29,7 @@ class TARPParameters:
     DELTA_ETX_MIN = 0.3
 
     # NullRDC mode constants  and delays
-    THR_H = 100
-    ALPHA = 0.9
+    THR_H = 50
+    ALPHA = 0.5
     TREE_BEACON_FORWARD_MAX_JITTER = 1 / 8
     TREE_BEACON_FORWARD_BASE_DELAY = 0.1
