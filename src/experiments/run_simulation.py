@@ -1,10 +1,7 @@
 import sys
 import os
-import argparse
-import numpy as np
 import traceback
 from typing import List, Dict, Any, Tuple
-from datetime import datetime
 
 # --- Python Path Setup ---
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -14,7 +11,10 @@ if SRC_ROOT not in sys.path:
 
 from simulator.engine.Kernel import Kernel
 from simulator.engine.common.Monitor import Monitor
-from simulator.environment.geometry import CartesianCoordinate, calculate_bounds_and_params
+from simulator.environment.geometry import (
+    CartesianCoordinate,
+    calculate_bounds_and_params,
+)
 from simulator.environment.propagation.narrowband import get_channel_params
 from simulator.entities.applications.PoissonTrafficApplication import (
     PoissonTrafficApplication,
@@ -26,12 +26,15 @@ from src.experiments.utils.helpers import (
     setup_working_environment,
     create_topology,
     save_parameters_log,
-    save_results
+    save_results,
 )
 from experiments.experiment_monitors.E2ELatencyMonitor import E2ELatencyMonitor
 from experiments.experiment_monitors.PDRMonitor import PDRMonitor
-from experiments.experiment_monitors.InterarrivalTimeMonitor import InterarrivalTimeMonitor
+from experiments.experiment_monitors.InterarrivalTimeMonitor import (
+    InterarrivalTimeMonitor,
+)
 from experiments.experiment_monitors.ParentChangeMonitor import ParentChangeMonitor
+from experiments.experiment_monitors.NeighborTableMonitor import NeighborTableMonitor
 
 
 def bootstrap_kernel(
@@ -44,15 +47,13 @@ def bootstrap_kernel(
     """Initializes and bootstraps the simulation kernel."""
 
     kernel = Kernel(root_seed=sim_seed, antithetic=antithetic)
-    dspace_npt = calculate_bounds_and_params(
-        node_positions, dspace_step=dspace_step
-    )
+    dspace_npt = calculate_bounds_and_params(node_positions, dspace_step=dspace_step)
     bootstrap_params = get_channel_params(channel)
-    
+
     bootstrap_params.update(
         {"seed": sim_seed, "dspace_npt": dspace_npt, "dspace_step": dspace_step}
     )
-    
+
     kernel.bootstrap(**bootstrap_params)
     return kernel, bootstrap_params, dspace_npt
 
@@ -107,8 +108,19 @@ def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
     tarp_mon = TARPMonitor(monitor_name="tarp", verbose=verbose)
     it_mon = InterarrivalTimeMonitor(monitor_name="IT", verbose=verbose)
     par_chg_mon = ParentChangeMonitor(monitor_name="ParChg", verbose=verbose)
+    neighbor_table_mon = NeighborTableMonitor(
+        monitor_name="NeighborTable", verbose=verbose, log_interval=60.0
+    )
 
-    monitors = [lat_monitor, pdr_monitor, app_mon, tarp_mon, it_mon, par_chg_mon] 
+    monitors = [
+        lat_monitor,
+        pdr_monitor,
+        app_mon,
+        tarp_mon,
+        it_mon,
+        par_chg_mon,
+        neighbor_table_mon,
+    ]
 
     for node in kernel.nodes.values():
         node.app.attach_monitor(app_mon)
@@ -117,6 +129,7 @@ def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
         node.app.attach_monitor(it_mon)
         node.net.attach_monitor(tarp_mon)
         node.net.attach_monitor(par_chg_mon)
+        node.net.attach_monitor(neighbor_table_mon)
 
     return monitors
 
@@ -137,6 +150,7 @@ def run_simulation(kernel: Kernel, sim_time: float, sim_seed: int):
 # Core execution function
 # ======================================================================================
 
+
 def run_single_simulation(
     topology: str,
     channel: str,
@@ -151,15 +165,18 @@ def run_single_simulation(
     dspace_step: float,
     out_dir: str,
     verbose: bool = False,
-
 ):
     """
     Orchestrates the setup, run, and saving for a single simulation
     """
 
     run_output_dir = setup_working_environment(
-        out_dir, topology, num_nodes, channel, sim_seed,
-        "antithetic" if antithetic else None
+        out_dir,
+        topology,
+        num_nodes,
+        channel,
+        sim_seed,
+        "antithetic" if antithetic else None,
     )
 
     node_positions = create_topology(topology, num_nodes, topo_seed)
@@ -169,7 +186,7 @@ def run_single_simulation(
         sim_seed, antithetic, dspace_step, channel, node_positions
     )
 
-    node_info = create_nodes_and_app(
+    _ = create_nodes_and_app(
         mean_interarrival,
         app_delay,
         tx_power,
@@ -181,11 +198,18 @@ def run_single_simulation(
     monitors = attach_monitors(kernel, verbose)
 
     args_dict = {
-        "topology": topology, "channel": channel, "num_nodes": num_nodes,
-        "tx_power": tx_power, "sim_time": sim_time, "sim_seed": sim_seed, "antithetic": antithetic,
-        "topo_seed": topo_seed, "app_delay": app_delay,
-        "mean_interarrival": mean_interarrival, "dspace_step": dspace_step,
-        "out_dir": out_dir
+        "topology": topology,
+        "channel": channel,
+        "num_nodes": num_nodes,
+        "tx_power": tx_power,
+        "sim_time": sim_time,
+        "sim_seed": sim_seed,
+        "antithetic": antithetic,
+        "topo_seed": topo_seed,
+        "app_delay": app_delay,
+        "mean_interarrival": mean_interarrival,
+        "dspace_step": dspace_step,
+        "out_dir": out_dir,
     }
     save_parameters_log(
         args_dict,
@@ -203,9 +227,9 @@ def run_single_simulation(
     if is_verbose:
         print(f"Verbose monitors output will be redirected to: {log_file_path}")
         try:
-            log_file_handle = open(log_file_path, 'w')
+            log_file_handle = open(log_file_path, "w")
             sys.stdout = log_file_handle
-            
+
             run_simulation(kernel, sim_time, sim_seed)
 
         finally:
@@ -219,14 +243,14 @@ def run_single_simulation(
     save_results(monitors, run_output_dir)
 
 
-
 # ======================================================================================
 # main (for standalone execution)
 # ======================================================================================
 
+
 def main_standalone():
     """
-   used only if __name__ == "__main__"
+    used only if __name__ == "__main__"
     """
     try:
         args = setup_arguments()
@@ -237,16 +261,16 @@ def main_standalone():
             num_nodes=args.num_nodes,
             tx_power=args.tx_power,
             sim_time=args.sim_time,
-            sim_seed=args.sim_seed,  
+            sim_seed=args.sim_seed,
             topo_seed=args.topo_seed,
             antithetic=args.antithetic,
             app_delay=args.app_delay,
             mean_interarrival=args.mean_interarrival,
             dspace_step=args.dspace_step,
             out_dir=args.out_dir,
-            verbose=args.verbose
+            verbose=args.verbose,
         )
-    
+
     except Exception as e:
         print("\n--- SIMULATION CRASHED (STANDALONE) ---")
         traceback.print_exc()

@@ -59,8 +59,7 @@ class InterarrivalTimeMonitor(Monitor):
 
             if self.verbose:
                 print(
-                    f"[IT_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] App Send captured with an interarrival time of {(self.arrival_times_map[host_addr][-1]
-                                                                                                                                 - self.arrival_times_map[host_addr][-2]):.3f}s"
+                    f"[IT_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] App Send captured with an interarrival time of {(self.arrival_times_map[host_addr][-1] - self.arrival_times_map[host_addr][-2]):.3f}s"
                 )
 
     def save_to_csv(self, base_path: str):

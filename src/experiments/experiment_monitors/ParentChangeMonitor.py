@@ -18,7 +18,6 @@ class ParentChangeMonitor(Monitor):
     def __init__(self, monitor_name: str = "ParChg", verbose=True):
         super().__init__(monitor_name=monitor_name, verbose=verbose)
 
-        
     def update(self, entity: "Entity", signal: "EntitySignal"):
         """
         Called by the app when a signal is emitted.
@@ -32,18 +31,15 @@ class ParentChangeMonitor(Monitor):
 
         self.log.append(
             {
-                "timestamp" : signal.timestamp,
-                "node" : entity.host._linkaddr.hex(),
-                "old_parent" : signal.old_parent.hex(),
-                "new_parent" : signal.new_parent.hex(),
-                "reactive" : 1 if "reactive" in signal.descriptor.lower() else 0
+                "timestamp": signal.timestamp,
+                "node": entity.host._linkaddr.hex(),
+                "old_parent": signal.old_parent.hex(),
+                "new_parent": signal.new_parent.hex(),
+                "reactive": 1 if "reactive" in signal.descriptor.lower() else 0,
             }
         )
 
         if self.verbose:
             print(
-                f"[PARENT_CHANGE_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] has changed parent from {signal.old_parent.hex()} to {signal.new_parent.hex()}. Reactive: {True if "reactive" in signal.descriptor.lower() else False} "
+                f"[PARENT_CHANGE_MONITOR] [{signal.timestamp:.6f}s] [{entity.host.id}] has changed parent from {signal.old_parent.hex()} to {signal.new_parent.hex()}. Reactive: {True if 'reactive' in signal.descriptor.lower() else False}"
             )
-
-    
-       
