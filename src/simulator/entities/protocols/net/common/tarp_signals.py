@@ -203,5 +203,20 @@ class TARPParentChangeSignal(EntitySignal):
 
     def get_log_data(self) -> Dict[str, Any]:
         data = super().get_log_data()
-        data.update({"old_parent": self.old_parent.hex(), "new_parent": self.new_parent.hex()})
+        data.update(
+            {"old_parent": self.old_parent.hex(), "new_parent": self.new_parent.hex()}
+        )
+        return data
+
+
+class TARPNeighborTableLogSignal(EntitySignal):
+    """
+    Signal emitted periodically to log neighbor table state.
+    """
+
+    def __init__(self, descriptor: str, timestamp: float):
+        super().__init__(timestamp, "NEIGHBOR_LOG", descriptor)
+
+    def get_log_data(self) -> Dict[str, Any]:
+        data = super().get_log_data()
         return data

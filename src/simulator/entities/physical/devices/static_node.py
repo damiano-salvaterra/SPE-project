@@ -25,6 +25,7 @@ class StaticNode(NetworkNode):
         application: Application,
         context: SimulationContext,
         is_sink=False,
+        neighbor_log_interval: float = 40.0,
     ):
         super().__init__()
         self._id = node_id
@@ -34,7 +35,9 @@ class StaticNode(NetworkNode):
         self._phy = SimplePhyLayer(self)
         self._rdc = NullRDC(self)
         self._mac = ContikiOS_MAC_802154_Unslotted(self)
-        self._net = TARPProtocol(self, sink=is_sink)
+        self._net = TARPProtocol(
+            self, sink=is_sink, neighbor_log_interval=neighbor_log_interval
+        )
         self._app = application
 
     @property

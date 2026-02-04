@@ -16,43 +16,43 @@ class NeighborTableMonitor(Monitor):
     ):
         super().__init__(monitor_name=monitor_name, verbose=verbose)
         self.log_interval = log_interval
-        self.last_log_time = {}
+        self.log_seq_num = {}
 
     def update(self, entity: "Entity", signal: "EntitySignal"):
         """
-        Periodically log the neighbor table whenever certain events occur.
+        Log the neighbor table when receiving TARPNeighborTableLogSignal.
         """
-        if not hasattr(signal, "timestamp"):
+        from simulator.entities.protocols.net.common.tarp_signals import (
+            TARPNeighborTableLogSignal,
+        )
+
+        # Only respond to the specific logging signal
+        if not isinstance(signal, TARPNeighborTableLogSignal):
             return
 
         current_time = signal.timestamp
         node_id = entity.host.id
 
-        # Check if enough time has passed since last log
-        if (
-            node_id not in self.last_log_time
-            or (current_time - self.last_log_time[node_id]) >= self.log_interval
-        ):
+        self.log_seq_num[node_id] = self.log_seq_num.get(node_id, 0) + 1
 
-            self.last_log_time[node_id] = current_time
+        # Log the complete neighbor table
+        for neighbor_addr, route in entity.nbr_tbl.items():
+            self.log.append(
+                {
+                    "timestamp": current_time,
+                    "node_id": node_id,
+                    "neighbor": neighbor_addr.hex(),
+                    "type": route.type.name,
+                    "nexthop": route.nexthop.hex(),
+                    "hops": route.hops,
+                    "etx": route.etx,
+                    "adv_metric": route.adv_metric,
+                    "age": route.age,
+                    "log_num": self.log_seq_num[node_id],
+                }
+            )
 
-            # Log the complete neighbor table
-            for neighbor_addr, route in entity.nbr_tbl.items():
-                self.log.append(
-                    {
-                        "timestamp": current_time,
-                        "node_id": node_id,
-                        "neighbor": neighbor_addr.hex(),
-                        "type": route.type.name,
-                        "nexthop": route.nexthop.hex(),
-                        "hops": route.hops,
-                        "etx": route.etx,
-                        "adv_metric": route.adv_metric,
-                        "age": route.age,
-                    }
-                )
-
-            if self.verbose:
-                print(
-                    f"[NEIGHBOR_TABLE_MONITOR] [{current_time:.6f}s] [{node_id}] Logged {len(entity.nbr_tbl)} neighbors"
-                )
+        if self.verbose:
+            print(
+                f"[NEIGHBOR_TABLE_MONITOR] [{current_time:.6f}s] [{node_id}] Logged {len(entity.nbr_tbl)} neighbors"
+            )

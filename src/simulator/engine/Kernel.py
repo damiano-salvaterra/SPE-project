@@ -121,6 +121,7 @@ class Kernel:
         app: Application,
         linkaddr: bytes,
         is_sink: bool = False,
+        neighbor_log_interval: float = 40.0,
     ) -> Optional[StaticNode]:
         """
         Adds a new node to the simulation.
@@ -157,6 +158,7 @@ class Kernel:
             application=app,
             context=self.context,
             is_sink=True if is_sink else False,
+            neighbor_log_interval=neighbor_log_interval,
         )
 
         # Add node to the kernel's list and the channel's list

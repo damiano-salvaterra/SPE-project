@@ -1,6 +1,7 @@
 import sys
 import os
 import traceback
+import pandas as pd
 from typing import List, Dict, Any, Tuple
 
 # --- Python Path Setup ---
@@ -65,6 +66,7 @@ def create_nodes_and_app(
     kernel: Kernel,
     node_positions: List[CartesianCoordinate],
     actual_num_nodes: int,
+    neighbor_log_interval: float = 40.0,
 ) -> Dict[str, Dict[str, Any]]:
     """Creates all nodes, instantiates their applications, and sets roles."""
 
@@ -88,7 +90,14 @@ def create_nodes_and_app(
             start_delay=app_delay,
         )
 
-        node = kernel.add_node(node_id, node_positions[i], app_instance, addr, is_sink)
+        node = kernel.add_node(
+            node_id,
+            node_positions[i],
+            app_instance,
+            addr,
+            is_sink,
+            neighbor_log_interval,
+        )
         node.phy.transmission_power_dBm = tx_power
         app_instance.host = node
         node_info[node_id] = {
@@ -99,7 +108,33 @@ def create_nodes_and_app(
     return node_info
 
 
-def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
+def log_node_positions(kernel: Kernel, output_dir: str):
+    """Logs the physical positions of all nodes at the start of the simulation."""
+
+    position_data = []
+    for node in kernel.nodes.values():
+        position_data.append(
+            {
+                "node_id": node.id,
+                "address": node.linkaddr.hex(),
+                "x": node.position.x,
+                "y": node.position.y,
+                "is_sink": node.net.sink if hasattr(node.net, "sink") else False,
+            }
+        )
+
+    # Save to CSV
+    positions_df = pd.DataFrame(position_data)
+    positions_file = os.path.join(output_dir, "log_positions.csv")
+    positions_df.to_csv(positions_file, index=False)
+
+    print(f"Node positions logged to: {positions_file}")
+    print(f"Total nodes: {len(position_data)}")
+
+
+def attach_monitors(
+    kernel: Kernel, verbose: bool = False, neighbor_log_interval: float = 40.0
+) -> List[Monitor]:
     """Creates and attaches simulation monitors to all nodes."""
 
     app_mon = ApplicationMonitor(monitor_name="app", verbose=verbose)
@@ -109,7 +144,9 @@ def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
     it_mon = InterarrivalTimeMonitor(monitor_name="IT", verbose=verbose)
     par_chg_mon = ParentChangeMonitor(monitor_name="ParChg", verbose=verbose)
     neighbor_table_mon = NeighborTableMonitor(
-        monitor_name="NeighborTable", verbose=verbose, log_interval=60.0
+        monitor_name="NeighborTable",
+        verbose=verbose,
+        log_interval=neighbor_log_interval,
     )
 
     monitors = [
@@ -130,6 +167,9 @@ def attach_monitors(kernel: Kernel, verbose: bool = False) -> List[Monitor]:
         node.net.attach_monitor(tarp_mon)
         node.net.attach_monitor(par_chg_mon)
         node.net.attach_monitor(neighbor_table_mon)
+
+        # Configure the neighbor log interval for each node
+        node.net._neighbor_log_interval = neighbor_log_interval
 
     return monitors
 
@@ -186,6 +226,8 @@ def run_single_simulation(
         sim_seed, antithetic, dspace_step, channel, node_positions
     )
 
+    neighbor_log_interval = 40.0  # seconds
+
     _ = create_nodes_and_app(
         mean_interarrival,
         app_delay,
@@ -193,9 +235,10 @@ def run_single_simulation(
         kernel,
         node_positions,
         actual_num_nodes,
+        neighbor_log_interval,
     )
 
-    monitors = attach_monitors(kernel, verbose)
+    monitors = attach_monitors(kernel, verbose, neighbor_log_interval)
 
     args_dict = {
         "topology": topology,
@@ -223,6 +266,9 @@ def run_single_simulation(
     original_stdout = sys.stdout
     is_verbose = any(m.verbose for m in monitors)
     log_file_handle = None
+
+    # Log node positions at the beginning
+    log_node_positions(kernel, run_output_dir)
 
     if is_verbose:
         print(f"Verbose monitors output will be redirected to: {log_file_path}")

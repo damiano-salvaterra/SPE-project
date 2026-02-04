@@ -11,6 +11,7 @@ from simulator.entities.protocols.net.common.net_events import (
     NetBeaconSendEvent,
     NetRoutingTableCleanupEvent,
     NetTopologyReportSendEvent,
+    NetNeighborTableLogEvent,
 )
 from typing import Dict, Any, Optional
 
@@ -30,6 +31,7 @@ from simulator.entities.protocols.net.common.tarp_signals import (
     TARPBroadcastReceiveSignal,
     TARPUnicastSendSignal,
     TARPParentChangeSignal,
+    TARPNeighborTableLogSignal,
 )
 
 from simulator.entities.common import NetworkNode
@@ -52,7 +54,9 @@ class TARPProtocol(Layer, Entity):
     NodeType = NodeType
     RouteStatus = RouteStatus
 
-    def __init__(self, host: NetworkNode, sink: bool = False):
+    def __init__(
+        self, host: NetworkNode, sink: bool = False, neighbor_log_interval: float = 40.0
+    ):
         Layer.__init__(self, host=host)
         Entity.__init__(self)
         self.sink = sink
@@ -70,6 +74,8 @@ class TARPProtocol(Layer, Entity):
         self._cleanup_timer: Optional[NetRoutingTableCleanupEvent] = None
         self._report_timer: Optional[NetTopologyReportSendEvent] = None
         self._beacon_timer: Optional[NetBeaconSendEvent] = None
+        self._neighbor_log_timer: Optional[NetNeighborTableLogEvent] = None
+        self._neighbor_log_interval = neighbor_log_interval
 
         # Random Number Generator for this protocol instance
         rng_id = f"NODE:{self.host.id}/NET_TARP"
@@ -89,6 +95,7 @@ class TARPProtocol(Layer, Entity):
             self.host.context.scheduler.schedule(self._beacon_timer)
 
         self._reschedule_cleanup()
+        self._schedule_next_neighbor_log()
 
     # --- Timer and Delay Helper Methods ---
 
@@ -117,6 +124,27 @@ class TARPProtocol(Layer, Entity):
         jitter = self.rng.uniform(low=0, high=TARPParameters.SUBTREE_REPORT_MAX_JITTER)
 
         return base_interval + jitter
+
+    def _schedule_next_neighbor_log(self):
+        """Schedules the next neighbor table log event."""
+        current_time = self.host.context.scheduler.now()
+        next_log_time = current_time + self._neighbor_log_interval
+
+        self._neighbor_log_timer = NetNeighborTableLogEvent(
+            time=next_log_time, blame=self, callback=self._neighbor_log_callback
+        )
+        self.host.context.scheduler.schedule(self._neighbor_log_timer)
+
+    def _neighbor_log_callback(self):
+        """Callback that triggers neighbor table logging."""
+        signal = TARPNeighborTableLogSignal(
+            descriptor="Periodic neighbor table snapshot",
+            timestamp=self.host.context.scheduler.now(),
+        )
+        self._notify_monitors(signal)
+
+        # Schedule next log
+        self._schedule_next_neighbor_log()
 
     # --- Core Protocol Logic ---
 

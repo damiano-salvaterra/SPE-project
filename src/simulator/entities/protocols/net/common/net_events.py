@@ -11,3 +11,7 @@ class NetRoutingTableCleanupEvent(Event):
 
 class NetTopologyReportSendEvent(Event):
     pass
+
+
+class NetNeighborTableLogEvent(Event):
+    pass
