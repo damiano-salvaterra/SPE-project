@@ -317,7 +317,7 @@ def main_standalone():
             verbose=args.verbose,
         )
 
-    except Exception as e:
+    except:
         print("\n--- SIMULATION CRASHED (STANDALONE) ---")
         traceback.print_exc()
         sys.exit(1)
