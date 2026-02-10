@@ -1,18 +1,20 @@
+from itertools import combinations
+
 import pandas as pd
 import numpy as np
 import networkx as nx
 
 
 def build_connectivity_graph(
-    neighbor_df: pd.DataFrame, timestamp: int, nodes_list: list[str] = []
+    repetition: "RepetitionResults", timestamp: int
 ) -> nx.Graph:
 
     G = nx.Graph()
 
     # Filter to specific timestamp window
-    window = neighbor_df[
-        (neighbor_df["timestamp"] >= timestamp - 5)
-        & (neighbor_df["timestamp"] <= timestamp + 5)
+    window = repetition.neighbor_df[
+        (repetition.neighbor_df["timestamp"] >= timestamp - 5)
+        & (repetition.neighbor_df["timestamp"] <= timestamp + 5)
     ]
 
     for _, row in window.iterrows():
@@ -21,29 +23,24 @@ def build_connectivity_graph(
             "NODE_NEIGHBOR",
             "NODE_PARENT",
             "NODE_CHILD",
-            "NODE_DESCENTANT",
         ]:
             G.add_edge(row["node_id"], row["neighbor"])
-        else:
-            raise ValueError(f"Unknown neighbor type: {row['type']}")
 
-    for node in nodes_list:
+    for node in repetition.positions_df["node_id"].unique():
         if node not in G:
             G.add_node(node)
 
     return G
 
 
-def build_tree_topology(
-    neighbor_df: pd.DataFrame, timestamp: int, nodes_list: list[str] = []
-) -> nx.DiGraph:
+def build_tree_topology(repetition: "RepetitionResults", timestamp: int) -> nx.DiGraph:
 
     G = nx.DiGraph()
 
     # Filter to specific timestamp window
-    window = neighbor_df[
-        (neighbor_df["timestamp"] >= timestamp - 5)
-        & (neighbor_df["timestamp"] <= timestamp + 5)
+    window = repetition.neighbor_df[
+        (repetition.neighbor_df["timestamp"] >= timestamp - 5)
+        & (repetition.neighbor_df["timestamp"] <= timestamp + 5)
     ]
 
     for _, row in window.iterrows():
@@ -52,7 +49,7 @@ def build_tree_topology(
         elif row["type"] == "NODE_CHILD":
             G.add_edge(row["node_id"], row["neighbor"])
 
-    for node in nodes_list:
+    for node in repetition.positions_df["node_id"].unique():
         if node not in G:
             G.add_node(node)
 
@@ -62,46 +59,27 @@ def build_tree_topology(
 def pairwise_shortest_paths(
     connectivity_graph: nx.Graph, tree: nx.DiGraph
 ) -> pd.DataFrame:
-    psp_df = pd.DataFrame(
-        columns=["from", "to", "cg_path_length", "tree_path_length"]
-    )  # Pairwise Shortest Paths
 
-    for node_a in connectivity_graph.nodes():
-        for node_b in connectivity_graph.nodes():
-            if (
-                node_a != node_b and node_b not in psp_df["from"].values
-            ):  # Do not check both (A->B and B->A)
-                try:
-                    cg_length = nx.shortest_path_length(
-                        connectivity_graph, source=node_a, target=node_b
-                    )
-                except nx.NetworkXNoPath:
-                    cg_length = np.nan
-                try:
-                    tree_length = nx.shortest_path_length(
-                        nx.Graph.to_undirected(tree, as_view=True),
-                        source=node_a,
-                        target=node_b,
-                    )
-                except nx.NetworkXNoPath:
-                    tree_length = np.nan
-                except nx.NodeNotFound:
-                    tree_length = np.nan
-                psp_df = pd.concat(
-                    [
-                        psp_df,
-                        pd.DataFrame(
-                            {
-                                "from": [node_a],
-                                "to": [node_b],
-                                "cg_path_length": [cg_length],
-                                "tree_path_length": [tree_length],
-                            }
-                        ),
-                    ],
-                    ignore_index=True,
-                )
-    return psp_df
+    # Compute all-pairs shortest paths ONCE
+    cg_dist = dict(nx.all_pairs_shortest_path_length(connectivity_graph))
+    tree_dist = dict(
+        nx.all_pairs_shortest_path_length(tree.to_undirected(as_view=True))
+    )
+
+    rows = []
+
+    # Only unique unordered pairs (A, B), no duplicates
+    for a, b in combinations(connectivity_graph.nodes(), 2):
+        rows.append(
+            {
+                "from": a,
+                "to": b,
+                "cg_path_length": cg_dist.get(a, {}).get(b, np.nan),
+                "tree_path_length": tree_dist.get(a, {}).get(b, np.nan),
+            }
+        )
+
+    return pd.DataFrame(rows)
 
 
 def compute_hop_stretch(psp_df: pd.DataFrame) -> pd.DataFrame:
@@ -109,18 +87,21 @@ def compute_hop_stretch(psp_df: pd.DataFrame) -> pd.DataFrame:
     return psp_df
 
 
-def hop_stretch_for_each_timestamp(
-    neighbor_df: pd.DataFrame, nodes_list: list[str] = []
-) -> pd.DataFrame:
+def hop_stretch_for_each_timestamp(repetition: "RepetitionResults") -> pd.DataFrame:
     all_hs = pd.DataFrame()
 
-    for timestamp in sorted(neighbor_df["timestamp"].unique()):
-        connectivity_graph = build_connectivity_graph(
-            neighbor_df, timestamp, nodes_list
-        )
-        tree_topology = build_tree_topology(neighbor_df, timestamp, nodes_list)
+    for timestamp in sorted(repetition.neighbor_df["timestamp"].unique()):
+        connectivity_graph = build_connectivity_graph(repetition, timestamp)
+        tree_topology = build_tree_topology(repetition, timestamp)
         psp_df = pairwise_shortest_paths(connectivity_graph, tree_topology)
         hop_stretch_df = compute_hop_stretch(psp_df)
         hop_stretch_df["timestamp"] = timestamp
         all_hs = pd.concat([all_hs, hop_stretch_df], ignore_index=True)
     return all_hs
+
+
+def get_positions_nx(repetition: "RepetitionResults") -> dict[str, tuple[float, float]]:
+    return {
+        row["node_id"]: (row["x"], row["y"])
+        for _, row in repetition.positions_df.iterrows()
+    }
