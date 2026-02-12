@@ -31,8 +31,16 @@ class RepetitionResults:
     ):
         self.id = id
         self.app_df = app_df
-        self.latency_df = latency_df
-        self.pdr_df = pdr_df
+        self.latency_df = (
+            latency_df.drop("Unnamed: 0", axis=1, errors="ignore")
+            if latency_df is not None
+            else None
+        )
+        self.pdr_df = (
+            pdr_df.drop("Unnamed: 0", axis=1, errors="ignore")
+            if pdr_df is not None
+            else None
+        )
 
         self.tarp_df = (
             tarp_df.astype(
@@ -47,7 +55,11 @@ class RepetitionResults:
         )
 
         self.positions_df = positions_df
-        self.parent_chg_df = parent_chg_df
+        self.parent_chg_df = (
+            parent_chg_df.drop("Unnamed: 0", axis=1, errors="ignore")
+            if parent_chg_df is not None
+            else None
+        )
         self.neighbor_df = (
             neighbor_df.astype(
                 {
@@ -183,3 +195,11 @@ class RepetitionResults:
             if df is not None:
                 total_memory += df.memory_usage(index=True).sum()
         return total_memory
+
+    def compute_interarrivals(self) -> pd.DataFrame:
+        ia_df = self.app_df[self.app_df["event"].isin(["SEND", "SEND_FAIL"])]
+
+        ia_df = ia_df.sort_values(by="time")
+        ia_df["inter_arrival"] = ia_df.groupby("node_id")["time"].diff().fillna(0)
+
+        return ia_df
