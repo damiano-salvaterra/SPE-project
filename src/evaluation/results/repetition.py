@@ -42,6 +42,11 @@ class RepetitionResults:
             else None
         )
 
+        if self.pdr_df is not None and self.pdr_df.source_addr.dtype == "int64":
+            self.pdr_df.source_addr = self.pdr_df.source_addr.map(
+                lambda x: x.to_bytes(2, "big").hex()
+            )
+
         self.tarp_df = (
             tarp_df.astype(
                 {
