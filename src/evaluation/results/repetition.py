@@ -102,10 +102,8 @@ class RepetitionResults:
         channel_type = re.search(r"channel:\s*((\w+_?)+)", self.parameters)
         self.channel_type = channel_type.group(1) if channel_type else None
 
-        simulation_time = re.search(r"simulation_time:\s*(\d+\.\d+)", self.parameters)
-        self.simulation_time = (
-            float(simulation_time.group(1)) if simulation_time else None
-        )
+        sim_time = re.search(r"sim_time:\s*(\d+\.\d+)", self.parameters)
+        self.sim_time = float(sim_time.group(1)) if sim_time else None
 
         sim_seed = re.search(r"sim_seed:\s*(\d+)", self.parameters)
         self.sim_seed = int(sim_seed.group(1)) if sim_seed else None
