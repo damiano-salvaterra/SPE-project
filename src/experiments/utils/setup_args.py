@@ -18,6 +18,14 @@ def setup_arguments() -> argparse.Namespace:
         default="linear",
         help="Topology name (e.g., linear, ring, grid, random)",
     )
+
+    #parser.add_argument(
+    #    "--topology-seed",
+    #    type=int,
+    #    default=None,
+    #    help="Unique seed for topology generation. Can be left out."
+    #)
+
     parser.add_argument(
         "--channel",
         choices=[
