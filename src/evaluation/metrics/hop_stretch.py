@@ -100,7 +100,7 @@ def hop_stretch_for_each_timestamp(repetition: "RepetitionResults") -> pd.DataFr
         tree_topology = build_tree_topology(repetition, timestamp)
         psp_df = pairwise_shortest_paths(connectivity_graph, tree_topology)
         hop_stretch_df = compute_hop_stretch(psp_df)
-        hop_stretch_df["timestamp"] = pd.Series(timestamp, dtype="uint16")
+        hop_stretch_df["timestamp"] = timestamp
 
         all_hs = pd.concat([all_hs, hop_stretch_df], ignore_index=True)
     return all_hs
